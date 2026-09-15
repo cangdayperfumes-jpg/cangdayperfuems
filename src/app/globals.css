@@ -101,6 +101,16 @@
   position: relative;
   isolation: isolate;
 }
+/* Cangday's signature button silhouette — two opposite corners cut at 45°,
+   like a cut gemstone or a ticket stub. Recurring on every primary CTA so
+   the shape itself becomes a brand cue, not just the color palette. */
+.notch-corners {
+  clip-path: polygon(
+    0 0, calc(100% - 14px) 0, 100% 14px,
+    100% 100%, 14px 100%, 0 calc(100% - 14px)
+  );
+}
+
 .ink-grain::before {
   content: "";
   position: absolute;

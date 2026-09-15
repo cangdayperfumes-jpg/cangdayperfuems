@@ -99,7 +99,7 @@ function Slide({ slide, priority }: { slide: HeroSlide; priority: boolean }) {
             <Link href={slide.button_link}>
               <Button
                 size="lg"
-                className="bg-ivory text-ink hover:bg-gold hover:text-ink rounded-none text-sm px-8 py-5 font-body font-semibold tracking-wider uppercase transition-colors"
+                className="notch-corners bg-ivory text-ink hover:bg-gold hover:text-ink rounded-none text-sm px-8 py-5 font-body font-semibold tracking-wider uppercase transition-colors"
               >
                 {slide.button_text}
               </Button>
@@ -109,7 +109,7 @@ function Slide({ slide, priority }: { slide: HeroSlide; priority: boolean }) {
                 <Button
                   variant="outline"
                   size="lg"
-                  className="bg-transparent border border-ivory/40 text-ivory hover:bg-ivory/10 hover:border-ivory rounded-none text-sm px-8 py-5 font-body tracking-wider uppercase transition-colors"
+                  className="notch-corners bg-transparent border border-ivory/40 text-ivory hover:bg-ivory/10 hover:border-ivory rounded-none text-sm px-8 py-5 font-body tracking-wider uppercase transition-colors"
                 >
                   {slide.secondary_button_text}
                 </Button>
