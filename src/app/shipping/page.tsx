@@ -1,8 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { Separator } from '@/components/ui/separator';
 import ShippingContent from '@/components/shipping/ShippingContent';
-import { Truck, DollarSign, PackageCheck, MapPinned, ShieldCheck, MessageCircle } from 'lucide-react';
-import { WHATSAPP_URL, TELEGRAM_URL } from '@/lib/social';
+import { Truck, DollarSign, PackageCheck, MapPinned, ShieldCheck, Mail } from 'lucide-react';
 
 const policyHighlights = [
   {
@@ -13,12 +12,12 @@ const policyHighlights = [
   {
     icon: DollarSign,
     title: 'Shipping Costs',
-    description: 'Shipping costs vary depending on the destination, order quantity, and selected shipping method. The final shipping cost will always be confirmed with the customer before payment.',
+    description: 'Shipping costs vary by destination and selected shipping method, and are shown at checkout before you pay.',
   },
   {
     icon: PackageCheck,
-    title: 'Special Rates for Large Orders',
-    description: 'We offer special shipping rates for orders of 500+ units, based on the order size and destination.',
+    title: 'Careful Packing',
+    description: 'Every bottle ships in protective packaging designed to arrive exactly as it left us.',
   },
   {
     icon: MapPinned,
@@ -99,35 +98,25 @@ export default async function ShippingPage() {
         <ShippingContent groupedZones={groupedZones} allZones={zones || []} />
 
         {/* Get a Shipping Quote */}
-        <section className="bg-black text-white p-8 md:p-10 rounded-sm relative overflow-hidden">
+        <section className="bg-ink text-ivory p-8 md:p-10 rounded-sm relative overflow-hidden">
           <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div className="flex gap-4">
               <div className="flex-shrink-0 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                <MessageCircle className="w-5 h-5 text-white" strokeWidth={1.5} />
+                <Mail className="w-5 h-5 text-white" strokeWidth={1.5} />
               </div>
               <div className="space-y-1">
-                <h3 className="font-heading text-xl font-medium text-white">Get a Shipping Quote</h3>
+                <h3 className="font-heading text-xl font-medium text-white">Questions About Shipping?</h3>
                 <p className="text-gray-300 font-light text-sm leading-relaxed max-w-xl">
-                  Contact us via WhatsApp and send us your country and estimated order quantity to receive the best available shipping rate.
+                  Send us your destination and we&apos;ll help you find the best shipping option.
                 </p>
               </div>
             </div>
             <div className="flex-shrink-0 flex flex-col gap-3 w-full sm:w-auto">
               <a
-                href={WHATSAPP_URL}
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/contact"
                 className="inline-flex items-center justify-center rounded-sm bg-white text-black px-6 py-3 text-sm font-medium hover:bg-gray-100 transition-colors"
               >
-                WhatsApp Us
-              </a>
-              <a
-                href={TELEGRAM_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center rounded-sm border border-white/30 text-white px-6 py-3 text-sm font-medium hover:bg-white/10 transition-colors"
-              >
-                Telegram
+                Contact Us
               </a>
             </div>
           </div>

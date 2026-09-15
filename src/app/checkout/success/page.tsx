@@ -38,7 +38,7 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
       <div className="max-w-2xl w-full">
         <h1 className="text-4xl md:text-5xl font-heading mb-4 text-black">Your Order is Created.</h1>
         <p className="text-muted-foreground text-lg mb-8 max-w-md mx-auto font-body font-light">
-          Thank you for choosing Royal Perfumes.
+          Thank you for choosing Cangday.
           {orderId && <span className="block mt-2 font-medium text-black">Order Ref: #{orderId.slice(0, 8)}</span>}
         </p>
         

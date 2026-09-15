@@ -13,7 +13,7 @@ import { getAllPosts } from '@/lib/blog';
 export const dynamic = 'force-dynamic';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.royalperfumes.company';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.cangday.com';
   
   // Use a public client for sitemap generation to avoid cookie dependencies
   const supabase = createClient(

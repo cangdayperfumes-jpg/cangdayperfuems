@@ -2,7 +2,7 @@ import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
 
-export const alt = 'Royal Perfumes | Luxury Fragrances';
+export const alt = 'Cangday | Modern Perfumery';
 export const size = {
   width: 1200,
   height: 630,
@@ -15,14 +15,14 @@ export default async function Image() {
     (
       <div
         style={{
-          background: 'black',
+          background: '#120D0A',
           width: '100%',
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          color: 'white',
+          color: '#F5EFE6',
         }}
       >
         <div
@@ -33,17 +33,18 @@ export default async function Image() {
             marginBottom: 20,
           }}
         >
-          R
+          C
         </div>
         <div
           style={{
-            fontSize: 60,
+            fontSize: 56,
             fontFamily: 'sans-serif',
             letterSpacing: 10,
             textTransform: 'uppercase',
+            color: '#C9A24B',
           }}
         >
-          Royal Perfumes
+          Cangday
         </div>
       </div>
     ),

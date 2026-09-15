@@ -174,7 +174,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!product) return { title: 'Product Not Found' };
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.royalperfumes.company';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.cangday.com';
   const ogImageUrl = toAbsoluteUrl(product.images?.[0], siteUrl);
 
   return {
@@ -251,7 +251,7 @@ export default async function ProductPage({ params }: PageProps) {
     );
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.royalperfumes.company';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.cangday.com';
   const canonicalSlug = product.slug || product.id;
   const imageUrl = toAbsoluteUrl(product.images?.[0], siteUrl);
   const brandName = (product as any).brands?.name || 'Royal Perfumes';

@@ -47,29 +47,9 @@ export default function SuccessClient({ order, items }: SuccessClientProps) {
       <div className="w-full text-center space-y-2 border-t pt-6">
         <h3 className="font-heading text-lg font-medium">Step 2</h3>
         <p className="text-sm text-muted-foreground">
-          Please send this PDF to our team on WhatsApp to finalize shipping and payment.
+          We&apos;ve received your order and will confirm shipping details by email shortly.
         </p>
-        <Button 
-          size="lg" 
-          className="w-full rounded-none bg-black hover:bg-gray-800 text-white"
-          onClick={() => {
-              const message = hidePrices 
-                ? `Hello, I placed order #${order.id.slice(0, 8)} on Royal Perfumes.\nPlease find my invoice attached to complete the order.`
-                : `Hello, I placed order #${order.id.slice(0, 8)} on Royal Perfumes.\nTotal: ${formatCurrency(order.total_amount)}\nPlease find my invoice attached to complete the payment.`;
-              const encodedMessage = encodeURIComponent(message);
-              window.open(`https://wa.me/905411158571?text=${encodedMessage}`, '_blank');
-          }}
-        >
-          Open WhatsApp
-        </Button>
       </div>
     </div>
   );
-}
-
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(amount);
 }

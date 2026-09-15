@@ -119,7 +119,7 @@ export async function generateMetadata({ searchParams }: { searchParams: SearchP
   }
 
   // To prevent indexing infinite parameter combinations, we set canonical to base shop url if there are many params
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.royalperfumes.company";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.cangday.com";
   let canonicalUrl = `${baseUrl}/shop`;
   if (categorySlug && !searchQuery) canonicalUrl += `?category=${categorySlug}`;
   else if (seasonSlug && !searchQuery) canonicalUrl += `?season=${seasonSlug}`;

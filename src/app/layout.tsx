@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Inter, Playfair_Display } from "next/font/google";
+import { Fraunces, Manrope } from "next/font/google";
 import "./globals.css";
 import "./phone-input.css";
 import { cn } from "@/lib/utils";
@@ -10,6 +10,7 @@ import BottomNav from "@/components/shared/BottomNav";
 import ScrollToTop from "@/components/shared/ScrollToTop";
 import SitePopup from "@/components/shared/SitePopup";
 import CookieBanner from "@/components/shared/CookieBanner";
+import TrustBar from "@/components/shared/TrustBar";
 import { Toaster } from "@/components/ui/sonner";
 import NextTopLoader from "nextjs-toploader";
 import { createClient } from "@supabase/supabase-js";
@@ -17,38 +18,51 @@ import { SettingsProvider } from "@/components/providers/SettingsProvider";
 import { unstable_cache } from "next/cache";
 import StorefrontLayoutWrapper from "@/components/shared/StorefrontLayoutWrapper";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-body" });
-const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-heading" });
+// Fraunces: an expressive, high-contrast "soft serif" with genuine optical-size
+// character — carries the jewelry-editorial feel without reaching for the
+// Playfair Display every other perfume site already uses.
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-heading",
+  weight: ["400", "500", "600", "700", "900"],
+  style: ["normal", "italic"],
+});
+// Manrope: a warm geometric sans that stays quiet next to Fraunces' curves.
+const manrope = Manrope({
+  subsets: ["latin"],
+  variable: "--font-body",
+  weight: ["400", "500", "600", "700", "800"],
+});
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.royalperfumes.company";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.cangday.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Royal Perfumes | Wholesale Fragrance Manufacturer, Istanbul",
-    template: "%s | Royal Perfumes",
+    default: "Cangday | Modern Perfumery",
+    template: "%s | Cangday",
   },
-  description: "Royal Perfumes is a wholesale fragrance manufacturer based in Istanbul, Türkiye — 1,300+ fragrance models supplied to businesses in 35+ countries. Manufacturing partner, not a retail storefront.",
-  keywords: ["wholesale perfume", "fragrance manufacturer", "perfume supplier", "Istanbul perfume manufacturer", "bulk fragrance", "perfume wholesaler"],
-  authors: [{ name: "Royal Perfumes" }],
-  creator: "Royal Perfumes",
-  publisher: "Royal Perfumes",
+  description: "Cangday is a modern fragrance house — an edited collection of designer and niche perfumes for everyday wear. Original bottles, worldwide shipping, easy returns.",
+  keywords: ["perfume", "fragrance", "eau de parfum", "niche perfume", "designer perfume", "buy perfume online"],
+  authors: [{ name: "Cangday" }],
+  creator: "Cangday",
+  publisher: "Cangday",
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
   openGraph: {
-    title: "Royal Perfumes | Wholesale Fragrance Manufacturer, Istanbul",
-    description: "Wholesale fragrance manufacturer based in Istanbul, Türkiye — 1,300+ fragrance models supplied to businesses in 35+ countries.",
+    title: "Cangday | Modern Perfumery",
+    description: "An edited collection of designer and niche perfumes for everyday wear. Original bottles, worldwide shipping, easy returns.",
     url: siteUrl,
-    siteName: "Royal Perfumes",
+    siteName: "Cangday",
     images: [
       {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "Royal Perfumes - Wholesale Fragrance Manufacturer",
+        alt: "Cangday - Modern Perfumery",
       },
     ],
     locale: "en_US",
@@ -56,8 +70,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Royal Perfumes | Wholesale Fragrance Manufacturer, Istanbul",
-    description: "Wholesale fragrance manufacturer based in Istanbul, Türkiye — 1,300+ fragrance models supplied to businesses in 35+ countries.",
+    title: "Cangday | Modern Perfumery",
+    description: "An edited collection of designer and niche perfumes for everyday wear. Original bottles, worldwide shipping, easy returns.",
     images: ["/opengraph-image"],
   },
   robots: {
@@ -139,8 +153,8 @@ export default async function RootLayout({
     <html lang="en">
       <body className={cn(
         "min-h-screen bg-background font-sans antialiased flex flex-col overflow-x-hidden",
-        inter.variable,
-        playfair.variable
+        manrope.variable,
+        fraunces.variable
       )}>
         <script
           type="application/ld+json"
@@ -148,38 +162,25 @@ export default async function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Organization",
-              "name": "Royal Perfumes",
-              "legalName": "Royal Perfumes",
-              "url": "https://www.royalperfumes.company",
-              "logo": "https://www.royalperfumes.company/images/royalLogo.png",
-              "image": "https://www.royalperfumes.company/images/royalLogo.png",
-              "description": "Royal Perfumes is a wholesale fragrance manufacturer based in Istanbul, Türkiye, with 10+ years of manufacturing experience, 1,300+ fragrance models, and wholesale partners across 35+ countries.",
-              "slogan": "More Than a Supplier. Your Trusted Fragrance Manufacturing Partner.",
-              "telephone": "+905411158571",
-              "sameAs": [
-                "https://wa.me/905411158571",
-                "https://t.me/royalperfumess"
-              ],
-              "address": {
-                "@type": "PostalAddress",
-                "streetAddress": "Main Street",
-                "addressLocality": "Istanbul",
-                "addressRegion": "Marmara",
-                "postalCode": "34000",
-                "addressCountry": "TR"
-              }
+              "name": "Cangday",
+              "legalName": "Cangday",
+              "url": siteUrl,
+              "logo": `${siteUrl}/logo.svg`,
+              "description": "Cangday is a modern fragrance house offering an edited collection of designer and niche perfumes for everyday wear.",
+              "slogan": "Wear What Lingers.",
             })
           }}
         />
         <NextTopLoader
-          color="#000000"
+          color="#C9A24B"
           height={3}
           showSpinner={false}
-          shadow="0 0 10px #000000,0 0 5px #000000"
+          shadow="0 0 10px #C9A24B,0 0 5px #C9A24B"
         />
         <SettingsProvider hidePrices={hidePrices} popupSettings={popupSettings}>
           <Suspense fallback={null}>
             <StorefrontLayoutWrapper>
+              <TrustBar />
               <Navbar categories={categories || []} />
             </StorefrontLayoutWrapper>
           </Suspense>

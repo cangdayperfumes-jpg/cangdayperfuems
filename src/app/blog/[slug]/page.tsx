@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const post = getPostBySlug(slug);
   if (!post) return { title: 'Post Not Found' };
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.royalperfumes.company';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.cangday.com';
 
   return {
     title: post.title,
@@ -85,7 +85,7 @@ export default async function BlogPostPage({ params }: PageProps) {
   const post = getPostBySlug(slug);
   if (!post) notFound();
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.royalperfumes.company';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.cangday.com';
   const imageUrl = post.image.startsWith('http') ? post.image : `${siteUrl}${post.image}`;
 
   const jsonLd = {

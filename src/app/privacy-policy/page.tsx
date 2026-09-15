@@ -1,10 +1,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { WHATSAPP_URL, TELEGRAM_URL } from '@/lib/social';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
-  description: 'How Royal Perfumes collects, uses, and protects your personal information when you place a wholesale or retail order.',
+  description: 'How Cangday collects, uses, and protects your personal information when you place an order.',
   alternates: { canonical: '/privacy-policy' },
   robots: { index: true, follow: true },
 };
@@ -31,9 +30,9 @@ export default function PrivacyPolicyPage() {
       </div>
 
       <p className="text-sm md:text-base text-gray-600 leading-relaxed">
-        Royal Perfumes ("we," "us," "our") is a wholesale and retail fragrance business based in
-        Istanbul, Türkiye. This policy explains what personal information we collect through
-        royalperfumes.company, how we use it, and who we share it with.
+        Cangday ("we," "us," "our") is an online fragrance retailer. This policy explains what
+        personal information we collect through this site, how we use it, and who we share it
+        with.
       </p>
 
       <Section title="Information We Collect">
@@ -45,12 +44,6 @@ export default function PrivacyPolicyPage() {
           <strong>Shopping cart.</strong> The contents of your shopping cart are stored locally in
           your browser (using browser local storage) and are only sent to us once you submit an
           order at checkout.
-        </p>
-        <p>
-          <strong>WhatsApp & Telegram communications.</strong> Wholesale pricing, shipping quotes,
-          and payment are coordinated over WhatsApp or Telegram. Messages you send us there are
-          handled according to that platform's own privacy policy (WhatsApp is operated by Meta;
-          Telegram by Telegram FZ-LLC), not by us.
         </p>
       </Section>
 
@@ -71,9 +64,7 @@ export default function PrivacyPolicyPage() {
         </p>
         <ul className="list-disc pl-5 space-y-2">
           <li><strong>Supabase</strong> — hosts our database and stores order records.</li>
-          <li><strong>Vercel</strong> — hosts the website.</li>
           <li><strong>Resend</strong> — delivers transactional order-confirmation emails.</li>
-          <li><strong>WhatsApp (Meta)</strong> — only for conversations you choose to start with us.</li>
         </ul>
       </Section>
 
@@ -101,8 +92,8 @@ export default function PrivacyPolicyPage() {
 
       <Section title="Children's Privacy">
         <p>
-          Royal Perfumes is a business-to-business and general retail fragrance store not directed
-          at children, and we do not knowingly collect information from anyone under 18.
+          Cangday is a general retail fragrance store not directed at children, and we do not
+          knowingly collect information from anyone under 18.
         </p>
       </Section>
 
@@ -115,25 +106,7 @@ export default function PrivacyPolicyPage() {
 
       <Section title="Contact Us">
         <p>
-          Questions about this policy or your data? Reach us on{' '}
-          <a
-            href={WHATSAPP_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-gray-900 underline underline-offset-2 hover:no-underline"
-          >
-            WhatsApp
-          </a>{' '}
-          or{' '}
-          <a
-            href={TELEGRAM_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-gray-900 underline underline-offset-2 hover:no-underline"
-          >
-            Telegram
-          </a>
-          , or see our{' '}
+          Questions about this policy or your data? See our{' '}
           <Link href="/contact" className="text-gray-900 underline underline-offset-2 hover:no-underline">
             Contact page
           </Link>

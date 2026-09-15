@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Terms of Service',
-  description: 'The terms that apply to wholesale and retail orders placed with Royal Perfumes.',
+  description: 'The terms that apply to orders placed with Cangday.',
   alternates: { canonical: '/terms-of-service' },
   robots: { index: true, follow: true },
 };
@@ -30,36 +30,28 @@ export default function TermsOfServicePage() {
       </div>
 
       <p className="text-sm md:text-base text-gray-600 leading-relaxed">
-        Royal Perfumes is a fragrance manufacturer and wholesale/retail supplier based in Istanbul,
-        Türkiye. By browsing royalperfumes.company or placing an order, you agree to these terms.
+        Cangday is an online fragrance retailer. By browsing this site or placing an order, you
+        agree to these terms.
       </p>
 
       <Section title="Products & Pricing">
         <p>
-          Product photos and descriptions are representative of the item shipped; minor variation in
-          packaging or bottle design can occur between production batches. Where prices are shown,
-          they are subject to confirmation before payment. For wholesale orders, final pricing and
-          shipping costs are confirmed with you directly over WhatsApp.
+          Product photos and descriptions are representative of the item shipped; minor variation
+          in packaging or bottle design can occur between production batches. Prices are shown in
+          the currency displayed at checkout and are confirmed at the time of purchase.
         </p>
       </Section>
 
       <Section title="How Ordering Works">
         <p>
-          Submitting the checkout form creates an order request, not an immediate charge — we do not
-          collect payment on the website. After you submit an order, our team reviews it and
-          contacts you via WhatsApp to confirm final pricing, shipping cost, and payment method
-          before the order is processed.
-        </p>
-        <p>
-          Orders of 500+ units qualify for wholesale shipping rates, calculated and confirmed with
-          you directly rather than shown automatically at checkout.
+          Submitting the checkout form places your order with us. We&apos;ll confirm shipping
+          details by email and keep you updated until your order arrives.
         </p>
       </Section>
 
       <Section title="Shipping">
         <p>
-          Shipping costs and delivery timelines vary by destination, order quantity, and shipping
-          method, and are always confirmed with you before payment. See our{' '}
+          Shipping costs and delivery timelines vary by destination and shipping method. See our{' '}
           <Link href="/shipping" className="text-gray-900 underline underline-offset-2 hover:no-underline">
             Shipping &amp; Returns
           </Link>{' '}
@@ -69,31 +61,28 @@ export default function TermsOfServicePage() {
 
       <Section title="Returns">
         <p>
-          Returns are accepted within 7 days of delivery. To start a return, contact us on{' '}
-          <a
-            href="https://wa.me/905411158571"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-gray-900 underline underline-offset-2 hover:no-underline"
-          >
-            WhatsApp
-          </a>{' '}
+          Returns are accepted within 7 days of delivery. To start a return,{' '}
+          <Link href="/contact" className="text-gray-900 underline underline-offset-2 hover:no-underline">
+            contact us
+          </Link>{' '}
           with your order details. Approved returns are shipped back by mail at no cost to you.
         </p>
       </Section>
 
       <Section title="Order Cancellation">
         <p>
-          Because payment is arranged directly with our team rather than collected on the website,
-          you can cancel or change an order at no cost any time before payment is finalized —
-          just message us on WhatsApp.
+          You can cancel or change an order at no cost any time before it ships — just{' '}
+          <Link href="/contact" className="text-gray-900 underline underline-offset-2 hover:no-underline">
+            contact us
+          </Link>
+          .
         </p>
       </Section>
 
       <Section title="Intellectual Property">
         <p>
-          All text, images, and branding on this site belong to Royal Perfumes and may not be
-          reproduced without our permission.
+          All text, images, and branding on this site belong to Cangday and may not be reproduced
+          without our permission.
         </p>
       </Section>
 
@@ -107,8 +96,7 @@ export default function TermsOfServicePage() {
 
       <Section title="Governing Law">
         <p>
-          These terms are governed by the laws of the Republic of Türkiye, where Royal Perfumes is
-          based.
+          These terms are governed by the laws of the jurisdiction in which Cangday is registered.
         </p>
       </Section>
 
@@ -121,16 +109,7 @@ export default function TermsOfServicePage() {
 
       <Section title="Contact Us">
         <p>
-          Questions about an order or these terms? Reach us on{' '}
-          <a
-            href="https://wa.me/905411158571"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-gray-900 underline underline-offset-2 hover:no-underline"
-          >
-            WhatsApp
-          </a>
-          , or see our{' '}
+          Questions about an order or these terms? See our{' '}
           <Link href="/contact" className="text-gray-900 underline underline-offset-2 hover:no-underline">
             Contact page
           </Link>

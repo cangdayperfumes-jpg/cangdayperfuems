@@ -58,6 +58,21 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Cangday brand palette — always-dark "editorial" surfaces (hero,
+        // header chrome, footer, promo breakers) that sit outside the
+        // light/warm content-page theme above. Fixed hex, not CSS vars:
+        // these surfaces never flip with light/dark mode, they ARE the dark mode.
+        ink: {
+          DEFAULT: "#120D0A",
+          elevated: "#1C1512",
+          line: "#2A211B",
+        },
+        gold: {
+          DEFAULT: "#C9A24B",
+          soft: "#E8D9B5",
+          deep: "#8A6A2F",
+        },
+        ivory: "#F5EFE6",
       },
       borderRadius: {
         lg: "var(--radius)",

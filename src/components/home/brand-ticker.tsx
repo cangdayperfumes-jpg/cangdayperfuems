@@ -11,7 +11,7 @@ export default function BrandTicker({ brands = [] }: BrandTickerProps) {
     : ["CHANEL", "DIOR", "CREED", "TOM FORD", "GUCCI", "VERSACE", "YSL", "ARMANI"].map((name) => ({ name }));
 
   return (
-    <div className="w-full bg-white border-b border-gray-100 overflow-hidden py-6 md:py-8">
+    <div className="w-full bg-ink border-b border-ink-line overflow-hidden py-6 md:py-8">
       <div className="flex whitespace-nowrap">
         {/* First Loop — real links when a slug is available, so this doubles as
             internal linking to /shop?brands=<slug> instead of static text. */}
@@ -22,12 +22,12 @@ export default function BrandTicker({ brands = [] }: BrandTickerProps) {
                 key={`${brand.name}-1-${index}`}
                 href={`/shop?brands=${brand.slug}`}
                 prefetch={false}
-                className="text-xl md:text-2xl font-heading font-medium tracking-widest text-gray-900 opacity-80 uppercase hover:opacity-100 transition-opacity"
+                className="text-xl md:text-2xl font-heading font-medium tracking-widest text-ivory/70 uppercase hover:text-gold transition-colors"
               >
                 {brand.name}
               </Link>
             ) : (
-              <span key={`${brand.name}-1-${index}`} className="text-xl md:text-2xl font-heading font-medium tracking-widest text-gray-900 opacity-80 uppercase">
+              <span key={`${brand.name}-1-${index}`} className="text-xl md:text-2xl font-heading font-medium tracking-widest text-ivory/70 uppercase">
                 {brand.name}
               </span>
             )
@@ -37,7 +37,7 @@ export default function BrandTicker({ brands = [] }: BrandTickerProps) {
             text and aria-hidden, since it's a visual repeat, not extra content. */}
         <div className="flex items-center gap-16 md:gap-24 px-8 md:px-12 animate-marquee" aria-hidden="true">
           {displayBrands.map((brand, index) => (
-            <span key={`${brand.name}-2-${index}`} className="text-xl md:text-2xl font-heading font-medium tracking-widest text-gray-900 opacity-80 uppercase">
+            <span key={`${brand.name}-2-${index}`} className="text-xl md:text-2xl font-heading font-medium tracking-widest text-ivory/70 uppercase">
               {brand.name}
             </span>
           ))}

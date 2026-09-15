@@ -4,72 +4,68 @@
 
 @layer base {
   :root {
-    /* Royal Perfumes: Strict Black & White */
-    --background: 0 0% 100%; /* White */
-    --foreground: 0 0% 0%;   /* Black */
+    /* Cangday: warm-ivory content surface, ink text, antique-gold accent.
+       Always-dark editorial surfaces (hero/header/footer) use the fixed
+       ink/gold/ivory Tailwind colors directly, not these semantic tokens. */
+    --background: 40 33% 98%;   /* Warm ivory paper */
+    --foreground: 20 25% 8%;    /* Warm near-black ink */
 
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 0%;
+    --card: 40 33% 98%;
+    --card-foreground: 20 25% 8%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 0%;
+    --popover: 40 33% 98%;
+    --popover-foreground: 20 25% 8%;
 
-    --primary: 0 0% 0%;      /* Black */
-    --primary-foreground: 0 0% 100%; /* White */
+    --primary: 20 25% 8%;       /* Ink — buttons stay solid ink, not gold-filled */
+    --primary-foreground: 40 33% 98%;
 
-    --secondary: 0 0% 96%;   /* Very Light Gray for hover/bg */
-    --secondary-foreground: 0 0% 0%;
+    --secondary: 38 20% 93%;    /* Soft warm gray for hover/bg */
+    --secondary-foreground: 20 25% 8%;
 
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
+    --muted: 38 20% 93%;
+    --muted-foreground: 25 10% 40%;
 
-    --accent: 0 0% 96%;
-    --accent-foreground: 0 0% 0%;
+    --accent: 38 48% 54%;       /* Antique gold — used sparingly, as accent not fill */
+    --accent-foreground: 20 25% 8%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 355 55% 35%;
+    --destructive-foreground: 40 33% 98%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 0 0% 0%;
+    --border: 35 20% 87%;
+    --input: 35 20% 87%;
+    --ring: 38 48% 54%;
 
-    --radius: 0rem; /* Sharp edges for Luxury feel ? Or keep default? Let's go slightly rounded 0.3rem or 0 for sharp. User said "Luxury" which often means sharp or very smooth. Let's stick to 0.5rem for now, adaptable. */
-    --radius: 0.25rem;
+    --radius: 0.125rem; /* Near-sharp edges — jewelry-case precision, not soft SaaS rounding */
   }
 
   .dark {
-    /* Optional Dark Mode - User said "Black & White only". 
-       For now, let's keep it consistent or just invert. 
-       If user wants "Dark Mode" luxury, we can enable it. 
-       But "Royal" usually implies White BG with Black Text for e-commerce.
-    */
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
+    --background: 20 15% 7%;
+    --foreground: 40 33% 95%;
 
-    --card: 0 0% 3%;
-    --card-foreground: 0 0% 100%;
+    --card: 20 15% 9%;
+    --card-foreground: 40 33% 95%;
 
-    --popover: 0 0% 3%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 20 15% 9%;
+    --popover-foreground: 40 33% 95%;
 
-    --primary: 0 0% 100%;
-    --primary-foreground: 0 0% 0%;
+    --primary: 40 33% 95%;
+    --primary-foreground: 20 15% 7%;
 
-    --secondary: 0 0% 10%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 20 12% 15%;
+    --secondary-foreground: 40 33% 95%;
 
-    --muted: 0 0% 10%;
-    --muted-foreground: 0 0% 65%;
+    --muted: 20 12% 15%;
+    --muted-foreground: 35 10% 65%;
 
-    --accent: 0 0% 10%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 38 48% 54%;
+    --accent-foreground: 20 15% 7%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 355 55% 35%;
+    --destructive-foreground: 40 33% 95%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 0 0% 100%;
+    --border: 20 12% 20%;
+    --input: 20 12% 20%;
+    --ring: 38 48% 54%;
   }
 }
 
@@ -95,4 +91,23 @@
   html::-webkit-scrollbar, body::-webkit-scrollbar {
     display: none; /* Chrome, Safari and Opera */
   }
+}
+
+/* Cangday ink-surface grain — one recurring texture motif tying the hero,
+   header, footer and promo breakers together as a single "material".
+   Pure CSS (no image request), applied via an absolutely-positioned
+   pseudo-element on `.ink-grain` so it layers over any background. */
+.ink-grain {
+  position: relative;
+  isolation: isolate;
+}
+.ink-grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
