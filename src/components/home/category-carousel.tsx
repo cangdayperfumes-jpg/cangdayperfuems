@@ -40,7 +40,7 @@ export default function CategoryCarousel({ categories }: CategoryCarouselProps) 
                   href={`/shop?category=${category.slug}`}
                   className="group flex flex-col items-center gap-4 p-4"
               >
-                  <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-2 border-transparent group-hover:border-black/10 transition-all shadow-sm group-hover:shadow-md">
+                  <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-2 border-transparent group-hover:border-gold/40 transition-all shadow-sm group-hover:shadow-md">
                       {category.image_url ? (
                           <ImageWithFallback
                               src={category.image_url}
@@ -55,7 +55,7 @@ export default function CategoryCarousel({ categories }: CategoryCarouselProps) 
                           </div>
                       )}
                   </div>
-                  <span className="text-sm md:text-base font-medium font-heading uppercase tracking-wider group-hover:text-amber-700 transition-colors text-center">
+                  <span className="text-sm md:text-base font-medium font-heading uppercase tracking-wider group-hover:text-gold-deep transition-colors text-center">
                       {category.name}
                   </span>
               </Link>

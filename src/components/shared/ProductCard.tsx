@@ -6,7 +6,7 @@ import { Product } from '@/types';
 import { formatCurrency } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, ShoppingBag } from 'lucide-react';
+import { Plus, Sparkle } from 'lucide-react';
 import { useCartStore } from '@/hooks/use-cart';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
@@ -25,7 +25,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
   const variants = (product as any).product_variants || [];
 
   // Logic: Discount in DB is AMOUNT.
-  const discountPercentage = product.discount > 0 
+  const discountPercentage = product.discount > 0
     ? Math.round((product.discount / product.price) * 100)
     : 0;
 
@@ -69,14 +69,16 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
 
   return (
     <div className="group block h-full relative">
-      {/* Image Container */}
-      <div className="relative aspect-[4/5] md:aspect-[3/4] overflow-hidden bg-gray-100 dark:bg-gray-800 mb-3 rounded-sm">
-        
+      {/* Image Container — thin frame ring instead of a plain edge-to-edge
+          photo, so cards read as a small gallery print rather than a bare
+          thumbnail. */}
+      <div className="relative aspect-[4/5] md:aspect-[3/4] overflow-hidden bg-secondary mb-3 rounded-sm ring-1 ring-border group-hover:ring-gold/40 transition-colors">
+
         <Link href={`/shop/${product.slug || product.id}`} className="block relative w-full h-full">
             {/* Discount Badge */}
             {product.discount > 0 && (
             <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
-                <Badge className="bg-red-600 text-white rounded-sm px-2 py-1 text-[10px] md:text-xs uppercase font-bold tracking-wider">
+                <Badge className="bg-ink text-gold-soft border border-gold/40 rounded-sm px-2 py-1 text-[10px] md:text-xs uppercase font-bold tracking-wider">
                     -{discountPercentage}% OFF
                 </Badge>
             </div>
@@ -85,9 +87,9 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
             {/* Popular Badge */}
             {product.is_popular && (
             <div className="absolute top-2 right-2 z-10 flex flex-col gap-1">
-                <div className="flex items-center gap-1 bg-black/80 backdrop-blur-sm rounded-sm px-1.5 py-1">
-                    <img src="/fire.svg" alt="" className="h-3.5 w-3.5 md:h-4 md:w-4" />
-                    <span className="text-white text-[10px] md:text-xs uppercase font-bold tracking-wider">Popular</span>
+                <div className="flex items-center gap-1 bg-gold text-ink rounded-sm px-1.5 py-1">
+                    <Sparkle className="h-3 w-3 md:h-3.5 md:w-3.5" fill="currentColor" strokeWidth={0} />
+                    <span className="text-[10px] md:text-xs uppercase font-bold tracking-wider">Popular</span>
                 </div>
             </div>
             )}
@@ -100,18 +102,18 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
             className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
             />
-            
+
         </Link>
         {/* --- Action Buttons / Sold Out Badge --- */}
         {(() => {
-            const isOutOfStock = product.has_variants 
+            const isOutOfStock = product.has_variants
                 ? variants.length === 0 || variants.every((v: any) => !v.stock)
                 : !product.stock;
 
             if (isOutOfStock) {
                 return (
                     <div className="absolute bottom-2 left-0 right-0 flex justify-center z-20 pointer-events-none">
-                        <span className="bg-gray-100/90 backdrop-blur-sm text-gray-500 px-3 py-1 text-[10px] md:text-xs font-medium uppercase tracking-wider rounded-sm shadow-sm border border-gray-200">
+                        <span className="bg-ivory/95 backdrop-blur-sm text-ink/60 px-3 py-1 text-[10px] md:text-xs font-medium uppercase tracking-wider rounded-sm shadow-sm border border-border">
                             Sold Out
                         </span>
                     </div>
@@ -129,10 +131,10 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
                             onClick={() => handleVariantAdd(v)}
                             disabled={!v.stock}
                             className={`
-                                min-w-[32px] px-2 py-1 text-[9px] md:text-[10px] font-bold uppercase tracking-wider 
-                                bg-white/95 backdrop-blur-md text-black border border-transparent shadow-sm hover:bg-black hover:text-white
+                                min-w-[32px] px-2 py-1 text-[9px] md:text-[10px] font-bold uppercase tracking-wider
+                                bg-ivory/95 backdrop-blur-md text-ink border border-transparent shadow-sm hover:bg-ink hover:text-gold
                                 transition-all duration-200 transform active:scale-95 md:hover:scale-105 rounded-sm
-                                ${!v.stock ? 'opacity-50 cursor-not-allowed line-through bg-gray-100' : ''}
+                                ${!v.stock ? 'opacity-50 cursor-not-allowed line-through bg-secondary' : ''}
                             `}
                         >
                             {v.name}
@@ -142,7 +144,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
                     {variants.length > 3 && (
                         <Link
                             href={`/shop/${product.slug || product.id}`}
-                            className="flex items-center justify-center min-w-[24px] px-1.5 py-1 text-[9px] font-bold bg-white/90 text-black rounded-sm hover:bg-black hover:text-white transition-colors"
+                            className="flex items-center justify-center min-w-[24px] px-1.5 py-1 text-[9px] font-bold bg-ivory/90 text-ink rounded-sm hover:bg-ink hover:text-gold transition-colors"
                         >
                             +
                         </Link>
@@ -158,24 +160,24 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
 
                             if (cartItem) {
                                 return (
-                                    <div className="flex items-center gap-2 bg-white text-black shadow-lg rounded-full px-2 py-1 h-8 md:h-9">
-                                        <button 
+                                    <div className="flex items-center gap-2 bg-ink text-ivory shadow-lg rounded-full px-2 py-1 h-8 md:h-9">
+                                        <button
                                             onClick={(e) => { e.preventDefault(); cartItem.quantity > 1 ? updateQuantity(cartItem.id, cartItem.variantId, cartItem.quantity - 1) : removeItem(cartItem.id, cartItem.variantId); }}
-                                            className="w-5 h-5 flex items-center justify-center hover:bg-gray-100 rounded-full font-medium"
+                                            className="w-5 h-5 flex items-center justify-center hover:bg-ivory/10 rounded-full font-medium"
                                         >-</button>
                                         <span className="text-xs font-semibold w-4 text-center">{cartItem.quantity}</span>
-                                        <button 
+                                        <button
                                             onClick={(e) => { e.preventDefault(); updateQuantity(cartItem.id, cartItem.variantId, cartItem.quantity + 1); }}
-                                            className="w-5 h-5 flex items-center justify-center hover:bg-gray-100 rounded-full font-medium"
+                                            className="w-5 h-5 flex items-center justify-center hover:bg-ivory/10 rounded-full font-medium"
                                         >+</button>
                                     </div>
                                 );
                             }
 
                             return (
-                                <Button 
-                                    size="icon" 
-                                    className="h-8 w-8 md:h-9 md:w-9 rounded-full bg-white text-black hover:bg-black hover:text-white shadow-lg transition-colors border-0"
+                                <Button
+                                    size="icon"
+                                    className="h-8 w-8 md:h-9 md:w-9 rounded-full bg-ink text-ivory hover:bg-gold hover:text-ink shadow-lg transition-colors border-0"
                                     onClick={(e) => { e.preventDefault(); handleQuickAdd(); }}
                                     aria-label="Add to cart"
                                 >
@@ -189,13 +191,13 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
             );
         })()}
       </div>
-      
+
       {/* Content */}
       <div className="space-y-2">
         <Link href={`/shop/${product.slug || product.id}`} className="block">
-             <h3 className="font-heading text-xs md:text-sm font-semibold leading-tight truncate md:text-center hover:text-gray-600 transition-colors">{product.name_en}</h3>
+             <h3 className="font-heading text-xs md:text-sm font-semibold leading-tight truncate md:text-center hover:text-gold-deep transition-colors">{product.name_en}</h3>
         </Link>
-        
+
         <div className="flex items-center justify-start md:justify-center gap-2 text-xs md:text-sm">
           {hidePrices ? (
              <span className="font-medium text-muted-foreground">Contact for price</span>
@@ -208,7 +210,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
               <span className="text-muted-foreground line-through decoration-gray-400">
                 {formatCurrency(product.price)}
               </span>
-              <span className="font-medium text-red-600 text-sm">
+              <span className="font-medium text-gold-deep text-sm">
                 {formatCurrency(product.price - product.discount)}
               </span>
             </>

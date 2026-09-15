@@ -155,39 +155,45 @@ export default async function Home() {
       <BrandTicker brands={brands || []} />
       {seasonalPosition === 'after_brand_ticker' && seasonalSection}
 
-      {/* ── 3. Category Discovery (asymmetric bento — not four equal squares) ── */}
+      {/* ── 3. Category Discovery — framed gallery cards, not full-bleed
+             overlay tiles with a hover-reveal caption (the generic pattern
+             Royal used, shared by most fashion e-commerce templates). Each
+             tile is a small "matted print": image inset with a frame margin,
+             caption always visible on its own plaque strip below. ── */}
       <section className="py-16 md:py-24 w-full bg-ivory">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-10 flex items-end justify-between">
+          <div className="mb-10">
+            <p className="text-xs uppercase tracking-[0.35em] text-gold-deep font-semibold mb-3">
+              Shop by Category
+            </p>
             <h2 className="font-heading text-3xl md:text-4xl font-medium text-ink">
               Find Your Category
             </h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-3 md:h-[640px]">
+          <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 md:h-[720px]">
             {collections.map((item) => (
               <Link
                 key={item.label}
                 href={item.audience ? `/shop?audience=${item.audience}` : '/shop?category=niche-perfumes'}
-                className={`group relative overflow-hidden block ${item.span} ${item.aspect} md:aspect-auto`}
+                className={`group flex flex-col bg-ivory border border-border hover:border-gold/50 transition-colors overflow-hidden ${item.span} ${item.aspect} md:aspect-auto md:h-full`}
               >
-                <Image
-                  src={item.image}
-                  alt={item.label}
-                  fill
-                  loading="lazy"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  // One consistent grading pass (desaturate + warm + darken) so
-                  // photos from different sources still read as one material.
-                  className="object-cover transition-all duration-700 group-hover:scale-105 [filter:grayscale(0.55)_sepia(0.2)_saturate(0.85)_brightness(0.72)]"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/10 to-transparent" />
-                <div className="absolute inset-0 flex flex-col items-start justify-end p-6">
-                  <h3 className="text-2xl md:text-3xl font-heading text-ivory font-medium">
+                <div className="relative flex-1 overflow-hidden m-2 mb-0">
+                  <Image
+                    src={item.image}
+                    alt={item.label}
+                    fill
+                    loading="lazy"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    // One consistent grading pass (desaturate + warm + darken) so
+                    // photos from different sources still read as one material.
+                    className="object-cover transition-all duration-700 group-hover:scale-105 [filter:grayscale(0.55)_sepia(0.2)_saturate(0.85)_brightness(0.72)]"
+                  />
+                </div>
+                <div className="flex items-center justify-between px-4 py-3.5 shrink-0">
+                  <h3 className="text-lg md:text-xl font-heading text-ink font-medium">
                     {item.label}
                   </h3>
-                  <span className="mt-2 inline-flex items-center gap-2 text-xs uppercase tracking-widest text-gold opacity-0 -translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-                    Explore <ArrowRight className="h-3 w-3" />
-                  </span>
+                  <ArrowRight className="h-4 w-4 text-gold-deep -translate-x-1 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
                 </div>
               </Link>
             ))}
@@ -198,16 +204,19 @@ export default async function Home() {
 
       <ElegantSeparator />
 
-      {/* ── 4. Shop by Category (Carousel) ── */}
+      {/* ── 4. Browse by Type (Carousel) — deliberately distinct wording and
+             layout from "Find Your Category" above: that one is audience
+             (Men/Women/Unisex/Niche), this is product type (Perfumes, Body
+             Mists, Gift Sets…), so the two sections don't read as repeats. ── */}
       <section className="py-16 md:py-24 w-full bg-secondary/50">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 space-y-4">
-            <h2 className="text-3xl md:text-5xl font-heading font-medium">
-              Shop by Category
-            </h2>
-            <p className="text-muted-foreground font-body text-lg max-w-2xl mx-auto">
-              Explore our exquisite range of fragrances and body care products.
+          <div className="text-center mb-12 space-y-3">
+            <p className="text-xs uppercase tracking-[0.35em] text-gold-deep font-semibold">
+              Every Format
             </p>
+            <h2 className="text-3xl md:text-5xl font-heading font-medium">
+              Browse by Type
+            </h2>
           </div>
 
           {categories && categories.length > 0 ? (
@@ -227,17 +236,17 @@ export default async function Home() {
       <section className="py-16 md:py-24 w-full">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between mb-12">
-            <div className="space-y-4">
+            <div className="space-y-3">
+              <p className="text-xs uppercase tracking-[0.35em] text-gold-deep font-semibold">
+                Most Loved
+              </p>
               <h2 className="text-3xl md:text-5xl font-heading font-medium">
                 Best Sellers
               </h2>
-              <p className="text-muted-foreground font-body text-lg">
-                Our most loved fragrances.
-              </p>
             </div>
             <Link
               href="/shop"
-              className="hidden md:flex items-center gap-2 text-sm font-medium hover:underline underline-offset-4"
+              className="hidden md:flex items-center gap-2 text-sm font-medium text-ink hover:text-gold-deep transition-colors"
             >
               View All <ArrowRight className="h-4 w-4" />
             </Link>
@@ -268,17 +277,17 @@ export default async function Home() {
       <section className="py-16 md:py-24 w-full bg-secondary/50">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between mb-12">
-            <div className="space-y-4">
+            <div className="space-y-3">
+              <p className="text-xs uppercase tracking-[0.35em] text-gold-deep font-semibold">
+                Fresh In
+              </p>
               <h2 className="text-3xl md:text-5xl font-heading font-medium">
                 Just Arrived
               </h2>
-              <p className="text-muted-foreground font-body text-lg">
-                The latest additions to our collection.
-              </p>
             </div>
             <Link
               href="/shop"
-              className="hidden md:flex items-center gap-2 text-sm font-medium hover:underline underline-offset-4"
+              className="hidden md:flex items-center gap-2 text-sm font-medium text-ink hover:text-gold-deep transition-colors"
             >
               View All <ArrowRight className="h-4 w-4" />
             </Link>
