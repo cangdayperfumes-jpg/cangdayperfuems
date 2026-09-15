@@ -17,6 +17,7 @@ import { createClient } from "@supabase/supabase-js";
 import { SettingsProvider } from "@/components/providers/SettingsProvider";
 import { unstable_cache } from "next/cache";
 import StorefrontLayoutWrapper from "@/components/shared/StorefrontLayoutWrapper";
+import { getSiteTheme, hexToRgbTriplet } from "@/lib/theme-data";
 
 // Fraunces: an expressive, high-contrast "soft serif" with genuine optical-size
 // character — carries the jewelry-editorial feel without reaching for the
@@ -102,8 +103,8 @@ export default async function RootLayout({
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
-  // Run both queries in parallel + cache results for 60s
-  const [rawCategories, settings] = await Promise.all([
+  // Run all three in parallel + cache results for 60s
+  const [rawCategories, settings, theme] = await Promise.all([
     unstable_cache(
       async () => {
         const { data } = await supabase
@@ -128,6 +129,7 @@ export default async function RootLayout({
       ['layout-settings'],
       { revalidate: 60 }
     )(),
+    getSiteTheme(),
   ]);
 
   const categories = rawCategories?.map((item: any) => {
@@ -156,6 +158,12 @@ export default async function RootLayout({
         manrope.variable,
         fraunces.variable
       )}>
+        {/* Admin-managed brand colors (see /admin/settings → Theme) — overrides
+            the --brand-* defaults from globals.css at runtime, so a color
+            change takes effect without a rebuild/redeploy. Only the four
+            primary tones are admin-editable; the elevated/line/soft tonal
+            variants stay derived from globals.css to keep the form simple. */}
+        <style>{`:root { --brand-gold: ${hexToRgbTriplet(theme.gold)}; --brand-gold-deep: ${hexToRgbTriplet(theme.goldDeep)}; --brand-ink: ${hexToRgbTriplet(theme.ink)}; --brand-ivory: ${hexToRgbTriplet(theme.ivory)}; }`}</style>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -171,10 +179,10 @@ export default async function RootLayout({
           }}
         />
         <NextTopLoader
-          color="#C9A24B"
+          color="rgb(var(--brand-gold))"
           height={3}
           showSpinner={false}
-          shadow="0 0 10px #C9A24B,0 0 5px #C9A24B"
+          shadow="0 0 10px rgb(var(--brand-gold)),0 0 5px rgb(var(--brand-gold))"
         />
         <SettingsProvider hidePrices={hidePrices} popupSettings={popupSettings}>
           <Suspense fallback={null}>

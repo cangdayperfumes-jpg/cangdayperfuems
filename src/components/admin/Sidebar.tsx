@@ -35,6 +35,7 @@ export default function AdminSidebar({ onSignOut, isCollapsed = false, setIsColl
       label: 'Marketing',
       items: [
         { href: '/admin/marketing/hero-slides', label: 'Hero Slides', icon: Sparkles },
+        { href: '/admin/marketing/category-tiles', label: 'Category Tiles', icon: Sparkles },
         { href: '/admin/marketing/seasonal-collections', label: 'Seasonal Collection', icon: Sparkles },
       ],
     },

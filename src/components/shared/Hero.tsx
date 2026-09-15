@@ -84,9 +84,9 @@ function Slide({ slide, priority }: { slide: HeroSlide; priority: boolean }) {
           >
             <path
               d="M2 18C24 18 28 4 50 4C72 4 76 20 98 20C112 20 118 12 138 12"
-              stroke="#C9A24B" strokeWidth="1.5" strokeLinecap="round"
+              stroke="rgb(var(--brand-gold))" strokeWidth="1.5" strokeLinecap="round"
             />
-            <circle cx="138" cy="12" r="2.5" fill="#C9A24B" />
+            <circle cx="138" cy="12" r="2.5" fill="rgb(var(--brand-gold))" />
           </svg>
 
           {slide.subheading && (

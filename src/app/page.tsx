@@ -6,11 +6,10 @@ import Hero from "@/components/shared/Hero";
 import BrandTicker from '@/components/home/brand-ticker';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Truck, Shield, Clock } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import CategoryCarousel from '@/components/home/category-carousel';
 import dynamic from 'next/dynamic';
 import { StarBorder } from '@/components/ui/star-border';
-import PromoBanners from '@/components/home/promo-banners';
 import SeasonalCollectionSection from '@/components/home/seasonal-collection-section';
 import {
   getActiveSeasonalCollections,
@@ -18,6 +17,8 @@ import {
   resolveVisibleSeasonalCollections,
 } from '@/lib/seasonal-collections-data';
 import { getActiveHeroSlides } from '@/lib/hero-slides-data';
+import { getActiveCategoryTiles } from '@/lib/category-tiles-data';
+import type { CategoryTile } from '@/types';
 import { getAllPosts } from '@/lib/blog';
 
 const ProductCarousel = dynamic(() => import('@/components/home/product-carousel'), {
@@ -58,6 +59,7 @@ export default async function Home() {
     seasonalCollections,
     seasonalSettings,
     heroSlides,
+    categoryTiles,
   ] = await Promise.all([
     // Best Sellers (top 8 active products by sales_count)
     supabase
@@ -83,6 +85,7 @@ export default async function Home() {
     getActiveSeasonalCollections(),
     getSeasonalSectionSettings(),
     getActiveHeroSlides(),
+    getActiveCategoryTiles(),
   ]);
 
   const visibleSeasonalCollections = resolveVisibleSeasonalCollections(
@@ -94,38 +97,15 @@ export default async function Home() {
     <SeasonalCollectionSection collections={visibleSeasonalCollections} />
   ) : null;
 
-  // Sourced for design-review placeholder use — swapped for real Cangday
-  // product photography once the catalog/image migration lands.
-  const collections = [
-    {
-      label: "Women's",
-      audience: 'Women',
-      image: 'https://images.unsplash.com/photo-1774682060959-efe13b7a12b9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=900',
-      span: 'md:col-span-2 md:row-span-2',
-      aspect: 'aspect-[3/4]',
-    },
-    {
-      label: "Men's",
-      audience: 'Men',
-      image: 'https://images.unsplash.com/photo-1780943004155-1b2c5424fb2e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=900',
-      span: 'md:col-span-2 md:row-span-1',
-      aspect: 'aspect-[4/3]',
-    },
-    {
-      label: 'Unisex',
-      audience: 'Unisex',
-      image: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=700',
-      span: 'md:row-span-1',
-      aspect: 'aspect-square',
-    },
-    {
-      label: 'Niche',
-      audience: undefined,
-      image: 'https://images.unsplash.com/photo-1780811070739-faa3b575b669?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=700',
-      span: 'md:row-span-1',
-      aspect: 'aspect-square',
-    },
-  ] as const;
+  // Fallback used only if /admin/marketing/category-tiles has no rows yet —
+  // matches the migration's seed data so the grid never renders empty.
+  const FALLBACK_TILES: CategoryTile[] = [
+    { id: 'fallback-1', label: "Women's", link_href: '/shop?audience=Women', image_url: 'https://images.unsplash.com/photo-1774682060959-efe13b7a12b9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=900', col_span: 2, row_span: 2, display_order: 0, is_active: true, created_at: '', updated_at: '' },
+    { id: 'fallback-2', label: "Men's", link_href: '/shop?audience=Men', image_url: 'https://images.unsplash.com/photo-1780943004155-1b2c5424fb2e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=900', col_span: 2, row_span: 1, display_order: 1, is_active: true, created_at: '', updated_at: '' },
+    { id: 'fallback-3', label: 'Unisex', link_href: '/shop?audience=Unisex', image_url: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=700', col_span: 1, row_span: 1, display_order: 2, is_active: true, created_at: '', updated_at: '' },
+    { id: 'fallback-4', label: 'Niche', link_href: '/shop?category=niche-perfumes', image_url: 'https://images.unsplash.com/photo-1780811070739-faa3b575b669?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=700', col_span: 1, row_span: 1, display_order: 3, is_active: true, created_at: '', updated_at: '' },
+  ];
+  const collections = categoryTiles.length > 0 ? categoryTiles : FALLBACK_TILES;
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.cangday.com";
   const jsonLd = {
@@ -171,15 +151,22 @@ export default async function Home() {
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 md:h-[720px]">
-            {collections.map((item) => (
+            {collections.map((item) => {
+              // Tailwind's JIT needs these as literal strings somewhere in
+              // source (not built from a template string) to generate them.
+              const colSpanClass = { 1: '', 2: 'md:col-span-2', 3: 'md:col-span-3', 4: 'md:col-span-4' }[item.col_span];
+              const rowSpanClass = { 1: 'md:row-span-1', 2: 'md:row-span-2' }[item.row_span];
+              const aspectClass = item.row_span === 2 ? 'aspect-[3/4]' : item.col_span >= 2 ? 'aspect-[4/3]' : 'aspect-square';
+
+              return (
               <Link
-                key={item.label}
-                href={item.audience ? `/shop?audience=${item.audience}` : '/shop?category=niche-perfumes'}
-                className={`group flex flex-col bg-ivory border border-border hover:border-gold/50 transition-colors overflow-hidden ${item.span} ${item.aspect} md:aspect-auto md:h-full`}
+                key={item.id}
+                href={item.link_href}
+                className={`group flex flex-col bg-ivory border border-border hover:border-gold/50 transition-colors overflow-hidden ${colSpanClass} ${rowSpanClass} ${aspectClass} md:aspect-auto md:h-full`}
               >
                 <div className="relative flex-1 overflow-hidden m-2 mb-0">
                   <Image
-                    src={item.image}
+                    src={item.image_url}
                     alt={item.label}
                     fill
                     loading="lazy"
@@ -196,7 +183,8 @@ export default async function Home() {
                   <ArrowRight className="h-4 w-4 text-gold-deep -translate-x-1 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
                 </div>
               </Link>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -262,7 +250,7 @@ export default async function Home() {
 
           <div className="mt-12 flex justify-center md:hidden w-full max-w-sm mx-auto">
             <Link href="/shop" className="w-full">
-              <StarBorder as="div" color="#C9A24B" speed="3s" thickness={3} className="uppercase tracking-widest text-sm font-medium">
+              <StarBorder as="div" color="rgb(var(--brand-gold))" speed="3s" thickness={3} className="uppercase tracking-widest text-sm font-medium">
                 View All Products
               </StarBorder>
             </Link>
@@ -303,7 +291,7 @@ export default async function Home() {
 
           <div className="mt-12 flex justify-center md:hidden w-full max-w-sm mx-auto">
             <Link href="/shop" className="w-full">
-              <StarBorder as="div" color="#C9A24B" speed="4s" thickness={2} className="uppercase tracking-widest text-sm font-medium">
+              <StarBorder as="div" color="rgb(var(--brand-gold))" speed="4s" thickness={2} className="uppercase tracking-widest text-sm font-medium">
                 Shop New Arrivals
               </StarBorder>
             </Link>
@@ -311,60 +299,6 @@ export default async function Home() {
         </div>
       </section>
       {seasonalPosition === 'after_new_arrivals' && seasonalSection}
-
-      {/* ── 8. Retail Promotions (first order / bundle / gift threshold) ── */}
-      <PromoBanners />
-
-      {/* ── 9. Shipping Info ── */}
-      <Link href="/shipping" className="block">
-        <section className="py-16 w-full bg-ivory transition-colors cursor-pointer group">
-          <h2 className="sr-only">Shipping & Delivery Information</h2>
-          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-border">
-
-              {/* Item 1 */}
-              <div className="flex flex-col items-center text-center space-y-4 py-8 md:py-0 px-4">
-                <Truck className="h-10 w-10 text-gold-deep stroke-[1.5] group-hover:scale-110 transition-transform duration-500" />
-                <div className="space-y-2">
-                  <h3 className="font-heading text-xl md:text-2xl font-medium tracking-wide text-ink">Worldwide Shipping</h3>
-                  <p className="text-sm text-muted-foreground font-light leading-relaxed max-w-xs mx-auto">
-                    We deliver every bottle straight to your door, wherever you are.
-                  </p>
-                </div>
-              </div>
-
-              {/* Item 2 */}
-              <div className="flex flex-col items-center text-center space-y-4 py-8 md:py-0 px-4">
-                <Shield className="h-10 w-10 text-gold-deep stroke-[1.5] group-hover:scale-110 transition-transform duration-500" />
-                <div className="space-y-2">
-                  <h3 className="font-heading text-xl md:text-2xl font-medium tracking-wide text-ink">Secure Packaging</h3>
-                  <p className="text-sm text-muted-foreground font-light leading-relaxed max-w-xs mx-auto">
-                    Every bottle is encased in premium protective packaging.
-                  </p>
-                </div>
-              </div>
-
-              {/* Item 3 */}
-              <div className="flex flex-col items-center text-center space-y-4 py-8 md:py-0 px-4">
-                <Clock className="h-10 w-10 text-gold-deep stroke-[1.5] group-hover:scale-110 transition-transform duration-500" />
-                <div className="space-y-2">
-                  <h3 className="font-heading text-xl md:text-2xl font-medium tracking-wide text-ink">Fast Delivery</h3>
-                  <p className="text-sm text-muted-foreground font-light leading-relaxed max-w-xs mx-auto">
-                    Express shipping options available for urgent gifts.
-                  </p>
-                </div>
-              </div>
-
-            </div>
-
-            <div className="mt-12 text-center">
-              <span className="inline-flex items-center text-sm font-medium text-ink border-b border-ink pb-1 group-hover:text-gold-deep group-hover:border-gold-deep transition-colors">
-                View Full Shipping Policy <ArrowRight className="ml-2 h-4 w-4" />
-              </span>
-            </div>
-          </div>
-        </section>
-      </Link>
 
       {recentPosts.length > 0 && (
         <>

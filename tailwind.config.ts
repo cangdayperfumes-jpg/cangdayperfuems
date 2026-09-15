@@ -60,19 +60,20 @@ const config = {
         },
         // Cangday brand palette — always-dark "editorial" surfaces (hero,
         // header chrome, footer, promo breakers) that sit outside the
-        // light/warm content-page theme above. Fixed hex, not CSS vars:
-        // these surfaces never flip with light/dark mode, they ARE the dark mode.
+        // light/warm content-page theme above. Driven by the --brand-* HSL
+        // vars in globals.css (not hardcoded hex) so admin Theme settings
+        // can re-theme the whole site at runtime without a rebuild.
         ink: {
-          DEFAULT: "#120D0A",
-          elevated: "#1C1512",
-          line: "#2A211B",
+          DEFAULT: "rgb(var(--brand-ink) / <alpha-value>)",
+          elevated: "rgb(var(--brand-ink-elevated) / <alpha-value>)",
+          line: "rgb(var(--brand-ink-line) / <alpha-value>)",
         },
         gold: {
-          DEFAULT: "#C9A24B",
-          soft: "#E8D9B5",
-          deep: "#8A6A2F",
+          DEFAULT: "rgb(var(--brand-gold) / <alpha-value>)",
+          soft: "rgb(var(--brand-gold-soft) / <alpha-value>)",
+          deep: "rgb(var(--brand-gold-deep) / <alpha-value>)",
         },
-        ivory: "#F5EFE6",
+        ivory: "rgb(var(--brand-ivory) / <alpha-value>)",
       },
       borderRadius: {
         lg: "var(--radius)",

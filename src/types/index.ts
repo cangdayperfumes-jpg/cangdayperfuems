@@ -133,6 +133,32 @@ export interface HeroSlide {
   updated_at: string;
 }
 
+export interface CategoryTile {
+  id: string;
+  label: string;
+  image_url: string;
+  link_href: string;
+  col_span: 1 | 2 | 3 | 4;
+  row_span: 1 | 2;
+  display_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PromoBanner {
+  id: string;
+  eyebrow: string;
+  title: string;
+  body?: string | null;
+  button_text: string;
+  link_href: string;
+  display_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface SeasonalCollectionProductLink {
   collection_id: string;
   product_id: string;

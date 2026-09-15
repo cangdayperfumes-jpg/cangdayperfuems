@@ -36,6 +36,21 @@
     --ring: 38 48% 54%;
 
     --radius: 0.125rem; /* Near-sharp edges — jewelry-case precision, not soft SaaS rounding */
+
+    /* Cangday brand palette, as space-separated "R G B" triplets (not hex or
+       a full color() string) — the format Tailwind's rgb(var(--x) /
+       <alpha-value>) pattern requires so bg-gold/50-style opacity modifiers
+       keep working. Converted from hex to RGB by src/lib/theme-data.ts,
+       whose admin-facing color pickers work in hex; see the inline <style>
+       tag in layout.tsx that overrides these same variable names at runtime
+       from system_settings. */
+    --brand-ink: 18 13 10;
+    --brand-ink-elevated: 28 21 18;
+    --brand-ink-line: 42 33 27;
+    --brand-gold: 201 162 75;
+    --brand-gold-soft: 232 217 181;
+    --brand-gold-deep: 138 106 47;
+    --brand-ivory: 245 239 230;
   }
 
   .dark {

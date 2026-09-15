@@ -5,7 +5,7 @@ export default async function SettingsPage() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('system_settings')
-    .select('hide_prices, popup_enabled, popup_title, popup_message, popup_button_text, popup_button_link, popup_image_url, popup_show_on, seasonal_collections_multi_active, seasonal_section_position')
+    .select('hide_prices, popup_enabled, popup_title, popup_message, popup_button_text, popup_button_link, popup_image_url, popup_show_on, seasonal_collections_multi_active, seasonal_section_position, theme_gold, theme_gold_deep, theme_ink, theme_ivory')
     .eq('id', 'global')
     .single();
 

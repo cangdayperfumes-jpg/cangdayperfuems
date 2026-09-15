@@ -10,11 +10,16 @@ import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import ColorInput from '@/components/admin/ColorInput';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 const settingsSchema = z.object({
+  themeGold: z.string().default('#C9A24B'),
+  themeGoldDeep: z.string().default('#8A6A2F'),
+  themeInk: z.string().default('#120D0A'),
+  themeIvory: z.string().default('#F5EFE6'),
   hidePrices: z.boolean().default(false),
   popupEnabled: z.boolean().default(false),
   popupTitle: z.string().default(''),
@@ -40,6 +45,10 @@ export interface SettingsInitialData {
   popup_show_on: string | null;
   seasonal_collections_multi_active: boolean | null;
   seasonal_section_position: string | null;
+  theme_gold: string | null;
+  theme_gold_deep: string | null;
+  theme_ink: string | null;
+  theme_ivory: string | null;
 }
 
 export default function SettingsForm({ initialData }: { initialData: SettingsInitialData | null }) {
@@ -49,6 +58,10 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsSchema) as any,
     defaultValues: {
+      themeGold: initialData?.theme_gold ?? '#C9A24B',
+      themeGoldDeep: initialData?.theme_gold_deep ?? '#8A6A2F',
+      themeInk: initialData?.theme_ink ?? '#120D0A',
+      themeIvory: initialData?.theme_ivory ?? '#F5EFE6',
       hidePrices: initialData?.hide_prices ?? false,
       popupEnabled: initialData?.popup_enabled ?? false,
       popupTitle: initialData?.popup_title ?? '',
@@ -70,6 +83,10 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
       const { error } = await supabase
         .from('system_settings')
         .update({
+          theme_gold: data.themeGold,
+          theme_gold_deep: data.themeGoldDeep,
+          theme_ink: data.themeInk,
+          theme_ivory: data.themeIvory,
           hide_prices: data.hidePrices,
           popup_enabled: data.popupEnabled,
           popup_title: data.popupTitle,
@@ -96,6 +113,65 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+
+        {/* ── Theme ─────────────────────────────────────────── */}
+        <div className="bg-white p-6 rounded-lg border shadow-sm max-w-2xl">
+          <h2 className="text-lg font-semibold mb-1">Theme</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            The site&apos;s brand colors. Changes apply everywhere immediately — no
+            rebuild or redeploy needed.
+          </p>
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="themeGold"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <ColorInput label="Accent (Gold)" value={field.value} onChange={field.onChange} />
+                  </FormControl>
+                  <FormDescription>Buttons on hover, badges, dividers, links.</FormDescription>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="themeGoldDeep"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <ColorInput label="Accent, Deep" value={field.value} onChange={field.onChange} />
+                  </FormControl>
+                  <FormDescription>Text on light backgrounds (needs more contrast than Gold).</FormDescription>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="themeInk"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <ColorInput label="Dark Surface (Ink)" value={field.value} onChange={field.onChange} />
+                  </FormControl>
+                  <FormDescription>Header, footer, hero background.</FormDescription>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="themeIvory"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <ColorInput label="Light Surface (Ivory)" value={field.value} onChange={field.onChange} />
+                  </FormControl>
+                  <FormDescription>Page background, light text on dark surfaces.</FormDescription>
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
 
         {/* ── General Settings ─────────────────────────────── */}
         <div className="bg-white p-6 rounded-lg border shadow-sm max-w-2xl">

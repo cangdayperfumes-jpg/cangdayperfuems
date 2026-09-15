@@ -1,7 +1,20 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { isPlaceholderSupabaseProject } from './placeholder'
 
 export async function updateSession(request: NextRequest) {
+  const isAdminRoute = request.nextUrl.pathname.startsWith('/admin')
+
+  // No real Supabase project configured yet (see .env.local) — let admin
+  // routes through unauthenticated so the dashboard can be built without a
+  // DB. This re-enables itself automatically once real project values are set.
+  if (isAdminRoute && isPlaceholderSupabaseProject()) {
+    if (request.nextUrl.pathname === '/admin/login') {
+      return NextResponse.redirect(new URL('/admin', request.url))
+    }
+    return NextResponse.next()
+  }
+
   let response = NextResponse.next({
     request: {
       headers: request.headers,
