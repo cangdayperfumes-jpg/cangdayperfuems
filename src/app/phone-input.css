@@ -1,0 +1,36 @@
+/* Custom styling for react-phone-input-2 to match Shadcn UI */
+.phone-input-container {
+  @apply w-full;
+}
+
+.phone-input-container .phone-input-field {
+  @apply w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background !important;
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 !important;
+  @apply placeholder:text-muted-foreground !important;
+  @apply disabled:cursor-not-allowed disabled:opacity-50 !important;
+}
+
+.phone-input-container .phone-input-button {
+  @apply border border-input bg-background !important;
+  @apply rounded-l-md !important;
+  @apply hover:bg-accent hover:text-accent-foreground !important;
+}
+
+.phone-input-container .country-list {
+  @apply bg-background border border-input rounded-md shadow-md !important;
+  @apply text-sm !important;
+}
+
+.phone-input-container .country-list .country {
+  @apply hover:bg-accent !important;
+  @apply px-3 py-2 !important;
+}
+
+.phone-input-container .country-list .country:hover {
+  @apply bg-accent text-accent-foreground !important;
+}
+
+.phone-input-container .search-box {
+  @apply border border-input rounded-md px-3 py-2 mb-2 !important;
+  @apply bg-background text-foreground !important;
+}

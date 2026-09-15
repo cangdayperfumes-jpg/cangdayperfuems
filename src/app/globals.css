@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Royal Perfumes: Strict Black & White */
+    --background: 0 0% 100%; /* White */
+    --foreground: 0 0% 0%;   /* Black */
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
+
+    --primary: 0 0% 0%;      /* Black */
+    --primary-foreground: 0 0% 100%; /* White */
+
+    --secondary: 0 0% 96%;   /* Very Light Gray for hover/bg */
+    --secondary-foreground: 0 0% 0%;
+
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 0%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 0%;
+
+    --radius: 0rem; /* Sharp edges for Luxury feel ? Or keep default? Let's go slightly rounded 0.3rem or 0 for sharp. User said "Luxury" which often means sharp or very smooth. Let's stick to 0.5rem for now, adaptable. */
+    --radius: 0.25rem;
+  }
+
+  .dark {
+    /* Optional Dark Mode - User said "Black & White only". 
+       For now, let's keep it consistent or just invert. 
+       If user wants "Dark Mode" luxury, we can enable it. 
+       But "Royal" usually implies White BG with Black Text for e-commerce.
+    */
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+
+    --card: 0 0% 3%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 0 0% 3%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
+
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 65%;
+
+    --accent: 0 0% 10%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 0 0% 100%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    @apply bg-background text-foreground font-body text-sm md:text-base; /* Default to Inter, scaled */
+  }
+  h1 {
+    @apply font-heading text-3xl md:text-5xl; /* Responsive H1 */
+  }
+  h2, h3, h4, h5, h6 {
+    @apply font-heading; /* Playfair Display */
+  }
+  
+  html, body {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  
+  html::-webkit-scrollbar, body::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+}
