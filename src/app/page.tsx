@@ -97,7 +97,7 @@ export default async function Home() {
     {
       label: "Women's",
       audience: 'Women',
-      image: 'https://images.unsplash.com/photo-1608721279136-cd41b752fa41?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=900',
+      image: 'https://images.unsplash.com/photo-1774682060959-efe13b7a12b9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=900',
       span: 'md:col-span-2 md:row-span-2',
       aspect: 'aspect-[3/4]',
     },
@@ -175,7 +175,7 @@ export default async function Home() {
                   sizes="(max-width: 768px) 100vw, 50vw"
                   // One consistent grading pass (desaturate + warm + darken) so
                   // photos from different sources still read as one material.
-                  className="object-cover transition-all duration-700 group-hover:scale-105 [filter:grayscale(0.35)_sepia(0.18)_saturate(1.1)_brightness(0.8)]"
+                  className="object-cover transition-all duration-700 group-hover:scale-105 [filter:grayscale(0.55)_sepia(0.2)_saturate(0.85)_brightness(0.72)]"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/10 to-transparent" />
                 <div className="absolute inset-0 flex flex-col items-start justify-end p-6">
