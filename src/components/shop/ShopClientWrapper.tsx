@@ -134,17 +134,16 @@ export default function ShopClientWrapper({
     return `${truncated.slice(0, lastSpace > 0 ? lastSpace : maxLength)}…`;
   };
 
-  // Short, factual intro line under the H1 — mirrors the real business facts
-  // published on /about (Istanbul manufacturing, 1,300+ models, 35+ countries)
-  // instead of generic filler, since Google indexes this page as mobile and
-  // previously saw no on-page copy at all here.
+  // Short intro line under the H1 — real on-page copy instead of leaving
+  // the page with nothing but a product grid, since Google indexes this
+  // page as mobile and previously saw no on-page copy at all here.
   const pageIntro = seasonTitle
     ? undefined
     : selectedCategory
-    ? toShortIntro(selectedCategory.description || `Wholesale ${selectedCategory.name} from Royal Perfumes, manufactured in Istanbul for businesses worldwide.`)
+    ? toShortIntro(selectedCategory.description || `Shop ${selectedCategory.name} at Cangday — an edited collection of designer and niche perfumes.`)
     : initialAudience
-    ? `Wholesale ${initialAudience.toLowerCase()} fragrances from Royal Perfumes, manufactured in Istanbul.`
-    : 'Wholesale fragrance catalog — 1,300+ models manufactured in Istanbul, supplied to 35+ countries.';
+    ? `Shop ${initialAudience.toLowerCase()} fragrances at Cangday.`
+    : 'An edited collection of designer and niche perfumes for everyday wear.';
 
   // Real crawlable link to the next page — the infinite-scroll sentinel below
   // is JS-only (IntersectionObserver), so Googlebot has no <a href> path past

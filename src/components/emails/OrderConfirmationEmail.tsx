@@ -24,17 +24,17 @@ export const OrderConfirmationEmail = ({
       <Head>
         <style>
           {`
-            @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;1,400&family=Manrope:wght@300;400;500&display=swap');
           `}
         </style>
       </Head>
-      <Preview>Thank you for your order from Royal Perfumes.</Preview>
+      <Preview>Thank you for your order from Cangday.</Preview>
       <Body style={main}>
         <Container style={container}>
           <Section style={headerSection}>
-            <Heading style={logo}>Royal Perfumes</Heading>
+            <Heading style={logo}>Cangday</Heading>
           </Section>
-          
+
           <Section style={contentSection}>
             <Heading style={heading}>Order Received.</Heading>
             <Text style={text}>Dear {customerName},</Text>
@@ -42,13 +42,13 @@ export const OrderConfirmationEmail = ({
               Thank you for your order. We are currently reviewing your request for Order #{orderId.slice(0, 8)}.
             </Text>
             <Text style={text}>
-              We will be in touch shortly to coordinate shipping and payment via WhatsApp.
+              We&apos;ll follow up by email shortly to confirm shipping details.
             </Text>
-            
+
             <div style={footerDivider} />
             <Text style={footerText}>
-              Exquisite scents for the modern aristocracy.<br/>
-              © {new Date().getFullYear()} Royal Perfumes. All rights reserved.
+              Wear What Lingers.<br/>
+              © {new Date().getFullYear()} Cangday. All rights reserved.
             </Text>
           </Section>
         </Container>
@@ -61,7 +61,7 @@ export default OrderConfirmationEmail;
 
 const main = {
   backgroundColor: '#ffffff',
-  fontFamily: "'Inter', sans-serif",
+  fontFamily: "'Manrope', sans-serif",
   padding: '40px 0',
 };
 
@@ -75,16 +75,16 @@ const container = {
 
 const headerSection = {
   padding: '32px 48px',
-  backgroundColor: '#000000',
+  backgroundColor: '#120D0A',
   textAlign: 'center' as const,
 };
 
 const logo = {
   margin: '0',
-  fontFamily: "'Playfair Display', serif",
+  fontFamily: "'Fraunces', serif",
   fontSize: '28px',
   fontWeight: '500',
-  color: '#ffffff',
+  color: '#F5EFE6',
   letterSpacing: '0.05em',
 };
 
@@ -94,7 +94,7 @@ const contentSection = {
 
 const heading = {
   margin: '0 0 24px',
-  fontFamily: "'Playfair Display', serif",
+  fontFamily: "'Fraunces', serif",
   fontSize: '24px',
   fontWeight: '400',
   color: '#000000',

@@ -5,7 +5,7 @@ import { getAllPosts } from '@/lib/blog';
 
 export const metadata: Metadata = {
   title: 'Blog',
-  description: 'Wholesale fragrance sourcing guides, scent-matching explainers, and shipping know-how from Royal Perfumes.',
+  description: 'Notes on fragrance, layering, and finding your signature scent from Cangday.',
   alternates: { canonical: '/blog' },
 };
 

@@ -98,16 +98,12 @@ export default async function BlogPostPage({ params }: PageProps) {
     dateModified: post.updated || post.date,
     author: {
       '@type': 'Organization',
-      name: 'Royal Perfumes',
+      name: 'Cangday',
       url: siteUrl,
     },
     publisher: {
       '@type': 'Organization',
-      name: 'Royal Perfumes',
-      logo: {
-        '@type': 'ImageObject',
-        url: `${siteUrl}/images/royalLogo.png`,
-      },
+      name: 'Cangday',
     },
     mainEntityOfPage: {
       '@type': 'WebPage',

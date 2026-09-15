@@ -181,7 +181,7 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
                     <FormItem>
                       <FormLabel>Title</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g. Welcome to Royal Perfumes!" {...field} />
+                        <Input placeholder="e.g. Welcome to Cangday!" {...field} />
                       </FormControl>
                     </FormItem>
                   )}

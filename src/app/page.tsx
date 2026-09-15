@@ -17,6 +17,7 @@ import {
   getSeasonalSectionSettings,
   resolveVisibleSeasonalCollections,
 } from '@/lib/seasonal-collections-data';
+import { getActiveHeroSlides } from '@/lib/hero-slides-data';
 import { getAllPosts } from '@/lib/blog';
 
 const ProductCarousel = dynamic(() => import('@/components/home/product-carousel'), {
@@ -56,6 +57,7 @@ export default async function Home() {
     { data: brands },
     seasonalCollections,
     seasonalSettings,
+    heroSlides,
   ] = await Promise.all([
     // Best Sellers (top 8 active products by sales_count)
     supabase
@@ -80,6 +82,7 @@ export default async function Home() {
     supabase.from('brands').select('name, slug, products!inner(id)').eq('products.is_active', true).order('name').limit(24),
     getActiveSeasonalCollections(),
     getSeasonalSectionSettings(),
+    getActiveHeroSlides(),
   ]);
 
   const visibleSeasonalCollections = resolveVisibleSeasonalCollections(
@@ -145,7 +148,7 @@ export default async function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       {/* ── 1. Hero Section (Full Screen) ── */}
-      <Hero />
+      <Hero slides={heroSlides} />
       {seasonalPosition === 'after_hero' && seasonalSection}
 
       {/* ── 2. Brand Ticker (Infinite Loop) ── */}

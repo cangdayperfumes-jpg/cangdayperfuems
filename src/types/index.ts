@@ -115,6 +115,24 @@ export interface SeasonalCollection {
   updated_at: string;
 }
 
+export interface HeroSlide {
+  id: string;
+  eyebrow: string;
+  headline: string;
+  headline_accent?: string | null;
+  subheading?: string | null;
+  image_url: string;
+  image_position: 'center' | 'top' | 'bottom' | 'left' | 'right';
+  button_text: string;
+  button_link: string;
+  secondary_button_text?: string | null;
+  secondary_button_link?: string | null;
+  display_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface SeasonalCollectionProductLink {
   collection_id: string;
   product_id: string;

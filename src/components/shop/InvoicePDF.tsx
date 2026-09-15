@@ -1,4 +1,4 @@
-import { Document, Page, Text, View, Image, StyleSheet, Font } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
 import { EditableInvoiceItem } from '@/types/invoice';
 
 const styles = StyleSheet.create({
@@ -279,11 +279,9 @@ export default function InvoicePDF({ order, items, hidePrices = false, customIte
         {/* Header */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.title}>ROYAL PERFUMES</Text>
-            <Text style={styles.subtitle}>Luxury Fragrances</Text>
+            <Text style={styles.title}>CANGDAY</Text>
+            <Text style={styles.subtitle}>Modern Perfumery</Text>
           </View>
-          {/* eslint-disable-next-line jsx-a11y/alt-text -- @react-pdf/renderer's Image is not an HTML <img>; it has no alt prop */}
-          <Image src="/images/hero1.PNG" style={styles.logo} />
         </View>
         <View style={styles.thickDivider} />
 
@@ -392,7 +390,7 @@ export default function InvoicePDF({ order, items, hidePrices = false, customIte
         {/* Footer */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>Thank you for your order!</Text>
-          <Text style={styles.footerText}>Royal Perfumes - Essence of Royalty</Text>
+          <Text style={styles.footerText}>Cangday - Wear What Lingers</Text>
         </View>
 
       </Page>

@@ -34,6 +34,7 @@ export default function AdminSidebar({ onSignOut, isCollapsed = false, setIsColl
     {
       label: 'Marketing',
       items: [
+        { href: '/admin/marketing/hero-slides', label: 'Hero Slides', icon: Sparkles },
         { href: '/admin/marketing/seasonal-collections', label: 'Seasonal Collection', icon: Sparkles },
       ],
     },
@@ -57,11 +58,11 @@ export default function AdminSidebar({ onSignOut, isCollapsed = false, setIsColl
         )}
         <div className="p-6 flex items-center justify-center md:justify-start">
           <Link href="/" className={cn("flex items-center gap-2 mb-6", isCollapsed && "md:justify-center")}>
-             <div className="h-8 w-8 bg-white rounded-full flex items-center justify-center shrink-0">
-                <span className="text-black font-bold text-xl">R</span>
+             <div className="h-8 w-8 bg-gold rounded-full flex items-center justify-center shrink-0">
+                <span className="text-ink font-bold text-xl">C</span>
              </div>
              <div className={cn("transition-all duration-300", isCollapsed && "md:hidden")}>
-                <h1 className="text-lg font-playfair font-bold whitespace-nowrap">Royal Perfume</h1>
+                <h1 className="text-lg font-heading font-bold whitespace-nowrap">Cangday</h1>
                 <p className="text-[10px] text-zinc-400 uppercase tracking-widest whitespace-nowrap">Admin Panel</p>
              </div>
           </Link>
@@ -123,10 +124,10 @@ export default function AdminSidebar({ onSignOut, isCollapsed = false, setIsColl
       {/* Mobile Sidebar (Sheet) */}
       <div className="md:hidden sticky top-0 z-40 bg-white border-b px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-             <div className="h-8 w-8 bg-black rounded-full flex items-center justify-center shrink-0">
-                <span className="text-white font-bold text-sm">R</span>
+             <div className="h-8 w-8 bg-gold rounded-full flex items-center justify-center shrink-0">
+                <span className="text-ink font-bold text-sm">C</span>
              </div>
-             <span className="font-playfair font-bold">Admin</span>
+             <span className="font-heading font-bold">Admin</span>
           </div>
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>

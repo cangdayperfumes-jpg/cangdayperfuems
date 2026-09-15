@@ -27,7 +27,7 @@ export default function CatalogPDF({
   imageWatermarkLogoSrc,
 }: CatalogPDFProps) {
   const leadingBanners = model.bannersByGroupId.get(null) || [];
-  const defaultWatermarkText = model.cover.companyName || 'ROYAL PERFUMES';
+  const defaultWatermarkText = model.cover.companyName || 'CANGDAY';
 
   return (
     <Document>

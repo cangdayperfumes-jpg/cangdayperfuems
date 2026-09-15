@@ -11,7 +11,7 @@ export const metadata = {
   description: 'Explore our exclusive range of fragrance collections and products.',
   alternates: { canonical: '/categories' },
   openGraph: {
-    title: 'Our Collections | Royal Perfumes',
+    title: 'Our Collections | Cangday',
     description: 'Explore our exclusive range of fragrance collections and products.',
   },
 };

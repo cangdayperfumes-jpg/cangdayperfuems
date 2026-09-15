@@ -51,7 +51,7 @@ export type CatalogProductsPerRow = 3 | 4;
 export interface CatalogWatermarkLine {
   id: string;
   enabled: boolean;
-  /** Empty string falls back to the cover company name (or "ROYAL PERFUMES"). */
+  /** Empty string falls back to the cover company name (or "CANGDAY"). */
   text: string;
   /** 0–1 */
   opacity: number;
@@ -138,15 +138,15 @@ export interface CatalogModel {
   imageWatermark: CatalogImageWatermarkConfig;
 }
 
-// Pre-filled so the catalog has a sensible default without requiring an
-// upload; the logo upload field in the editor still overrides it.
-export const DEFAULT_CATALOG_LOGO_URL = '/images/royalLogo.png';
+// No default logo asset exists yet for Cangday — the logo upload field in
+// the editor is how an admin sets one; this just avoids a broken image path.
+export const DEFAULT_CATALOG_LOGO_URL = '';
 
 export function defaultCoverConfig(): CatalogCoverConfig {
   return {
     title: 'Product Catalog',
     subtitle: '',
-    companyName: 'Royal Perfumes',
+    companyName: 'Cangday',
     phone: '',
     email: '',
     website: '',
@@ -166,7 +166,7 @@ export function defaultHeaderFooterConfig(): CatalogHeaderFooterConfig {
     phone: '',
     email: '',
     social: '',
-    copyrightText: `© ${new Date().getFullYear()} Royal Perfumes. All rights reserved.`,
+    copyrightText: `© ${new Date().getFullYear()} Cangday. All rights reserved.`,
   };
 }
 

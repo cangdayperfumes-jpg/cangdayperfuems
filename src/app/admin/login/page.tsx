@@ -52,7 +52,7 @@ export default function AdminLogin() {
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@royalperfumes.com"
+                placeholder="admin@cangday.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -80,7 +80,7 @@ export default function AdminLogin() {
           </form>
         </CardContent>
         <CardFooter className="justify-center">
-          <p className="text-sm text-gray-500">Royal Perfumes Internal System</p>
+          <p className="text-sm text-gray-500">Cangday Internal System</p>
         </CardFooter>
       </Card>
     </div>

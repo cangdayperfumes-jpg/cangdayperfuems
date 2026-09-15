@@ -476,7 +476,7 @@ export default function CatalogGeneratorPage() {
               <Input
                 value={config.cover.social}
                 onChange={(e) => updateCompanyInfo({ social: e.target.value })}
-                placeholder="@royalperfumes"
+                placeholder="@cangday"
               />
             </div>
             <div className="grid gap-2">
@@ -754,7 +754,7 @@ export default function CatalogGeneratorPage() {
                   className="md:flex-1"
                   value={line.text}
                   onChange={(e) => updateWatermarkLine(line.id, { text: e.target.value })}
-                  placeholder={config.cover.companyName || 'ROYAL PERFUMES'}
+                  placeholder={config.cover.companyName || 'CANGDAY'}
                   disabled={!line.enabled}
                 />
                 <div className="flex items-center gap-3 md:w-60 md:shrink-0">
@@ -826,7 +826,7 @@ export default function CatalogGeneratorPage() {
                 <Input
                   value={config.imageWatermark.text}
                   onChange={(e) => updateImageWatermark({ text: e.target.value })}
-                  placeholder={config.cover.companyName || 'ROYAL PERFUMES'}
+                  placeholder={config.cover.companyName || 'CANGDAY'}
                 />
               </div>
               <div className="grid gap-2">

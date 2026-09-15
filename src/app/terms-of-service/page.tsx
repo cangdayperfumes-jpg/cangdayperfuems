@@ -61,7 +61,7 @@ export default function TermsOfServicePage() {
 
       <Section title="Returns">
         <p>
-          Returns are accepted within 7 days of delivery. To start a return,{' '}
+          Returns are accepted within 14 days of delivery. To start a return,{' '}
           <Link href="/contact" className="text-gray-900 underline underline-offset-2 hover:no-underline">
             contact us
           </Link>{' '}

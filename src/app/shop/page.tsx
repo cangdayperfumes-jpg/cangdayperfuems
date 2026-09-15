@@ -88,7 +88,7 @@ export async function generateMetadata({ searchParams }: { searchParams: SearchP
   const seasonSlug = typeof params.season === 'string' ? params.season : undefined;
 
   let title = 'Shop All';
-  let description = 'Browse our extensive collection of luxury perfumes and body care products at Royal Perfumes. Discover the perfect signature scent tailored to your lifestyle.';
+  let description = 'Browse our edited collection of designer and niche perfumes at Cangday. Discover the perfect signature scent for your everyday wear.';
   let ogImage: string | undefined;
 
   if (categorySlug) {
@@ -99,7 +99,7 @@ export async function generateMetadata({ searchParams }: { searchParams: SearchP
       if (category.description && category.description.length > 50) {
         description = category.description;
       } else {
-        description = `Explore our premium ${category.name} collection at Royal Perfumes. Discover handcrafted, luxury fragrances and exclusive products designed for everyday elegance.`;
+        description = `Explore our ${category.name} collection at Cangday — designer and niche fragrances for everyday elegance.`;
       }
     }
   } else if (seasonSlug) {
@@ -107,15 +107,15 @@ export async function generateMetadata({ searchParams }: { searchParams: SearchP
     const collection = collections.find((c) => c.slug === seasonSlug);
     if (collection) {
       title = collection.seo_title || collection.title;
-      description = collection.seo_description || collection.description || `Shop our ${collection.title} collection at Royal Perfumes.`;
+      description = collection.seo_description || collection.description || `Shop our ${collection.title} collection at Cangday.`;
       ogImage = collection.banner_image_desktop || undefined;
     }
   } else if (audience) {
     title = `${audience}'s Collection`;
-    description = `Shop our exclusive ${audience} fragrance collection at Royal Perfumes. Explore a curated selection of premium, long-lasting luxury perfumes crafted for elegance.`;
+    description = `Shop our ${audience} fragrance collection at Cangday — a curated selection of designer and niche perfumes.`;
   } else if (searchQuery) {
     title = `Search Results for "${searchQuery}"`;
-    description = `Explore our premium search results for "${searchQuery}" at Royal Perfumes. Find the perfect luxury fragrance, body care product, or gift set to match your style.`;
+    description = `Search results for "${searchQuery}" at Cangday. Find the perfect fragrance, body care product, or gift set to match your style.`;
   }
 
   // To prevent indexing infinite parameter combinations, we set canonical to base shop url if there are many params

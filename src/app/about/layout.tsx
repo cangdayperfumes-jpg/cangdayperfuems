@@ -2,10 +2,10 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Our Story',
-  description: 'Learn about Royal Perfumes. Operational precision, manufacturing excellence, and uncompromising quality for luxury fragrances.',
+  description: 'Learn about Cangday — a modern fragrance house offering an edited collection of designer and niche perfumes for everyday wear.',
   openGraph: {
-    title: 'Our Story | Royal Perfumes',
-    description: 'Learn about Royal Perfumes. Operational precision, manufacturing excellence, and uncompromising quality for luxury fragrances.',
+    title: 'Our Story | Cangday',
+    description: 'Learn about Cangday — a modern fragrance house offering an edited collection of designer and niche perfumes for everyday wear.',
   },
 };
 

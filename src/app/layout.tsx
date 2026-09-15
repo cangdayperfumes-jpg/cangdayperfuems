@@ -165,7 +165,6 @@ export default async function RootLayout({
               "name": "Cangday",
               "legalName": "Cangday",
               "url": siteUrl,
-              "logo": `${siteUrl}/logo.svg`,
               "description": "Cangday is a modern fragrance house offering an edited collection of designer and niche perfumes for everyday wear.",
               "slogan": "Wear What Lingers.",
             })

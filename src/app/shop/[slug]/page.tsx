@@ -254,32 +254,30 @@ export default async function ProductPage({ params }: PageProps) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.cangday.com';
   const canonicalSlug = product.slug || product.id;
   const imageUrl = toAbsoluteUrl(product.images?.[0], siteUrl);
-  const brandName = (product as any).brands?.name || 'Royal Perfumes';
+  const brandName = (product as any).brands?.name || 'Cangday';
 
   // Offer.price/availability are only truthful to include when the storefront
   // actually shows a number — with hide_prices on, the page reads "Contact for
   // price", so claiming a numeric price+InStock here would contradict the
   // visible page (a real Google structured-data policy violation, not a
-  // cosmetic one). Shipping cost is quoted per order (see /shipping — "final
-  // shipping cost will always be confirmed with the customer before payment"),
-  // so it is never a fixed $0/free rate and OfferShippingDetails is omitted
-  // rather than inventing a number. The 7-day mail return policy IS a real,
-  // published fact (see the wholesale-fragrance-sourcing-guide blog post).
+  // cosmetic one). Shipping cost is quoted per order, so it is never a fixed
+  // $0/free rate and OfferShippingDetails is omitted rather than inventing a
+  // number. The 14-day mail return policy matches /terms-of-service.
   const offers: Record<string, any> = {
     '@type': 'Offer',
     url: `${siteUrl}/shop/${canonicalSlug}`,
     seller: {
       '@type': 'Organization',
-      name: 'Royal Perfumes',
+      name: 'Cangday',
     },
     hasMerchantReturnPolicy: {
       '@type': 'MerchantReturnPolicy',
       // Real destination list from shipping_zones (same table /shipping
-      // renders from), not a guess — falls back to the verified seller
-      // country if the table is ever empty.
-      applicableCountry: shippingCountries.length > 0 ? shippingCountries : 'TR',
+      // renders from) — omitted entirely if that table is ever empty,
+      // rather than guessing a country Cangday may not actually ship from.
+      ...(shippingCountries.length > 0 ? { applicableCountry: shippingCountries } : {}),
       returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
-      merchantReturnDays: 7,
+      merchantReturnDays: 14,
       returnMethod: 'https://schema.org/ReturnByMail',
       returnFees: 'https://schema.org/FreeReturn',
     },
@@ -297,7 +295,7 @@ export default async function ProductPage({ params }: PageProps) {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name_en,
-    description: product.description_en || 'Luxury perfume from Royal Perfumes.',
+    description: product.description_en || 'Perfume from Cangday.',
     image: imageUrl,
     url: `${siteUrl}/shop/${canonicalSlug}`,
     brand: {

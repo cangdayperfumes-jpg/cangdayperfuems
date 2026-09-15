@@ -20,7 +20,7 @@ export default function CatalogCoverPage({ cover, totalProductCount, groupCount,
 
   return (
     <Page size="A4" style={styles.coverPage}>
-      <CatalogPageWatermark lines={watermarkLines} defaultText={cover.companyName || 'ROYAL PERFUMES'} />
+      <CatalogPageWatermark lines={watermarkLines} defaultText={cover.companyName || 'CANGDAY'} />
       {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image is not an HTML img, no alt prop exists */}
       {cover.coverImageUrl ? <Image src={cover.coverImageUrl} style={styles.coverImage} /> : null}
 

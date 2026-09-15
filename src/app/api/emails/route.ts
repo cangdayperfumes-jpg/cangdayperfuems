@@ -25,10 +25,10 @@ export async function POST(req: Request) {
 
     // Determine template based on type
     if (type === 'confirmation') {
-      subjectLine = 'Royal Perfumes: Order Received';
+      subjectLine = 'Cangday: Order Received';
       reactEmailTemplate = OrderConfirmationEmail({ customerName, orderId });
     } else if (type === 'accepted') {
-      subjectLine = 'Royal Perfumes: Order Accepted & Ready for Shipment';
+      subjectLine = 'Cangday: Order Accepted & Ready for Shipment';
       reactEmailTemplate = OrderAcceptedEmail({ customerName, orderId });
     } else {
       return NextResponse.json({ error: 'Invalid email type' }, { status: 400 });
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
 
     // Send the email
     const data = await resend.emails.send({
-      from: 'Royal Perfumes <onboarding@resend.dev>', // If unverified domain; otherwise update to actual domain
+      from: 'Cangday <onboarding@resend.dev>', // If unverified domain; otherwise update to actual domain
       to: [email],
       subject: subjectLine,
       html: emailHtml,
