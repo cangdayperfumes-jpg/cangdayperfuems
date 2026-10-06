@@ -9,8 +9,8 @@ import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import CategoryCarousel from '@/components/home/category-carousel';
 import dynamic from 'next/dynamic';
-import { StarBorder } from '@/components/ui/star-border';
 import SeasonalCollectionSection from '@/components/home/seasonal-collection-section';
+import ProductCard from '@/components/shared/ProductCard';
 import {
   getActiveSeasonalCollections,
   getSeasonalSectionSettings,
@@ -19,12 +19,9 @@ import {
 import { getActiveHeroSlides } from '@/lib/hero-slides-data';
 import { getActiveCategoryTiles } from '@/lib/category-tiles-data';
 import type { CategoryTile } from '@/types';
-import { getAllPosts } from '@/lib/blog';
-
-const ProductCarousel = dynamic(() => import('@/components/home/product-carousel'), {
-  loading: () => <div className="h-[400px] flex items-center justify-center">Loading...</div>,
-  ssr: true,
-});
+import { isSupabaseConfigured } from '@/lib/is-supabase-configured';
+// TEMP DEMO DATA — see src/lib/demo-data.ts for removal steps.
+import { DEMO_CATEGORIES, DEMO_NEW_ARRIVALS } from '@/lib/demo-data';
 
 const BrandBreaker = dynamic(() => import('@/components/home/brand-breaker'), {
   ssr: true,
@@ -45,14 +42,16 @@ export default async function Home() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
-  // Local filesystem read, not a network call — fine to run synchronously
-  // alongside the Supabase queries below rather than adding it to Promise.all.
-  const recentPosts = getAllPosts().slice(0, 3);
+  // Skips these 3 network calls entirely when Supabase isn't configured
+  // (e.g. a placeholder URL) — otherwise each one still attempts a request
+  // that only fails after a slow DNS lookup, adding real latency to every
+  // page load for no benefit since they'd resolve to empty data anyway.
+  const supabaseConfigured = isSupabaseConfigured();
+  const emptyQueryResult = Promise.resolve({ data: null, error: null } as { data: any; error: any });
 
-  // These 4 queries are fully independent — run them concurrently instead of
+  // These 3 queries are fully independent — run them concurrently instead of
   // awaiting each one in sequence.
   const [
-    { data: bestSellers },
     { data: newArrivals },
     { data: categories },
     { data: brands },
@@ -61,32 +60,36 @@ export default async function Home() {
     heroSlides,
     categoryTiles,
   ] = await Promise.all([
-    // Best Sellers (top 8 active products by sales_count)
-    supabase
-      .from('products')
-      .select('*, product_variants(*)')
-      .eq('is_active', true)
-      .order('sales_count', { ascending: false })
-      .limit(8),
     // New Arrivals (last 8 created)
-    supabase
-      .from('products')
-      .select('*, product_variants(*)')
-      .eq('is_active', true)
-      .order('created_at', { ascending: false })
-      .limit(8),
+    supabaseConfigured
+      ? supabase
+          .from('products')
+          .select('*, product_variants(*)')
+          .eq('is_active', true)
+          .order('created_at', { ascending: false })
+          .limit(8)
+      : emptyQueryResult,
     // Categories
-    supabase.from('categories').select('*').order('name'),
+    supabaseConfigured ? supabase.from('categories').select('*').order('name') : emptyQueryResult,
     // Brands — no brands are currently flagged is_featured in the DB, which
     // silently emptied this ticker down to the hardcoded fallback names.
     // Use the same "has active products" pattern as the shop page's brand
     // list instead, so this shows real catalog data.
-    supabase.from('brands').select('name, slug, products!inner(id)').eq('products.is_active', true).order('name').limit(24),
+    supabaseConfigured
+      ? supabase.from('brands').select('name, slug, products!inner(id)').eq('products.is_active', true).order('name').limit(24)
+      : emptyQueryResult,
     getActiveSeasonalCollections(),
     getSeasonalSectionSettings(),
     getActiveHeroSlides(),
     getActiveCategoryTiles(),
   ]);
+
+  // TEMP DEMO DATA: fall back to mock content only when the real query came
+  // back empty, so this is a no-op once the DB actually has data. Remove
+  // these two lines (and go back to using newArrivals/categories directly
+  // below) per src/lib/demo-data.ts.
+  const displayNewArrivals = newArrivals && newArrivals.length > 0 ? newArrivals : DEMO_NEW_ARRIVALS;
+  const displayCategories = categories && categories.length > 0 ? categories : DEMO_CATEGORIES;
 
   const visibleSeasonalCollections = resolveVisibleSeasonalCollections(
     seasonalCollections,
@@ -140,47 +143,56 @@ export default async function Home() {
              Royal used, shared by most fashion e-commerce templates). Each
              tile is a small "matted print": image inset with a frame margin,
              caption always visible on its own plaque strip below. ── */}
-      <section className="py-16 md:py-24 w-full bg-ivory">
+      <section className="py-8 md:py-12 w-full bg-ivory">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-10">
-            <p className="text-xs uppercase tracking-[0.35em] text-gold-deep font-semibold mb-3">
+          <div className="mb-5 md:mb-6">
+            <p className="text-xs uppercase tracking-[0.35em] text-gold-deep font-semibold mb-2">
               Shop by Category
             </p>
-            <h2 className="font-heading text-3xl md:text-4xl font-medium text-ink">
+            <h2 className="font-heading text-2xl md:text-3xl font-medium text-ink">
               Find Your Category
             </h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 md:h-[720px]">
+          <div className="grid grid-cols-2 md:grid-cols-4 md:grid-rows-2 gap-2.5 md:gap-4 md:h-[520px]">
             {collections.map((item) => {
               // Tailwind's JIT needs these as literal strings somewhere in
               // source (not built from a template string) to generate them.
               const colSpanClass = { 1: '', 2: 'md:col-span-2', 3: 'md:col-span-3', 4: 'md:col-span-4' }[item.col_span];
               const rowSpanClass = { 1: 'md:row-span-1', 2: 'md:row-span-2' }[item.row_span];
-              const aspectClass = item.row_span === 2 ? 'aspect-[3/4]' : item.col_span >= 2 ? 'aspect-[4/3]' : 'aspect-square';
+              // Mobile is a fixed 2-up grid (spans only apply from md up), so
+              // every tile gets the same compact aspect-square there. At md
+              // the per-item ratio class is inert: with both md:w-full and
+              // md:h-full making the tile's width/height explicit (not
+              // "auto"), aspect-ratio has no dimension left to compute from,
+              // so the tile simply fills its grid area instead of shrinking
+              // to satisfy the ratio (which is what happened without the
+              // explicit md:w-full — the box shrank to keep the ratio and
+              // left blank space in the rest of its grid cell).
+              const aspectClass = item.row_span === 2 ? 'md:aspect-[3/4]' : item.col_span >= 2 ? 'md:aspect-[4/3]' : 'md:aspect-square';
 
               return (
               <Link
                 key={item.id}
                 href={item.link_href}
-                className={`group flex flex-col bg-ivory border border-border hover:border-gold/50 transition-colors overflow-hidden ${colSpanClass} ${rowSpanClass} ${aspectClass} md:aspect-auto md:h-full`}
+                className={`group flex flex-col bg-ivory border border-border hover:border-gold/50 transition-colors overflow-hidden ${colSpanClass} ${rowSpanClass} aspect-square ${aspectClass} md:h-full md:w-full`}
               >
-                <div className="relative flex-1 overflow-hidden m-2 mb-0">
+                <div className="relative flex-1 overflow-hidden m-1.5 mb-0 md:m-2">
                   <Image
                     src={item.image_url}
                     alt={item.label}
                     fill
                     loading="lazy"
-                    sizes="(max-width: 768px) 100vw, 50vw"
+                    sizes="(max-width: 768px) 50vw, 50vw"
                     // One consistent grading pass (desaturate + warm + darken) so
                     // photos from different sources still read as one material.
                     className="object-cover transition-all duration-700 group-hover:scale-105 [filter:grayscale(0.55)_sepia(0.2)_saturate(0.85)_brightness(0.72)]"
                   />
                 </div>
-                <div className="flex items-center justify-between px-4 py-3.5 shrink-0">
-                  <h3 className="text-lg md:text-xl font-heading text-ink font-medium">
+                <div className="flex items-center justify-between px-2.5 py-2 md:px-4 md:py-3.5 shrink-0">
+                  <h3 className="text-sm md:text-xl font-heading text-ink font-medium truncate">
                     {item.label}
                   </h3>
-                  <ArrowRight className="h-4 w-4 text-gold-deep -translate-x-1 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                  <ArrowRight className="hidden md:block h-4 w-4 text-gold-deep -translate-x-1 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
                 </div>
               </Link>
               );
@@ -196,170 +208,80 @@ export default async function Home() {
              layout from "Find Your Category" above: that one is audience
              (Men/Women/Unisex/Niche), this is product type (Perfumes, Body
              Mists, Gift Sets…), so the two sections don't read as repeats. ── */}
-      <section className="py-16 md:py-24 w-full bg-secondary/50">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 space-y-3">
+      <section className="py-5 md:py-7 w-full bg-secondary/50">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mb-3 md:mb-4">
+          <div className="text-center space-y-1">
             <p className="text-xs uppercase tracking-[0.35em] text-gold-deep font-semibold">
               Every Format
             </p>
-            <h2 className="text-3xl md:text-5xl font-heading font-medium">
+            <h2 className="text-lg md:text-2xl font-heading font-medium">
               Browse by Type
             </h2>
           </div>
-
-          {categories && categories.length > 0 ? (
-            <CategoryCarousel categories={categories} />
-          ) : (
-            <div className="text-center text-muted-foreground py-10">
-              No categories found.
-            </div>
-          )}
         </div>
+
+        {/* Full-bleed — intentionally outside the max-width container so the
+            cards run edge to edge instead of being boxed in by page padding. */}
+        {displayCategories && displayCategories.length > 0 ? (
+          <CategoryCarousel categories={displayCategories} />
+        ) : (
+          <div className="text-center text-muted-foreground py-10">
+            No categories found.
+          </div>
+        )}
       </section>
       {seasonalPosition === 'after_category_carousel' && seasonalSection}
 
       <ElegantSeparator />
 
-      {/* ── 5. Best Sellers (Product Carousel) ── */}
-      <section className="py-16 md:py-24 w-full">
+      {/* ── 5. Just Arrived — a dense grid (not a carousel) so it reads like
+             a mini shop preview: more products visible at once, stacked the
+             same way the real /shop listing stacks them. On mobile, a
+             solid "Shop Now" button sits right under the heading (before the
+             grid) as the fast path — one obvious tap to the full, pre-filtered
+             listing for anyone who doesn't want to browse card-by-card. ── */}
+      <section className="py-5 md:py-7 w-full bg-secondary/50">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-end justify-between mb-12">
-            <div className="space-y-3">
-              <p className="text-xs uppercase tracking-[0.35em] text-gold-deep font-semibold">
-                Most Loved
-              </p>
-              <h2 className="text-3xl md:text-5xl font-heading font-medium">
-                Best Sellers
-              </h2>
-            </div>
-            <Link
-              href="/shop"
-              className="hidden md:flex items-center gap-2 text-sm font-medium text-ink hover:text-gold-deep transition-colors"
-            >
-              View All <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-
-          {bestSellers && bestSellers.length > 0 ? (
-            <ProductCarousel products={bestSellers} />
-          ) : (
-            <div className="text-center text-muted-foreground py-10">
-              No products yet.
-            </div>
-          )}
-
-          <div className="mt-12 flex justify-center md:hidden w-full max-w-sm mx-auto">
-            <Link href="/shop" className="w-full">
-              <StarBorder as="div" color="rgb(var(--brand-gold))" speed="3s" thickness={3} className="uppercase tracking-widest text-sm font-medium">
-                View All Products
-              </StarBorder>
-            </Link>
-          </div>
-        </div>
-      </section>
-      {seasonalPosition === 'after_best_sellers' && seasonalSection}
-
-      <ElegantSeparator />
-
-      {/* ── 7. New Arrivals (Product Carousel) ── */}
-      <section className="py-16 md:py-24 w-full bg-secondary/50">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-end justify-between mb-12">
-            <div className="space-y-3">
+          <div className="flex items-end justify-between mb-3 md:mb-4">
+            <div className="space-y-1">
               <p className="text-xs uppercase tracking-[0.35em] text-gold-deep font-semibold">
                 Fresh In
               </p>
-              <h2 className="text-3xl md:text-5xl font-heading font-medium">
+              <h2 className="text-lg md:text-2xl font-heading font-medium">
                 Just Arrived
               </h2>
             </div>
             <Link
-              href="/shop"
+              href="/shop?filter=new"
               className="hidden md:flex items-center gap-2 text-sm font-medium text-ink hover:text-gold-deep transition-colors"
             >
               View All <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
-          {newArrivals && newArrivals.length > 0 ? (
-            <ProductCarousel products={newArrivals} />
+          <Link
+            href="/shop?filter=new"
+            className="md:hidden mb-4 flex items-center justify-center gap-2 w-full bg-ink text-ivory py-3.5 rounded-sm text-sm font-semibold uppercase tracking-widest active:bg-gold active:text-ink transition-colors"
+          >
+            Shop Now <ArrowRight className="h-4 w-4" />
+          </Link>
+
+          {displayNewArrivals && displayNewArrivals.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-x-3 gap-y-6 md:gap-6">
+              {displayNewArrivals.map((product: any) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
           ) : (
             <div className="text-center text-muted-foreground py-10">
               No products yet.
             </div>
           )}
-
-          <div className="mt-12 flex justify-center md:hidden w-full max-w-sm mx-auto">
-            <Link href="/shop" className="w-full">
-              <StarBorder as="div" color="rgb(var(--brand-gold))" speed="4s" thickness={2} className="uppercase tracking-widest text-sm font-medium">
-                Shop New Arrivals
-              </StarBorder>
-            </Link>
-          </div>
         </div>
       </section>
       {seasonalPosition === 'after_new_arrivals' && seasonalSection}
 
-      {recentPosts.length > 0 && (
-        <>
-          <ElegantSeparator className="opacity-30" />
-          {/* ── 10. Fragrance Journal (Blog) ── */}
-          <section className="py-16 md:py-24 w-full bg-secondary/50">
-            <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex items-end justify-between mb-12">
-                <div className="space-y-4">
-                  <h2 className="text-3xl md:text-5xl font-heading font-medium">
-                    The Journal
-                  </h2>
-                  <p className="text-muted-foreground font-body text-lg">
-                    Notes on fragrance, layering, and finding your signature scent.
-                  </p>
-                </div>
-                <Link
-                  href="/blog"
-                  className="hidden md:flex items-center gap-2 text-sm font-medium hover:underline underline-offset-4"
-                >
-                  Read More <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {recentPosts.map((post) => (
-                  <Link
-                    key={post.slug}
-                    href={`/blog/${post.slug}`}
-                    className="group block"
-                  >
-                    <div className="relative aspect-[16/10] overflow-hidden rounded-lg bg-secondary mb-4">
-                      <Image
-                        src={post.image}
-                        alt={post.imageAlt}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                    </div>
-                    <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
-                      {post.readingTime}
-                    </p>
-                    <h3 className="font-heading text-xl font-medium text-foreground group-hover:text-gold-deep transition-colors leading-snug">
-                      {post.title}
-                    </h3>
-                  </Link>
-                ))}
-              </div>
-
-              <div className="mt-10 flex justify-center md:hidden">
-                <Link href="/blog" className="inline-flex items-center gap-2 text-sm font-medium border-b border-ink pb-1">
-                  Read More <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-            </div>
-          </section>
-        </>
-      )}
-
-       {/* ── 11. Brand Breaker (quote) ── */}
+       {/* ── 7. Brand Breaker (quote) ── */}
       <BrandBreaker />
       {seasonalPosition === 'before_footer' && seasonalSection}
     </div>

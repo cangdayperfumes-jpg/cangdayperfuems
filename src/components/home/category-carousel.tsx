@@ -9,31 +9,32 @@ interface CategoryCarouselProps {
   categories: Category[];
 }
 
-function CategoryAvatar({ category }: { category: Category }) {
+function CategoryCard({ category }: { category: Category }) {
   return (
-    <Link
-      href={`/shop?category=${category.slug}`}
-      className="group flex flex-col items-center gap-1.5 md:gap-2 p-1 md:p-2"
-    >
-      <div className="relative w-14 h-14 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-transparent group-hover:border-gold/40 transition-all shadow-sm group-hover:shadow-md">
-        {category.image_url ? (
-          <ImageWithFallback
-            src={category.image_url}
-            alt={category.name}
-            fill
-            sizes="(max-width: 768px) 80px, 128px"
-            className="object-cover transition-transform duration-500 group-hover:scale-110"
-          />
-        ) : (
-          <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400">
-            <span className="text-xs">No Image</span>
-          </div>
-        )}
+    <div className="relative w-full aspect-[4/7] overflow-hidden whitespace-normal bg-ink">
+      {category.image_url ? (
+        <ImageWithFallback
+          src={category.image_url}
+          alt={category.name}
+          fill
+          sizes="(max-width: 640px) 45vw, (max-width: 768px) 30vw, 300px"
+          // Same consistent grading pass as "Find Your Category" above, so
+          // every photo-card section on the page reads as one material.
+          className="object-cover transition-all duration-500 group-hover/card:scale-110 [filter:grayscale(0.5)_sepia(0.15)_saturate(0.9)_brightness(0.8)] group-hover/card:[filter:grayscale(0.3)_sepia(0.1)_saturate(1)_brightness(0.65)]"
+        />
+      ) : (
+        <div className="w-full h-full bg-ink-elevated flex items-center justify-center text-ivory/40">
+          <span className="text-xs">No Image</span>
+        </div>
+      )}
+      {/* Name overlaid near the top of the image, not in a separate row below. */}
+      <div className="absolute inset-x-0 top-0 bg-gradient-to-b from-ink/80 via-ink/20 to-transparent pt-5 pb-10 px-2">
+        <span className="block w-full line-clamp-2 text-center text-sm sm:text-base md:text-lg font-heading font-normal text-ivory transition-colors">
+          {category.name}
+        </span>
       </div>
-      <span className="text-[10px] md:text-sm font-medium font-heading uppercase tracking-wide md:tracking-wider group-hover:text-gold-deep transition-colors text-center leading-tight">
-        {category.name}
-      </span>
-    </Link>
+      <div className="absolute inset-x-0 bottom-0 h-0.5 bg-gold/0 group-hover/card:bg-gold/60 transition-colors" />
+    </div>
   );
 }
 
@@ -107,7 +108,7 @@ export default function CategoryCarousel({ categories }: CategoryCarouselProps) 
   return (
     <div
       ref={scrollerRef}
-      className="flex w-full max-w-6xl mx-auto overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="flex w-full overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       onPointerDown={pause}
       onPointerUp={scheduleResume}
       onPointerLeave={scheduleResume}
@@ -117,9 +118,13 @@ export default function CategoryCarousel({ categories }: CategoryCarouselProps) 
       onMouseLeave={scheduleResume}
     >
       {items.map((category, index) => (
-        <div key={`${category.id}-${index}`} className="shrink-0 basis-1/3 md:basis-[14%]">
-          <CategoryAvatar category={category} />
-        </div>
+        <Link
+          key={`${category.id}-${index}`}
+          href={`/shop?category=${category.slug}`}
+          className="group/card block w-36 md:w-56 shrink-0"
+        >
+          <CategoryCard category={category} />
+        </Link>
       ))}
     </div>
   );
