@@ -1,6 +1,12 @@
 import path from "path";
 import type { NextConfig } from "next";
 
+// upgrade-insecure-requests rewrites every http:// subresource request (CSS, JS
+// chunks, ...) to https:// before fetching it. localhost is exempt as an
+// inherently trustworthy origin, but a LAN IP (e.g. testing from a phone) is
+// not — the dev server has no TLS listener, so those upgraded requests just
+// fail silently and the page renders unstyled. Only send it in production,
+// where the site is actually served over HTTPS.
 const cspHeader = `
     default-src 'self';
     script-src 'self' 'unsafe-eval' 'unsafe-inline';
@@ -12,7 +18,7 @@ const cspHeader = `
     base-uri 'self';
     form-action 'self';
     frame-ancestors 'none';
-    upgrade-insecure-requests;
+    ${process.env.NODE_ENV === 'production' ? 'upgrade-insecure-requests;' : ''}
 `;
 
 const nextConfig: NextConfig = {
@@ -45,31 +51,10 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  async rewrites() {
-    // Transparently proxy /images/* to Supabase Storage so raw *.supabase.co
-    // URLs are never exposed to the browser. Pure server-side rewrite — no
-    // redirect, no migration, works for every existing stored image URL.
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    if (!supabaseUrl) return [];
-
-    let host: string;
-    try {
-      host = new URL(supabaseUrl).host;
-    } catch {
-      return [];
-    }
-
-    return [
-      {
-        source: '/images/render/:path*',
-        destination: `https://${host}/storage/v1/render/image/public/:path*`,
-      },
-      {
-        source: '/images/:path*',
-        destination: `https://${host}/storage/v1/object/public/:path*`,
-      },
-    ];
-  },
+  // /images/[...path] and /images/render/[...path] route handlers replace
+  // the plain Supabase rewrite — they add server-side caching (Next's Data
+  // Cache) so every visitor's first load of a gallery photo doesn't re-fetch
+  // it from Supabase's transform pipeline from scratch.
   async headers() {
     return [
       {
