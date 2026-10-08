@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 export default function BrandBreaker() {
+  const t = useTranslations('home');
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
@@ -26,15 +28,15 @@ export default function BrandBreaker() {
   return (
     <section
       ref={sectionRef}
-      className="ink-grain relative h-[40vh] flex items-center justify-center overflow-hidden bg-ink"
+      className="relative h-[24vh] min-h-[200px] max-h-[300px] flex items-center justify-center overflow-hidden bg-ivory"
     >
-      {/* Radial gold glow instead of a flat gradient — ties back to the hero's
-          amber-lit-bottle motif without repeating a photograph. */}
+      {/* Soft gold glow on a light ground — same radial motif as before,
+          just warmed for a white surface instead of carved out of black. */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            'radial-gradient(60% 80% at 50% 40%, rgba(201,162,75,0.14) 0%, rgba(18,13,10,0) 70%)',
+            'radial-gradient(60% 80% at 50% 40%, rgba(184,154,99,0.16) 0%, rgba(243,238,229,0) 70%)',
         }}
       />
 
@@ -45,10 +47,10 @@ export default function BrandBreaker() {
             : 'opacity-0 translate-y-8'
         }`}
       >
-        <p className="text-2xl md:text-4xl lg:text-5xl font-heading italic text-ivory leading-snug">
-          &ldquo;A scent is the only thing you leave behind in a room.&rdquo;
+        <p className="text-xl md:text-3xl lg:text-4xl font-heading italic text-ink leading-snug">
+          {t('breakerQuote')}
         </p>
-        <span className="block mt-6 text-sm uppercase tracking-[0.3em] text-gold/70">
+        <span className="block mt-3 text-sm uppercase tracking-[0.3em] text-gold-deep/80">
           Cangday
         </span>
       </div>

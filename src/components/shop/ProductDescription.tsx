@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 
 // Descriptions past this length get collapsed behind "Read more" — short
@@ -8,6 +9,7 @@ import { cn } from '@/lib/utils';
 const COLLAPSE_THRESHOLD = 260;
 
 export default function ProductDescription({ text }: { text: string }) {
+  const t = useTranslations('product');
   const [expanded, setExpanded] = useState(false);
   const isLong = text.length > COLLAPSE_THRESHOLD;
 
@@ -27,7 +29,7 @@ export default function ProductDescription({ text }: { text: string }) {
           onClick={() => setExpanded((v) => !v)}
           className="mt-2 text-sm font-medium text-foreground underline underline-offset-4 hover:text-muted-foreground transition-colors"
         >
-          {expanded ? 'Show less' : 'Read more'}
+          {expanded ? t('showLess') : t('readMore')}
         </button>
       )}
     </div>

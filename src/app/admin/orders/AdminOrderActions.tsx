@@ -6,6 +6,7 @@ import { CheckCircle, Loader2, XCircle, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { useTransition, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { createClient } from '@/utils/supabase/client';
 import { Order, OrderItem } from '@/types';
 import { cancelOrder, deleteOrder } from '@/app/admin/actions';
@@ -20,6 +21,7 @@ export default function AdminOrderActions({ order, items }: AdminOrderActionsPro
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const supabase = createClient();
+  const t = useTranslations('orders');
 
   const handleAcceptOrder = async () => {
     try {
@@ -48,47 +50,47 @@ export default function AdminOrderActions({ order, items }: AdminOrderActionsPro
 
         if (!response.ok) {
            console.error('Failed to dispatch acceptance email via Resend API');
-           toast.error('Order accepted, but failed to send email.');
+           toast.error(t('acceptFailedEmail'));
         } else {
-           toast.success('Order accepted & customer notified!');
+           toast.success(t('acceptedToastSuccess'));
         }
       } else {
-        toast.success('Order accepted! (No email available to notify customer)');
+        toast.success(t('acceptedNoEmail'));
       }
 
       router.refresh();
     } catch (error: any) {
       console.error('Accept Order Error:', error);
-      toast.error('Failed to accept order.');
+      toast.error(t('acceptFailed'));
     } finally {
       setIsAccepting(false);
     }
   };
 
   const handleCancelOrder = () => {
-    if (!confirm('Are you sure you want to cancel this order?')) return;
-    
+    if (!confirm(t('cancelConfirm'))) return;
+
     startTransition(async () => {
       try {
         await cancelOrder(order.id);
-        toast.success('Order cancelled successfully.');
+        toast.success(t('cancelSuccess'));
       } catch (error: any) {
         console.error('Cancel Order Error:', error);
-        toast.error(error.message || 'Failed to cancel order.');
+        toast.error(error.message || t('cancelFailed'));
       }
     });
   };
 
   const handleDeleteOrder = () => {
-    if (!confirm('WARNING: This will permanently delete the order and all its items. This action cannot be undone. Are you sure?')) return;
-    
+    if (!confirm(t('deleteConfirm'))) return;
+
     startTransition(async () => {
       try {
         await deleteOrder(order.id);
-        toast.success('Order permanently deleted.');
+        toast.success(t('deleteSuccess'));
       } catch (error: any) {
         console.error('Delete Order Error:', error);
-        toast.error(error.message || 'Failed to delete order.');
+        toast.error(error.message || t('deleteFailed'));
       }
     });
   };
@@ -113,7 +115,7 @@ export default function AdminOrderActions({ order, items }: AdminOrderActionsPro
         ) : (
           <CheckCircle className="mr-1.5 h-3 w-3" />
         )}
-        {isAccepted ? 'Accepted' : 'Accept'}
+        {isAccepted ? t('accepted') : t('accept')}
       </Button>
 
       {/* 3. Cancel Order Button */}
@@ -124,7 +126,7 @@ export default function AdminOrderActions({ order, items }: AdminOrderActionsPro
           className="text-xs h-8 pl-2 pr-2 text-rose-600 border-rose-200 hover:bg-rose-50"
           disabled={isPending || isAccepting}
           onClick={handleCancelOrder}
-          title="Cancel Order"
+          title={t('cancelOrderTitle')}
         >
           <XCircle className="h-4 w-4" />
         </Button>
@@ -137,7 +139,7 @@ export default function AdminOrderActions({ order, items }: AdminOrderActionsPro
         className="text-xs h-8 pl-2 pr-2 text-slate-400 hover:text-red-600 hover:bg-red-50"
         disabled={isPending}
         onClick={handleDeleteOrder}
-        title="Permanently Delete Order"
+        title={t('deleteOrderTitle')}
       >
          {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-4 w-4" />}
       </Button>

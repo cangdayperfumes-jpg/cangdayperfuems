@@ -6,6 +6,7 @@ import { Download } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useCartStore } from '@/hooks/use-cart';
 import { useSettings } from '@/components/providers/SettingsProvider';
+import { useTranslations } from 'next-intl';
 
 import { Order, OrderItem } from '@/types';
 
@@ -15,6 +16,7 @@ interface SuccessClientProps {
 }
 
 export default function SuccessClient({ order, items }: SuccessClientProps) {
+  const t = useTranslations('checkout');
   const [isClient, setIsClient] = useState(false);
   const clearCart = useCartStore((state) => state.clearCart);
   const { hidePrices } = useSettings();
@@ -31,7 +33,7 @@ export default function SuccessClient({ order, items }: SuccessClientProps) {
   if (!isClient) {
     return (
        <Button variant="outline" size="lg" disabled>
-          <Download className="mr-2 h-4 w-4" /> Loading Options...
+          <Download className="mr-2 h-4 w-4" /> {t('loadingOptions')}
        </Button>
     );
   }
@@ -39,15 +41,15 @@ export default function SuccessClient({ order, items }: SuccessClientProps) {
   return (
     <div className="flex flex-col items-center gap-6 mt-8 w-full max-w-sm mx-auto">
       <div className="w-full text-center space-y-2">
-        <h3 className="font-heading text-lg font-medium">Step 1</h3>
-        <p className="text-sm text-muted-foreground">Download your invoice.</p>
+        <h3 className="font-heading text-lg font-medium">{t('step1')}</h3>
+        <p className="text-sm text-muted-foreground">{t('downloadInvoice')}</p>
         <DownloadInvoiceMenu order={order} items={items} variant="default" showPricedOption={!hidePrices} />
       </div>
 
       <div className="w-full text-center space-y-2 border-t pt-6">
-        <h3 className="font-heading text-lg font-medium">Step 2</h3>
+        <h3 className="font-heading text-lg font-medium">{t('step2')}</h3>
         <p className="text-sm text-muted-foreground">
-          We&apos;ve received your order and will confirm shipping details by email shortly.
+          {t('confirmShippingSoon')}
         </p>
       </div>
     </div>

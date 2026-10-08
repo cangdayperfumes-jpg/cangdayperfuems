@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import * as XLSX from 'xlsx';
 import { createClient } from '@/utils/supabase/client';
 import { fetchAllRows } from '@/lib/fetch-all-rows';
@@ -10,6 +11,7 @@ import { Upload, Loader2, FileSpreadsheet, Download, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function BulkImport() {
+  const t = useTranslations('bulkImport');
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [summary, setSummary] = useState<{created: number, updated: number, failed: number} | null>(null);
@@ -79,7 +81,7 @@ export default function BulkImport() {
 
     } catch (error) {
         console.error('Export error:', error);
-        alert('Failed to export products');
+        alert(t('failedToExportProducts'));
     } finally {
         setLoading(false);
     }
@@ -98,7 +100,7 @@ export default function BulkImport() {
       const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]) as any[];
 
       if (jsonData.length === 0) {
-        alert('File is empty');
+        alert(t('fileIsEmpty'));
         return;
       }
 
@@ -259,7 +261,7 @@ export default function BulkImport() {
 
     } catch (error) {
       console.error('Import error:', error);
-      alert('Critical error during import.');
+      alert(t('criticalImportError'));
     } finally {
       setLoading(false);
       setProgress(0);
@@ -272,17 +274,17 @@ export default function BulkImport() {
       <div className="flex gap-2">
          <Button variant="outline" onClick={downloadTemplate} className="gap-2">
             <Download className="h-4 w-4" />
-            Template
+            {t('template')}
         </Button>
          <div className="relative">
             <input type="file" accept=".xlsx, .xls, .csv" onChange={handleFileUpload} disabled={loading} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
             <Button disabled={loading}>
                 {loading ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : <FileSpreadsheet className="h-4 w-4 mr-2" />}
-                {loading ? `Importing ${progress}%` : 'Import Excel'}
+                {loading ? t('importingPercent', { percent: progress }) : t('importExcel')}
             </Button>
          </div>
       </div>
-      
+
       {loading && (
           <div className="w-full bg-gray-200 rounded-full h-2.5">
             <div className="bg-black h-2.5 rounded-full transition-all duration-300" style={{ width: `${progress}%` }}></div>
@@ -292,11 +294,11 @@ export default function BulkImport() {
       {summary && (
         <div className="p-4 bg-gray-50 border rounded-md flex justify-between items-center animate-in fade-in slide-in-from-top-2">
             <div>
-                <p className="font-semibold text-gray-900">Import Finished</p>
+                <p className="font-semibold text-gray-900">{t('importFinished')}</p>
                 <p className="text-sm text-gray-600">
-                    <span className="text-green-600 font-medium">{summary.created} Created</span>,{' '}
-                    <span className="text-blue-600 font-medium">{summary.updated} Updated</span>,{' '}
-                    <span className="text-red-600 font-medium">{summary.failed} Failed</span>
+                    <span className="text-green-600 font-medium">{t('created', { count: summary.created })}</span>,{' '}
+                    <span className="text-blue-600 font-medium">{t('updated', { count: summary.updated })}</span>,{' '}
+                    <span className="text-red-600 font-medium">{t('failed', { count: summary.failed })}</span>
                 </p>
             </div>
             <Button variant="ghost" size="sm" onClick={() => setSummary(null)}><X className="h-4 w-4" /></Button>

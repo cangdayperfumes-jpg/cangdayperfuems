@@ -2,7 +2,8 @@
 'use client';
 
 import { useState, useEffect, useRef, useTransition } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { Product, Category, Brand } from '@/types';
 import ShopSidebar from '@/components/shop/ShopSidebar';
 import ProductCard from '@/components/shared/ProductCard';
@@ -10,6 +11,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/s
 import { Button } from '@/components/ui/button';
 import { SlidersHorizontal, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { useDebounce } from 'use-debounce';
+import { useTranslations } from 'next-intl';
 
 interface ShopClientWrapperProps {
   products: Product[];
@@ -44,6 +46,7 @@ export default function ShopClientWrapper({
   seasonTitle,
   pagination,
 }: ShopClientWrapperProps) {
+  const t = useTranslations('shop');
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
@@ -113,7 +116,19 @@ export default function ShopClientWrapper({
     ? categories.find(c => c.slug === initialCategorySlug)
     : undefined;
 
-  const audienceLabel = initialAudience === 'Unisex' ? 'Unisex Collection' : initialAudience ? `${initialAudience}'s Collection` : undefined;
+  const translatedAudience = initialAudience === 'Men'
+    ? t('men')
+    : initialAudience === 'Women'
+    ? t('women')
+    : initialAudience === 'Unisex'
+    ? t('unisex')
+    : initialAudience;
+
+  const audienceLabel = initialAudience === 'Unisex'
+    ? t('unisexCollection')
+    : initialAudience
+    ? t('audienceCollection', { audience: translatedAudience ?? initialAudience })
+    : undefined;
 
   const selectedCategoryName = seasonTitle
     ? seasonTitle
@@ -121,7 +136,7 @@ export default function ShopClientWrapper({
     ? selectedCategory.name
     : audienceLabel
     ? audienceLabel
-    : 'All Collection';
+    : t('allCollection');
 
   // Cuts a long DB description down to one complete-reading sentence/clause
   // instead of letting CSS line-clamp chop it mid-word with a trailing "…".
@@ -142,8 +157,8 @@ export default function ShopClientWrapper({
     : selectedCategory
     ? toShortIntro(selectedCategory.description || `Shop ${selectedCategory.name} at Cangday — an edited collection of designer and niche perfumes.`)
     : initialAudience
-    ? `Shop ${initialAudience.toLowerCase()} fragrances at Cangday.`
-    : 'An edited collection of designer and niche perfumes for everyday wear.';
+    ? t('shopAudience', { audience: translatedAudience?.toLowerCase?.() ?? initialAudience.toLowerCase() })
+    : t('defaultIntro');
 
   // Real crawlable link to the next page — the infinite-scroll sentinel below
   // is JS-only (IntersectionObserver), so Googlebot has no <a href> path past
@@ -208,7 +223,7 @@ export default function ShopClientWrapper({
          {initialSeason && seasonTitle && (
             <div className="mb-4 flex items-center justify-between gap-3 rounded-md border bg-muted/40 px-4 py-2.5 text-sm">
                <span>
-                  Viewing: <span className="font-medium">{seasonTitle}</span>
+                  {t('viewing')} <span className="font-medium">{seasonTitle}</span>
                </span>
                <button
                   type="button"
@@ -216,7 +231,7 @@ export default function ShopClientWrapper({
                   className="flex items-center gap-1 text-muted-foreground hover:text-foreground"
                >
                   <X className="h-3.5 w-3.5" />
-                  Clear
+                  {t('clear')}
                </button>
             </div>
          )}
@@ -228,14 +243,14 @@ export default function ShopClientWrapper({
             )}
             <div className="flex items-center justify-between gap-3">
                <p className="text-xs md:text-sm text-gray-400">
-                  Showing {allProducts.length} results
+                  {t('showingResults', { count: allProducts.length })}
                </p>
                {/* Filters trigger — mobile only; desktop uses the static sidebar */}
                <Sheet>
                   <SheetTrigger asChild>
                       <Button variant="outline" size="sm" className="gap-2 md:hidden flex-shrink-0">
                           <SlidersHorizontal className="h-4 w-4" />
-                          Filters
+                          {t('filters')}
                       </Button>
                   </SheetTrigger>
                   <SheetContent
@@ -243,7 +258,7 @@ export default function ShopClientWrapper({
                       className="w-[300px] sm:w-[400px]"
                       onOpenAutoFocus={(e) => e.preventDefault()}
                   >
-                      <SheetTitle className="sr-only">Filters</SheetTitle>
+                      <SheetTitle className="sr-only">{t('filters')}</SheetTitle>
                       <div className="py-6 h-[calc(100vh-100px)] overflow-y-auto">
                           <ShopSidebar
                               categories={categories}
@@ -300,16 +315,16 @@ export default function ShopClientWrapper({
              ) : (
                 <div className="text-center py-20 bg-gray-50 border border-dashed rounded-lg">
                 <p className="text-muted-foreground mb-4">
-                    No products found matching your criteria.
+                    {t('noProductsFound')}
                 </p>
-                <Button 
-                    variant="outline" 
+                <Button
+                    variant="outline"
                     onClick={() => {
                         setSearchQuery('');
                         router.push('/shop');
                     }}
                 >
-                    Clear Filters
+                    {t('clearFilters')}
                 </Button>
                 </div>
              )}

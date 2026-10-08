@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { unstable_cache } from 'next/cache';
 import { CategoryTile } from '@/types';
+import { isSupabaseConfigured } from '@/lib/is-supabase-configured';
 
 function getSupabase() {
   return createClient(
@@ -11,6 +12,7 @@ function getSupabase() {
 
 export const getActiveCategoryTiles = unstable_cache(
   async (): Promise<CategoryTile[]> => {
+    if (!isSupabaseConfigured()) return [];
     const supabase = getSupabase();
     const { data } = await supabase
       .from('category_tiles')

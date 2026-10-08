@@ -6,11 +6,15 @@ import { Plus, Pencil, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getBrands, deleteBrand } from './actions';
 import { redirect } from 'next/navigation';
 import DeleteButton from '@/components/admin/DeleteButton';
+import { getAdminLocale, getAdminT } from '@/i18n/admin-locale';
 
 export const revalidate = 0;
 
 export default async function AdminBrandsPage({ searchParams }: { searchParams: Promise<{ q?: string; page?: string }> }) {
   const params = await searchParams;
+  const locale = await getAdminLocale();
+  const t = await getAdminT(locale, 'brands');
+  const tc = await getAdminT(locale, 'common');
   const query = params.q || '';
   const page = Number(params.page) || 1;
   const limit = 10;
@@ -20,11 +24,11 @@ export default async function AdminBrandsPage({ searchParams }: { searchParams: 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-3xl font-bold font-playfair">Brands</h1>
+        <h1 className="text-3xl font-bold font-playfair">{t('title')}</h1>
         <Link href="/admin/brands/new">
           <Button>
             <Plus className="mr-2 h-4 w-4" />
-            Add Brand
+            {t('addBrand')}
           </Button>
         </Link>
       </div>
@@ -34,11 +38,11 @@ export default async function AdminBrandsPage({ searchParams }: { searchParams: 
         <form className="relative">
              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
              {/* Using name="q" automatically puts it in searchParams on submit */}
-             <Input 
-                name="q" 
-                defaultValue={query} 
-                placeholder="Search brands..." 
-                className="pl-9" 
+             <Input
+                name="q"
+                defaultValue={query}
+                placeholder={t('searchPlaceholder')}
+                className="pl-9"
              />
         </form>
       </div>
@@ -49,26 +53,26 @@ export default async function AdminBrandsPage({ searchParams }: { searchParams: 
             <thead>
               <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
                 <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                  Logo
+                  {t('logo')}
                 </th>
                 <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                  Name
+                  {tc('name')}
                 </th>
                 <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                  Slug
+                  {t('slug')}
                 </th>
                 <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                  Featured
+                  {t('featured')}
                 </th>
                 <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
-                  Actions
+                  {tc('actions')}
                 </th>
               </tr>
             </thead>
             <tbody>
               {brands.length === 0 ? (
                 <tr>
-                   <td colSpan={5} className="p-4 text-center text-muted-foreground">No brands found.</td>
+                   <td colSpan={5} className="p-4 text-center text-muted-foreground">{t('noBrandsFound')}</td>
                 </tr>
               ) : (
                 brands.map((brand) => (
@@ -88,7 +92,7 @@ export default async function AdminBrandsPage({ searchParams }: { searchParams: 
                             />
                         ) : (
                             <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-                            No Logo
+                            {t('noLogo')}
                             </div>
                         )}
                         </div>
@@ -98,7 +102,7 @@ export default async function AdminBrandsPage({ searchParams }: { searchParams: 
                     <td className="p-4 align-middle">
                         {brand.is_featured ? (
                             <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-800">
-                                Featured
+                                {t('featured')}
                             </span>
                         ) : (
                             <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
@@ -113,7 +117,7 @@ export default async function AdminBrandsPage({ searchParams }: { searchParams: 
                                 <Pencil className="h-4 w-4" />
                                 </Button>
                             </Link>
-                            <DeleteButton id={brand.id} onDelete={deleteBrand} itemName="brand" />
+                            <DeleteButton id={brand.id} onDelete={deleteBrand} itemName={t('itemName')} />
                         </div>
                     </td>
                     </tr>
@@ -129,15 +133,15 @@ export default async function AdminBrandsPage({ searchParams }: { searchParams: 
         <div className="flex items-center justify-center space-x-2">
             <Link href={`/admin/brands?q=${query}&page=${Math.max(1, page - 1)}`} className={page <= 1 ? 'pointer-events-none opacity-50' : ''}>
                 <Button variant="outline" size="sm" disabled={page <= 1}>
-                    <ChevronLeft className="h-4 w-4" /> Previous
+                    <ChevronLeft className="h-4 w-4" /> {t('previous')}
                 </Button>
             </Link>
             <span className="text-sm font-medium">
-                Page {page} of {totalPages}
+                {t('pageOf', { page, totalPages })}
             </span>
             <Link href={`/admin/brands?q=${query}&page=${Math.min(totalPages, page + 1)}`} className={page >= totalPages ? 'pointer-events-none opacity-50' : ''}>
                 <Button variant="outline" size="sm" disabled={page >= totalPages}>
-                    Next <ChevronRight className="h-4 w-4" />
+                    {t('next')} <ChevronRight className="h-4 w-4" />
                 </Button>
             </Link>
         </div>

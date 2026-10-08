@@ -16,12 +16,16 @@ import { redirect } from 'next/navigation';
 import { COUNTRIES } from '@/lib/countries';
 import { CountrySelector } from './CountrySelector';
 import { EditZoneDialog } from './EditZoneDialog';
+import { getAdminLocale, getAdminT } from '@/i18n/admin-locale';
 
 export const dynamic = 'force-dynamic';
 
 export default async function ShippingPage() {
   const supabase = await createClient();
-  
+  const locale = await getAdminLocale();
+  const t = await getAdminT(locale, 'shipping');
+  const tCommon = await getAdminT(locale, 'common');
+
   const { data: zones, error } = await supabase
     .from('shipping_zones')
     .select('*')
@@ -56,46 +60,46 @@ export default async function ShippingPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold font-heading">Shipping Zones</h1>
+      <h1 className="text-3xl font-bold font-heading">{t('title')}</h1>
 
       {/* Simple Add Form */}
       <div className="bg-white p-6 rounded-lg border">
-        <h2 className="text-lg font-medium mb-4">Add New Zone</h2>
+        <h2 className="text-lg font-medium mb-4">{t('addNewZone')}</h2>
         <form action={addZone} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                    <label className="text-sm font-medium">Continent</label>
+                    <label className="text-sm font-medium">{t('continent')}</label>
                     <select name="continent" className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
-                        <option value="">Select Continent</option>
-                        <option value="Africa">Africa</option>
-                        <option value="Asia">Asia</option>
-                        <option value="Europe">Europe</option>
-                        <option value="North America">North America</option>
-                        <option value="Oceania">Oceania</option>
-                        <option value="South America">South America</option>
+                        <option value="">{t('selectContinent')}</option>
+                        <option value="Africa">{t('continentAfrica')}</option>
+                        <option value="Asia">{t('continentAsia')}</option>
+                        <option value="Europe">{t('continentEurope')}</option>
+                        <option value="North America">{t('continentNorthAmerica')}</option>
+                        <option value="Oceania">{t('continentOceania')}</option>
+                        <option value="South America">{t('continentSouthAmerica')}</option>
                     </select>
                 </div>
                 <div className="space-y-2">
-                    <label className="text-sm font-medium">Country</label>
+                    <label className="text-sm font-medium">{t('country')}</label>
                     <CountrySelector />
                 </div>
                 <div className="space-y-2">
-                    <label className="text-sm font-medium">Price ($)</label>
+                    <label className="text-sm font-medium">{t('price')}</label>
                     <Input name="price" type="number" placeholder="20.00" step="0.01" required />
                 </div>
             </div>
             <div className="space-y-2">
-                <label className="text-sm font-medium">Custom Shipping Details (Optional)</label>
-                <textarea 
-                    name="shipping_details" 
-                    placeholder="e.g. Delivery within 3-5 days. Customs duties may apply."
+                <label className="text-sm font-medium">{t('customShippingDetailsOptional')}</label>
+                <textarea
+                    name="shipping_details"
+                    placeholder={t('shippingDetailsPlaceholder')}
                     className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 />
             </div>
             <div className="flex justify-end">
                 <Button type="submit">
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Zone
+                    {t('addZone')}
                 </Button>
             </div>
         </form>
@@ -105,11 +109,11 @@ export default async function ShippingPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Location</TableHead>
-              <TableHead>Continent</TableHead>
-              <TableHead>Price</TableHead>
-              <TableHead>Details</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>{t('columnLocation')}</TableHead>
+              <TableHead>{t('continent')}</TableHead>
+              <TableHead>{t('columnPrice')}</TableHead>
+              <TableHead>{t('columnDetails')}</TableHead>
+              <TableHead className="text-right">{tCommon('actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -122,7 +126,7 @@ export default async function ShippingPage() {
                                 src={`https://flagcdn.com/w20/${zone.country_code.toLowerCase()}.png`}
                                 width={20}
                                 height={15}
-                                alt={`${zone.country} flag`}
+                                alt={t('flagAlt', { name: zone.country })}
                                 className="rounded-sm object-cover shadow-sm"
                                 style={{ width: '20px', height: '15px' }}
                                 unoptimized
@@ -156,7 +160,7 @@ export default async function ShippingPage() {
             {(!zones || zones.length === 0) && (
               <TableRow>
                 <TableCell colSpan={5} className="text-center h-24 text-gray-500">
-                  No shipping zones configured.
+                  {t('noZones')}
                 </TableCell>
               </TableRow>
             )}

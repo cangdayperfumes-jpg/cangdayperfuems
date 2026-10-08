@@ -15,6 +15,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useTransition } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface BrandFormProps {
   brand?: Brand;
@@ -22,22 +23,26 @@ interface BrandFormProps {
 
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
   const { pending } = useFormStatus();
+  const t = useTranslations('brands');
+  const tc = useTranslations('common');
 
   return (
     <Button type="submit" disabled={pending} className="w-full">
       {pending ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          {isEditing ? 'Updating...' : 'Creating...'}
+          {isEditing ? tc('saving') : t('creating')}
         </>
       ) : (
-        isEditing ? 'Update Brand' : 'Create Brand'
+        isEditing ? t('updateBrand') : t('createBrand')
       )}
     </Button>
   );
 }
 
 export default function BrandForm({ brand }: BrandFormProps) {
+  const t = useTranslations('brands');
+  const tc = useTranslations('common');
   const [imageUrl, setImageUrl] = useState<string | null>(brand?.image_url || null);
   const [uploading, setUploading] = useState(false);
   const [isFeatured, setIsFeatured] = useState(brand?.is_featured || false);
@@ -64,7 +69,7 @@ export default function BrandForm({ brand }: BrandFormProps) {
       setImageUrl(publicUrl);
     } catch (error) {
       console.error('Error uploading image', error);
-      alert('Error uploading image');
+      alert(t('errorUploadingImage'));
     } finally {
       setUploading(false);
     }
@@ -74,7 +79,7 @@ export default function BrandForm({ brand }: BrandFormProps) {
     if (imageUrl) {
         formData.set('image_url', imageUrl);
     }
-    
+
     try {
         let result;
         if (brand) {
@@ -84,9 +89,9 @@ export default function BrandForm({ brand }: BrandFormProps) {
         }
 
         if (result && !result.success) {
-            toast.error(result.error || "Failed to save brand");
+            toast.error(result.error || tc('failedToSave'));
         } else {
-            toast.success(brand ? "Brand updated successfully" : "Brand created successfully");
+            toast.success(brand ? t('brandUpdated') : t('brandCreated'));
             startTransition(() => {
               router.refresh();
               router.push('/admin/brands');
@@ -94,36 +99,36 @@ export default function BrandForm({ brand }: BrandFormProps) {
         }
     } catch (error) {
         console.error("Form submission error", error);
-        toast.error("Something went wrong. Please try again.");
+        toast.error(tc('somethingWentWrong'));
     }
   };
 
   return (
     <form action={handleSubmit} className="space-y-6 max-w-lg bg-white p-6 rounded-lg shadow-sm">
       <div className="space-y-2">
-        <Label htmlFor="name">Brand Name</Label>
+        <Label htmlFor="name">{t('brandName')}</Label>
         <Input
           id="name"
           name="name"
           defaultValue={brand?.name}
-          placeholder="e.g. Channel"
+          placeholder={t('namePlaceholder')}
           required
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="slug">Slug</Label>
+        <Label htmlFor="slug">{t('slug')}</Label>
         <Input
           id="slug"
           name="slug"
           defaultValue={brand?.slug}
-          placeholder="e.g. channel"
+          placeholder={t('slugPlaceholder')}
           required
         />
       </div>
 
        <div className="space-y-2">
-        <Label htmlFor="image">Brand Logo (Optional)</Label>
+        <Label htmlFor="image">{t('brandLogoOptional')}</Label>
         <Input
           id="image"
           type="file"
@@ -131,13 +136,13 @@ export default function BrandForm({ brand }: BrandFormProps) {
           onChange={handleImageUpload}
           disabled={uploading}
         />
-        {uploading && <p className="text-sm text-yellow-600">Uploading...</p>}
+        {uploading && <p className="text-sm text-yellow-600">{tc('loading')}</p>}
         {imageUrl && (
             <div className="relative w-full h-20 mt-2 rounded overflow-hidden border bg-gray-50">
-                <Image 
-                    src={imageUrl} 
-                    alt="Brand preview" 
-                    fill 
+                <Image
+                    src={imageUrl}
+                    alt={t('brandPreviewAlt')}
+                    fill
                     sizes="(max-width: 768px) 100vw, 512px"
                     className="object-contain p-2"
                 />
@@ -146,13 +151,13 @@ export default function BrandForm({ brand }: BrandFormProps) {
       </div>
 
       <div className="flex items-center space-x-2">
-          <Checkbox 
-                id="is_featured" 
+          <Checkbox
+                id="is_featured"
                 checked={isFeatured}
                 onCheckedChange={(checked) => setIsFeatured(checked === true)}
           />
           <input type="hidden" name="is_featured" value={isFeatured ? 'on' : 'off'} />
-          <Label htmlFor="is_featured">Featured in Ticker?</Label>
+          <Label htmlFor="is_featured">{t('featuredInTicker')}</Label>
       </div>
 
       <SubmitButton isEditing={!!brand} />

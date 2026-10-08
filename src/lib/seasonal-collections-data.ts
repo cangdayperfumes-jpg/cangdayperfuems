@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { unstable_cache } from 'next/cache';
 import { SeasonalCollection } from '@/types';
+import { isSupabaseConfigured } from '@/lib/is-supabase-configured';
 
 /**
  * Single source of truth for "which seasonal collections are currently
@@ -19,6 +20,7 @@ function getSupabase() {
 
 export const getActiveSeasonalCollections = unstable_cache(
   async (): Promise<SeasonalCollection[]> => {
+    if (!isSupabaseConfigured()) return [];
     const supabase = getSupabase();
     const nowIso = new Date().toISOString();
     const { data } = await supabase
@@ -49,6 +51,9 @@ export interface SeasonalSectionSettings {
 
 export const getSeasonalSectionSettings = unstable_cache(
   async (): Promise<SeasonalSectionSettings> => {
+    if (!isSupabaseConfigured()) {
+      return { seasonal_collections_multi_active: false, seasonal_section_position: 'after_gender_collection' };
+    }
     const supabase = getSupabase();
     const { data } = await supabase
       .from('system_settings')

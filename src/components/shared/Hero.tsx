@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
@@ -45,7 +45,7 @@ interface HeroProps {
 
 function Slide({ slide, priority }: { slide: HeroSlide; priority: boolean }) {
   return (
-    <div className="ink-grain relative h-full w-full overflow-hidden bg-ink text-ivory">
+    <div className="relative h-full w-full overflow-hidden bg-ivory text-ink">
       <div className="absolute inset-0 z-0">
         <Image
           src={slide.image_url}
@@ -55,51 +55,42 @@ function Slide({ slide, priority }: { slide: HeroSlide; priority: boolean }) {
           fetchPriority={priority ? 'high' : 'auto'}
           sizes="100vw"
           style={{ objectPosition: OBJECT_POSITION[slide.image_position] }}
-          className="object-cover opacity-70"
+          className="object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/80 to-ink/10" />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-ink/40" />
+        {/* Light ivory scrim, strongest where the text sits (left) and clear
+            over the product photo (right) — same role the dark ink gradient
+            used to play, inverted for a white ground instead of a black one. */}
+        <div className="absolute inset-0 bg-gradient-to-r from-ivory via-ivory/85 to-ivory/5" />
+        <div className="absolute inset-0 bg-gradient-to-t from-ivory/50 via-transparent to-transparent" />
       </div>
 
-      <div className="relative z-10 h-full container flex flex-col justify-center max-w-none">
+      <div className="relative z-10 h-full container flex flex-col justify-center max-w-none py-4">
         <div className="max-w-xl">
-          <p className="text-xs uppercase tracking-[0.35em] text-gold font-semibold mb-4">
+          <p className="text-[10px] md:text-xs uppercase tracking-[0.35em] text-gold-deep font-semibold mb-2 md:mb-3">
             {slide.eyebrow}
           </p>
 
-          <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-medium leading-[0.95] tracking-tight">
+          <h1 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-medium leading-[1.03] tracking-tight text-ink">
             {slide.headline}
             {slide.headline_accent && (
               <>
                 <br />
-                <span className="italic font-normal text-gold-soft">{slide.headline_accent}</span>
+                <span className="italic font-normal text-gold-deep">{slide.headline_accent}</span>
               </>
             )}
           </h1>
 
-          <svg
-            width="140" height="24" viewBox="0 0 140 24" fill="none"
-            className="my-5"
-            aria-hidden="true"
-          >
-            <path
-              d="M2 18C24 18 28 4 50 4C72 4 76 20 98 20C112 20 118 12 138 12"
-              stroke="rgb(var(--brand-gold))" strokeWidth="1.5" strokeLinecap="round"
-            />
-            <circle cx="138" cy="12" r="2.5" fill="rgb(var(--brand-gold))" />
-          </svg>
-
           {slide.subheading && (
-            <p className="text-base md:text-lg text-ivory/70 font-light max-w-md leading-relaxed">
+            <p className="mt-3 md:mt-4 text-sm md:text-base text-ink/70 font-light max-w-md leading-snug line-clamp-2">
               {slide.subheading}
             </p>
           )}
 
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mt-4 md:mt-5">
             <Link href={slide.button_link}>
               <Button
                 size="lg"
-                className="notch-corners bg-ivory text-ink hover:bg-gold hover:text-ink rounded-none text-sm px-8 py-5 font-body font-semibold tracking-wider uppercase transition-colors"
+                className="notch-corners bg-ink text-ivory hover:bg-gold-deep hover:text-ivory rounded-none text-sm px-6 py-3 md:px-7 md:py-3.5 font-body font-semibold tracking-wider uppercase transition-colors"
               >
                 {slide.button_text}
               </Button>
@@ -109,7 +100,7 @@ function Slide({ slide, priority }: { slide: HeroSlide; priority: boolean }) {
                 <Button
                   variant="outline"
                   size="lg"
-                  className="notch-corners bg-transparent border border-ivory/40 text-ivory hover:bg-ivory/10 hover:border-ivory rounded-none text-sm px-8 py-5 font-body tracking-wider uppercase transition-colors"
+                  className="notch-corners bg-transparent border border-ink/30 text-ink hover:bg-ink/5 hover:border-ink rounded-none text-sm px-6 py-3 md:px-7 md:py-3.5 font-body tracking-wider uppercase transition-colors"
                 >
                   {slide.secondary_button_text}
                 </Button>
@@ -158,7 +149,7 @@ export default function Hero({ slides }: HeroProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6 }}
-      className="relative h-[58vh] md:h-[66vh] min-h-[440px] md:min-h-[520px] w-full overflow-hidden bg-ink"
+      className="relative h-[46vh] md:h-[60vh] min-h-[400px] md:min-h-[480px] max-h-[520px] md:max-h-[660px] w-full overflow-hidden bg-ivory"
     >
       <div className="h-full overflow-hidden" ref={emblaRef}>
         <div className="flex h-full">
@@ -171,7 +162,7 @@ export default function Hero({ slides }: HeroProps) {
       </div>
 
       {isMulti && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+        <div className="absolute bottom-3 md:bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
           {activeSlides.map((slide, index) => (
             <button
               key={slide.id}
@@ -179,7 +170,7 @@ export default function Hero({ slides }: HeroProps) {
               aria-label={`Go to slide ${index + 1}`}
               onClick={() => emblaApi?.scrollTo(index)}
               className={`h-1.5 rounded-full transition-all duration-300 ${
-                index === selected ? 'w-6 bg-gold' : 'w-1.5 bg-ivory/40 hover:bg-ivory/60'
+                index === selected ? 'w-6 bg-gold-deep' : 'w-1.5 bg-ink/20 hover:bg-ink/35'
               }`}
             />
           ))}

@@ -46,3 +46,11 @@ next-env.d.ts
 # docker
 .docker/
 docker-compose.override.yml
+
+# one-off migration tool output (scripts/migrate-royal-to-cangday.mjs)
+/scripts/migration-report*.json
+/scripts/migration-*.log
+
+# supabase CLI local link cache (project ref/pooler info, not secrets, but
+# ephemeral local state that shouldn't be versioned)
+/supabase/.temp/

@@ -3,6 +3,7 @@ import {
   isLocalStaticImage,
   isSupabaseStorageUrl,
   isSupabaseTransformsEnabled,
+  resizeUnsplashUrl,
   toProxiedObjectUrl,
 } from './images';
 
@@ -49,6 +50,7 @@ export default function supabaseImageLoader({
     return toProxiedObjectUrl(src);
   }
 
-  // Non-Supabase remote URLs (popup images, third-party assets) — serve directly.
-  return src;
+  // Non-Supabase remote URLs (popup images, third-party assets) — resize if
+  // the host supports it (Unsplash), otherwise serve directly unchanged.
+  return resizeUnsplashUrl(src, width, quality);
 }

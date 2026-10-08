@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { GripVertical, Pencil } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import DeleteButton from '@/components/admin/DeleteButton';
@@ -12,6 +13,8 @@ import { CategoryTile } from '@/types';
 import { deleteCategoryTile, updateCategoryTilesOrder } from '@/app/admin/marketing/category-tiles/actions';
 
 export default function CategoryTilesTable({ tiles }: { tiles: CategoryTile[] }) {
+  const t = useTranslations('categoryTiles');
+  const tc = useTranslations('common');
   const [items, setItems] = useState(tiles);
 
   async function handleReorder(next: CategoryTile[]) {
@@ -22,7 +25,7 @@ export default function CategoryTilesTable({ tiles }: { tiles: CategoryTile[] })
   if (items.length === 0) {
     return (
       <div className="border rounded-lg bg-white p-8 text-center text-muted-foreground">
-        No category tiles yet. Create one to get started.
+        {t('noItemsYet')}
       </div>
     );
   }
@@ -40,7 +43,7 @@ export default function CategoryTilesTable({ tiles }: { tiles: CategoryTile[] })
               type="button"
               onPointerDown={(e) => dragControls.start(e)}
               className="cursor-grab touch-none text-muted-foreground hover:text-foreground active:cursor-grabbing"
-              aria-label="Drag to reorder"
+              aria-label={t('dragToReorder')}
             >
               <GripVertical className="h-4 w-4" />
             </button>
@@ -52,22 +55,22 @@ export default function CategoryTilesTable({ tiles }: { tiles: CategoryTile[] })
             <div className="min-w-0 flex-1">
               <p className="truncate font-medium">{tile.label}</p>
               <p className="truncate text-xs text-muted-foreground">
-                {tile.col_span}×{tile.row_span} span · {tile.link_href}
+                {t('spanSummary', { cols: tile.col_span, rows: tile.row_span })} · {tile.link_href}
               </p>
             </div>
 
             <Badge variant={tile.is_active ? 'default' : 'outline'}>
-              {tile.is_active ? 'Active' : 'Disabled'}
+              {tile.is_active ? tc('active') : t('disabled')}
             </Badge>
 
             <div className="flex items-center gap-1">
               <Link href={`/admin/marketing/category-tiles/${tile.id}`}>
                 <Button variant="ghost" size="icon">
                   <Pencil className="h-4 w-4" />
-                  <span className="sr-only">Edit</span>
+                  <span className="sr-only">{tc('edit')}</span>
                 </Button>
               </Link>
-              <DeleteButton id={tile.id} onDelete={deleteCategoryTile} itemName="category tile" />
+              <DeleteButton id={tile.id} onDelete={deleteCategoryTile} itemName={t('itemName')} />
             </div>
           </div>
         )}

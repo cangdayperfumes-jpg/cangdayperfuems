@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Switch } from '@/components/ui/switch';
@@ -52,6 +53,8 @@ export interface SettingsInitialData {
 }
 
 export default function SettingsForm({ initialData }: { initialData: SettingsInitialData | null }) {
+  const t = useTranslations('settings');
+  const tCommon = useTranslations('common');
   const supabase = createClient();
   const [saving, setSaving] = useState(false);
 
@@ -101,10 +104,10 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
         .eq('id', 'global');
 
       if (error) throw error;
-      toast.success('Settings updated successfully');
+      toast.success(tCommon('savedSuccessfully'));
     } catch (error) {
       console.error('Error updating settings:', error);
-      toast.error('Failed to update settings');
+      toast.error(tCommon('failedToSave'));
     } finally {
       setSaving(false);
     }
@@ -116,10 +119,9 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
 
         {/* ── Theme ─────────────────────────────────────────── */}
         <div className="bg-white p-6 rounded-lg border shadow-sm max-w-2xl">
-          <h2 className="text-lg font-semibold mb-1">Theme</h2>
+          <h2 className="text-lg font-semibold mb-1">{t('themeTitle')}</h2>
           <p className="text-sm text-muted-foreground mb-4">
-            The site&apos;s brand colors. Changes apply everywhere immediately — no
-            rebuild or redeploy needed.
+            {t('themeDescription')}
           </p>
           <div className="grid grid-cols-2 gap-4">
             <FormField
@@ -128,9 +130,9 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <ColorInput label="Accent (Gold)" value={field.value} onChange={field.onChange} />
+                    <ColorInput label={t('accentGold')} value={field.value} onChange={field.onChange} />
                   </FormControl>
-                  <FormDescription>Buttons on hover, badges, dividers, links.</FormDescription>
+                  <FormDescription>{t('accentGoldDesc')}</FormDescription>
                 </FormItem>
               )}
             />
@@ -140,9 +142,9 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <ColorInput label="Accent, Deep" value={field.value} onChange={field.onChange} />
+                    <ColorInput label={t('accentDeep')} value={field.value} onChange={field.onChange} />
                   </FormControl>
-                  <FormDescription>Text on light backgrounds (needs more contrast than Gold).</FormDescription>
+                  <FormDescription>{t('accentDeepDesc')}</FormDescription>
                 </FormItem>
               )}
             />
@@ -152,9 +154,9 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <ColorInput label="Dark Surface (Ink)" value={field.value} onChange={field.onChange} />
+                    <ColorInput label={t('darkSurface')} value={field.value} onChange={field.onChange} />
                   </FormControl>
-                  <FormDescription>Header, footer, hero background.</FormDescription>
+                  <FormDescription>{t('darkSurfaceDesc')}</FormDescription>
                 </FormItem>
               )}
             />
@@ -164,9 +166,9 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <ColorInput label="Light Surface (Ivory)" value={field.value} onChange={field.onChange} />
+                    <ColorInput label={t('lightSurface')} value={field.value} onChange={field.onChange} />
                   </FormControl>
-                  <FormDescription>Page background, light text on dark surfaces.</FormDescription>
+                  <FormDescription>{t('lightSurfaceDesc')}</FormDescription>
                 </FormItem>
               )}
             />
@@ -175,16 +177,16 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
 
         {/* ── General Settings ─────────────────────────────── */}
         <div className="bg-white p-6 rounded-lg border shadow-sm max-w-2xl">
-          <h2 className="text-lg font-semibold mb-4">General</h2>
+          <h2 className="text-lg font-semibold mb-4">{t('generalTitle')}</h2>
           <FormField
             control={form.control}
             name="hidePrices"
             render={({ field }) => (
               <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                 <div className="space-y-0.5">
-                  <FormLabel className="text-base text-black">Hide Global Prices</FormLabel>
+                  <FormLabel className="text-base text-black">{t('hidePricesLabel')}</FormLabel>
                   <FormDescription>
-                    When enabled, product prices and checkout totals will be hidden across the entire store. Users will see a &quot;Contact for price&quot; message instead.
+                    {t('hidePricesDesc')}
                   </FormDescription>
                 </div>
                 <FormControl>
@@ -200,7 +202,7 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
 
         {/* ── Popup Settings ───────────────────────────────── */}
         <div className="bg-white p-6 rounded-lg border shadow-sm max-w-2xl">
-          <h2 className="text-lg font-semibold mb-4">Popup Banner</h2>
+          <h2 className="text-lg font-semibold mb-4">{t('popupBannerTitle')}</h2>
           <div className="space-y-4">
             <FormField
               control={form.control}
@@ -208,9 +210,9 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base text-black">Enable Popup</FormLabel>
+                    <FormLabel className="text-base text-black">{t('enablePopup')}</FormLabel>
                     <FormDescription>
-                      Show a promotional popup to visitors. It appears once per session.
+                      {t('enablePopupDesc')}
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -230,21 +232,21 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
                   name="popupShowOn"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Show On</FormLabel>
+                      <FormLabel>{t('showOn')}</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select pages" />
+                            <SelectValue placeholder={t('selectPages')} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="all">All Pages</SelectItem>
-                          <SelectItem value="shop">Shop Page Only</SelectItem>
-                          <SelectItem value="home">Home Page Only</SelectItem>
+                          <SelectItem value="all">{t('allPages')}</SelectItem>
+                          <SelectItem value="shop">{t('shopPageOnly')}</SelectItem>
+                          <SelectItem value="home">{t('homePageOnly')}</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormDescription>
-                        Choose which pages the popup appears on.
+                        {t('showOnDesc')}
                       </FormDescription>
                     </FormItem>
                   )}
@@ -255,9 +257,9 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
                   name="popupTitle"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Title</FormLabel>
+                      <FormLabel>{t('popupTitleLabel')}</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g. Welcome to Cangday!" {...field} />
+                        <Input placeholder={t('popupTitlePlaceholder')} {...field} />
                       </FormControl>
                     </FormItem>
                   )}
@@ -268,10 +270,10 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
                   name="popupMessage"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Message</FormLabel>
+                      <FormLabel>{t('popupMessageLabel')}</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="e.g. Explore our new arrivals and get free shipping on your first order."
+                          placeholder={t('popupMessagePlaceholder')}
                           rows={3}
                           {...field}
                         />
@@ -286,9 +288,9 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
                     name="popupButtonText"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Button Text</FormLabel>
+                        <FormLabel>{t('buttonText')}</FormLabel>
                         <FormControl>
-                          <Input placeholder="Shop Now" {...field} />
+                          <Input placeholder={t('buttonTextPlaceholder')} {...field} />
                         </FormControl>
                       </FormItem>
                     )}
@@ -299,9 +301,9 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
                     name="popupButtonLink"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Button Link</FormLabel>
+                        <FormLabel>{t('buttonLink')}</FormLabel>
                         <FormControl>
-                          <Input placeholder="/shop" {...field} />
+                          <Input placeholder={t('buttonLinkPlaceholder')} {...field} />
                         </FormControl>
                       </FormItem>
                     )}
@@ -313,12 +315,12 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
                   name="popupImageUrl"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Image URL (optional)</FormLabel>
+                      <FormLabel>{t('imageUrl')}</FormLabel>
                       <FormControl>
-                        <Input placeholder="https://... or /images/..." {...field} />
+                        <Input placeholder={t('imageUrlPlaceholder')} {...field} />
                       </FormControl>
                       <FormDescription>
-                        Add a banner image at the top of the popup. Leave empty for text-only.
+                        {t('imageUrlDesc')}
                       </FormDescription>
                     </FormItem>
                   )}
@@ -330,7 +332,7 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
 
         {/* ── Seasonal Collections ──────────────────────────── */}
         <div className="bg-white p-6 rounded-lg border shadow-sm max-w-2xl">
-          <h2 className="text-lg font-semibold mb-4">Seasonal Collections</h2>
+          <h2 className="text-lg font-semibold mb-4">{t('seasonalTitle')}</h2>
           <div className="space-y-4">
             <FormField
               control={form.control}
@@ -338,10 +340,9 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base text-black">Allow Multiple Active Collections</FormLabel>
+                    <FormLabel className="text-base text-black">{t('allowMultiple')}</FormLabel>
                     <FormDescription>
-                      When enabled, every currently-active seasonal collection shows on the homepage.
-                      When disabled, only the highest-priority one (by Display Order) is shown.
+                      {t('allowMultipleDesc')}
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -356,25 +357,25 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
               name="seasonalSectionPosition"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Homepage Section Position</FormLabel>
+                  <FormLabel>{t('sectionPosition')}</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a position" />
+                        <SelectValue placeholder={t('selectPosition')} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="after_hero">After Hero</SelectItem>
-                      <SelectItem value="after_brand_ticker">After Brand Ticker</SelectItem>
-                      <SelectItem value="after_gender_collection">After Gender Collection</SelectItem>
-                      <SelectItem value="after_category_carousel">After Category Carousel</SelectItem>
-                      <SelectItem value="after_best_sellers">After Best Sellers</SelectItem>
-                      <SelectItem value="after_new_arrivals">After New Arrivals</SelectItem>
-                      <SelectItem value="before_footer">Before Footer</SelectItem>
+                      <SelectItem value="after_hero">{t('posAfterHero')}</SelectItem>
+                      <SelectItem value="after_brand_ticker">{t('posAfterBrandTicker')}</SelectItem>
+                      <SelectItem value="after_gender_collection">{t('posAfterGenderCollection')}</SelectItem>
+                      <SelectItem value="after_category_carousel">{t('posAfterCategoryCarousel')}</SelectItem>
+                      <SelectItem value="after_best_sellers">{t('posAfterBestSellers')}</SelectItem>
+                      <SelectItem value="after_new_arrivals">{t('posAfterNewArrivals')}</SelectItem>
+                      <SelectItem value="before_footer">{t('posBeforeFooter')}</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormDescription>
-                    Where the Seasonal Collection section appears among the homepage's fixed sections.
+                    {t('sectionPositionDesc')}
                   </FormDescription>
                 </FormItem>
               )}
@@ -384,7 +385,7 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
 
         <Button type="submit" disabled={saving}>
           {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Save Settings
+          {t('saveSettings')}
         </Button>
       </form>
     </Form>

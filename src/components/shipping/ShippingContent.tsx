@@ -10,6 +10,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Search, ChevronDown } from 'lucide-react';
 import Image from "next/image";
+import { useTranslations } from 'next-intl';
 import { useSettings } from '@/components/providers/SettingsProvider';
 import ShippingMap from './ShippingMap';
 
@@ -19,6 +20,7 @@ interface ShippingContentProps {
 }
 
 export default function ShippingContent({ groupedZones, allZones }: ShippingContentProps) {
+  const t = useTranslations('shipping');
   const { hidePrices } = useSettings();
   const [search, setSearch] = useState('');
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
@@ -42,8 +44,8 @@ export default function ShippingContent({ groupedZones, allZones }: ShippingCont
 
       <section className="space-y-6">
         <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-heading font-medium">Regional Shipping Rates</h2>
-            <span className="text-xs uppercase tracking-widest text-gray-400">Updated Live</span>
+            <h2 className="text-2xl font-heading font-medium">{t('regionalRates')}</h2>
+            <span className="text-xs uppercase tracking-widest text-gray-400">{t('updatedLive')}</span>
         </div>
 
         <div className="relative max-w-sm">
@@ -51,7 +53,7 @@ export default function ShippingContent({ groupedZones, allZones }: ShippingCont
             <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search a country or region..."
+                placeholder={t('searchPlaceholder')}
                 className="pl-9"
             />
         </div>
@@ -69,7 +71,7 @@ export default function ShippingContent({ groupedZones, allZones }: ShippingCont
                         >
                             <span className="flex items-baseline gap-2">
                                 <h3 className="font-heading font-semibold text-lg">{continent}</h3>
-                                <span className="text-xs text-gray-400 font-light">{continentZones.length} {continentZones.length === 1 ? 'country' : 'countries'}</span>
+                                <span className="text-xs text-gray-400 font-light">{continentZones.length} {continentZones.length === 1 ? t('country') : t('countries')}</span>
                             </span>
                             <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${isCollapsed ? '-rotate-90' : ''}`} />
                         </button>
@@ -103,7 +105,7 @@ export default function ShippingContent({ groupedZones, allZones }: ShippingCont
                                             <Accordion type="single" collapsible className="w-full mt-1">
                                                 <AccordionItem value="details" className="border-none">
                                                 <AccordionTrigger className="py-1 text-xs text-gray-500 hover:text-black hover:no-underline font-light flex justify-start gap-1">
-                                                    View Shipment Details
+                                                    {t('viewShipmentDetails')}
                                                 </AccordionTrigger>
                                                 <AccordionContent className="text-sm text-gray-600 bg-gray-50 p-3 rounded-md mt-2 border border-gray-100 whitespace-pre-wrap break-words">
                                                     {zone.shipping_details}
@@ -118,17 +120,17 @@ export default function ShippingContent({ groupedZones, allZones }: ShippingCont
                     </div>
                 )}) : (
                     <div className="border rounded-sm overflow-hidden text-center py-12 text-muted-foreground bg-gray-50">
-                        No countries match &quot;{search}&quot;.
+                        {t('noCountriesMatch', { query: search })}
                     </div>
                 )
             ) : (
                 <div className="border rounded-sm overflow-hidden text-center py-12 text-muted-foreground bg-gray-50">
-                    Loading latest rates...
+                    {t('loadingRates')}
                 </div>
             )}
         </div>
         <p className="text-sm text-gray-400 italic">
-            * If your country is not listed, please calculate your order at checkout or contact us for a quote.
+            {t('notListedNote')}
         </p>
       </section>
     </div>

@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
-import Link from 'next/link';
+import { usePathname, Link } from '@/i18n/navigation';
 import ImageWithFallback from '@/components/shared/ImageWithFallback';
 import { X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useSettings } from '@/components/providers/SettingsProvider';
 
 export default function SitePopup() {
+  const t = useTranslations('common');
   const { popupSettings: settings } = useSettings();
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
@@ -64,7 +65,7 @@ export default function SitePopup() {
           <button
             onClick={handleClose}
             className="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-black transition-colors"
-            aria-label="Close popup"
+            aria-label={t('closePopup')}
           >
             <X className="h-5 w-5" />
           </button>
@@ -110,7 +111,7 @@ export default function SitePopup() {
               onClick={handleClose}
               className="mt-4 text-xs text-gray-400 hover:text-gray-600 uppercase tracking-widest font-body transition-colors"
             >
-              No thanks
+              {t('noThanks')}
             </button>
           </div>
         </div>

@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useTransition } from 'react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,16 +24,18 @@ interface CategoryFormProps {
 
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
   const { pending } = useFormStatus();
+  const t = useTranslations('categories');
+  const tc = useTranslations('common');
 
   return (
     <Button type="submit" disabled={pending} className="w-full">
       {pending ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          {isEditing ? 'Updating...' : 'Creating...'}
+          {isEditing ? tc('saving') : t('creating')}
         </>
       ) : (
-        isEditing ? 'Update Category' : 'Create Category'
+        isEditing ? t('updateCategory') : t('createCategory')
       )}
     </Button>
   );
@@ -40,6 +43,8 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
 
 export default function CategoryForm({ category }: CategoryFormProps) {
   const router = useRouter();
+  const t = useTranslations('categories');
+  const tc = useTranslations('common');
   const [imageUrl, setImageUrl] = useState<string | null>(category?.image_url || null);
   const [uploading, setUploading] = useState(false);
   const [isFeatured, setIsFeatured] = useState(category?.is_featured || false);
@@ -65,7 +70,7 @@ export default function CategoryForm({ category }: CategoryFormProps) {
       setImageUrl(publicUrl);
     } catch (error) {
       console.error('Error uploading image', error);
-      alert('Error uploading image');
+      alert(t('errorUploadingImage'));
     } finally {
       setUploading(false);
     }
@@ -76,7 +81,7 @@ export default function CategoryForm({ category }: CategoryFormProps) {
     if (imageUrl) {
         formData.set('image_url', imageUrl);
     }
-    
+
     try {
         let result;
         if (category) {
@@ -86,9 +91,9 @@ export default function CategoryForm({ category }: CategoryFormProps) {
         }
 
         if (result && !result.success) {
-            toast.error(result.error || "Failed to save category");
+            toast.error(result.error || tc('failedToSave'));
         } else {
-            toast.success(category ? "Category updated successfully" : "Category created successfully");
+            toast.success(category ? t('categoryUpdated') : t('categoryCreated'));
             startTransition(() => {
               router.refresh();
               router.push('/admin/categories');
@@ -96,47 +101,47 @@ export default function CategoryForm({ category }: CategoryFormProps) {
         }
     } catch (error) {
         console.error("Form submission error", error);
-        toast.error("Something went wrong. Please try again.");
+        toast.error(tc('somethingWentWrong'));
     }
   };
 
   return (
     <form action={handleSubmit} className="space-y-6 max-w-lg bg-white p-6 rounded-lg shadow-sm">
       <div className="space-y-2">
-        <Label htmlFor="name">Name</Label>
+        <Label htmlFor="name">{tc('name')}</Label>
         <Input
           id="name"
           name="name"
           defaultValue={category?.name}
-          placeholder="e.g. Body Lotions"
+          placeholder={t('namePlaceholder')}
           required
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="slug">Slug</Label>
+        <Label htmlFor="slug">{t('slug')}</Label>
         <Input
           id="slug"
           name="slug"
           defaultValue={category?.slug}
-          placeholder="e.g. body-lotions"
+          placeholder={t('slugPlaceholder')}
           required
         />
-        <p className="text-xs text-muted-foreground">Used in the URL: /shop?category=slug</p>
+        <p className="text-xs text-muted-foreground">{t('slugHint')}</p>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">Description (Optional)</Label>
+        <Label htmlFor="description">{t('descriptionOptional')}</Label>
         <Textarea
           id="description"
           name="description"
           defaultValue={category?.description || ''}
-          placeholder="A brief description of this category..."
+          placeholder={t('descriptionPlaceholder')}
         />
       </div>
 
        <div className="space-y-2">
-        <Label htmlFor="image">Category Image</Label>
+        <Label htmlFor="image">{t('categoryImage')}</Label>
         <Input
           id="image"
           type="file"
@@ -144,13 +149,13 @@ export default function CategoryForm({ category }: CategoryFormProps) {
           onChange={handleImageUpload}
           disabled={uploading}
         />
-        {uploading && <p className="text-sm text-yellow-600">Uploading...</p>}
+        {uploading && <p className="text-sm text-yellow-600">{tc('loading')}</p>}
         {imageUrl && (
             <div className="relative w-full h-40 mt-2 rounded overflow-hidden border">
-                <Image 
-                    src={imageUrl} 
-                    alt="Category preview" 
-                    fill 
+                <Image
+                    src={imageUrl}
+                    alt={t('categoryPreviewAlt')}
+                    fill
                     sizes="(max-width: 768px) 100vw, 512px"
                     className="object-cover"
                 />
@@ -159,13 +164,13 @@ export default function CategoryForm({ category }: CategoryFormProps) {
       </div>
 
       <div className="flex items-center space-x-2">
-          <Checkbox 
-            id="is_featured" 
+          <Checkbox
+            id="is_featured"
             checked={isFeatured}
             onCheckedChange={(checked) => setIsFeatured(checked === true)}
           />
           <input type="hidden" name="is_featured" value={isFeatured ? 'on' : 'off'} />
-          <Label htmlFor="is_featured">Featured in Ticker?</Label>
+          <Label htmlFor="is_featured">{t('featuredInTicker')}</Label>
       </div>
 
       <SubmitButton isEditing={!!category} />

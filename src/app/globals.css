@@ -7,33 +7,33 @@
     /* Cangday: warm-ivory content surface, ink text, antique-gold accent.
        Always-dark editorial surfaces (hero/header/footer) use the fixed
        ink/gold/ivory Tailwind colors directly, not these semantic tokens. */
-    --background: 40 33% 98%;   /* Warm ivory paper */
-    --foreground: 20 25% 8%;    /* Warm near-black ink */
+    --background: 38 37% 93%;   /* Warm ivory paper, unified with --brand-ivory */
+    --foreground: 24 18% 11%;   /* Espresso ink */
 
-    --card: 40 33% 98%;
-    --card-foreground: 20 25% 8%;
+    --card: 38 37% 93%;
+    --card-foreground: 24 18% 11%;
 
-    --popover: 40 33% 98%;
-    --popover-foreground: 20 25% 8%;
+    --popover: 38 37% 93%;
+    --popover-foreground: 24 18% 11%;
 
-    --primary: 20 25% 8%;       /* Ink — buttons stay solid ink, not gold-filled */
-    --primary-foreground: 40 33% 98%;
+    --primary: 24 18% 11%;      /* Ink — buttons stay solid ink, not gold-filled */
+    --primary-foreground: 38 37% 93%;
 
-    --secondary: 38 20% 93%;    /* Soft warm gray for hover/bg */
-    --secondary-foreground: 20 25% 8%;
+    --secondary: 36 18% 89%;    /* Soft warm gray for hover/bg */
+    --secondary-foreground: 24 18% 11%;
 
-    --muted: 38 20% 93%;
+    --muted: 36 18% 89%;
     --muted-foreground: 25 10% 40%;
 
-    --accent: 38 48% 54%;       /* Antique gold — used sparingly, as accent not fill */
-    --accent-foreground: 20 25% 8%;
+    --accent: 39 37% 56%;       /* Champagne gold — used sparingly, as accent not fill */
+    --accent-foreground: 24 18% 11%;
 
     --destructive: 355 55% 35%;
-    --destructive-foreground: 40 33% 98%;
+    --destructive-foreground: 38 37% 93%;
 
-    --border: 35 20% 87%;
-    --input: 35 20% 87%;
-    --ring: 38 48% 54%;
+    --border: 35 18% 84%;
+    --input: 35 18% 84%;
+    --ring: 39 37% 56%;
 
     --radius: 0.125rem; /* Near-sharp edges — jewelry-case precision, not soft SaaS rounding */
 
@@ -44,13 +44,24 @@
        whose admin-facing color pickers work in hex; see the inline <style>
        tag in layout.tsx that overrides these same variable names at runtime
        from system_settings. */
-    --brand-ink: 18 13 10;
-    --brand-ink-elevated: 28 21 18;
-    --brand-ink-line: 42 33 27;
-    --brand-gold: 201 162 75;
-    --brand-gold-soft: 232 217 181;
-    --brand-gold-deep: 138 106 47;
-    --brand-ivory: 245 239 230;
+    --brand-ink: 13 13 12;          /* Obsidian #0D0D0C */
+    --brand-ink-elevated: 33 27 23; /* Espresso #211B17 */
+    --brand-ink-line: 51 42 36;
+    --brand-gold: 184 154 99;       /* Champagne Gold #B89A63 */
+    --brand-gold-soft: 213 196 164;
+    --brand-gold-deep: 138 116 74;
+    --brand-ivory: 243 238 229;     /* Warm Ivory #F3EEE5 */
+
+    /* Secondary accent — a muted apothecary sage, kept separate from gold so
+       badges (New/Popular/etc.) stop competing with gold's other job as the
+       price/CTA-adjacent premium accent. Same triplet format as the rest. */
+    --brand-sage: 124 140 112;
+    --brand-sage-deep: 82 96 70;
+
+    /* Deep Burgundy #4A171D — reserved for exactly one purpose: the
+       discount/sale badge on ProductCard. Not a general-purpose accent;
+       do not reach for this elsewhere without revisiting that decision. */
+    --brand-burgundy: 74 23 29;
   }
 
   .dark {
@@ -72,7 +83,7 @@
     --muted: 20 12% 15%;
     --muted-foreground: 35 10% 65%;
 
-    --accent: 38 48% 54%;
+    --accent: 39 37% 56%;
     --accent-foreground: 20 15% 7%;
 
     --destructive: 355 55% 35%;
@@ -80,7 +91,7 @@
 
     --border: 20 12% 20%;
     --input: 20 12% 20%;
-    --ring: 38 48% 54%;
+    --ring: 39 37% 56%;
   }
 }
 

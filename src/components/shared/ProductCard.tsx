@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { Link, useRouter } from '@/i18n/navigation';
 import ImageWithFallback from '@/components/shared/ImageWithFallback';
 import { Product } from '@/types';
 import { formatCurrency } from '@/lib/utils';
@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Sparkle } from 'lucide-react';
 import { useCartStore } from '@/hooks/use-cart';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useSettings } from '@/components/providers/SettingsProvider';
 
 interface ProductCardProps {
@@ -18,6 +18,9 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, priority = false }: ProductCardProps) {
+  const t = useTranslations('cart');
+  const tProduct = useTranslations('product');
+  const tCommon = useTranslations('common');
   const router = useRouter();
   const addItem = useCartStore((state) => state.addItem);
   const { hidePrices } = useSettings();
@@ -33,12 +36,12 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
     if (product.has_variants) {
         // Direct to page if clicking the main button/image logic falls through
         router.push(`/shop/${product.slug || product.id}`);
-        toast.info("Select a size");
+        toast.info(t('selectASize'));
         return;
     }
 
     if (!product.stock) {
-        toast.error("Out of Stock");
+        toast.error(t('outOfStock'));
         return;
     }
 
@@ -48,7 +51,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
         price: product.price - (product.discount || 0),
         images: [mainImage],
     });
-    toast.success(`Added ${product.name_en} to cart`);
+    toast.success(t('addedToCart', { name: product.name_en }));
   };
 
   const handleVariantAdd = (variant: any) => {
@@ -64,7 +67,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
         variantId: variant.id,
         variantName: variant.name
       });
-      toast.success(`Added ${product.name_en} - ${variant.name}`);
+      toast.success(t('addedVariantToCart', { name: product.name_en, variant: variant.name }));
   };
 
   return (
@@ -72,24 +75,27 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
       {/* Image Container — thin frame ring instead of a plain edge-to-edge
           photo, so cards read as a small gallery print rather than a bare
           thumbnail. */}
-      <div className="relative aspect-[4/5] md:aspect-[3/4] overflow-hidden bg-secondary mb-3 rounded-sm ring-1 ring-border group-hover:ring-gold/40 transition-colors">
+      <div className="relative aspect-[4/5] md:aspect-[3/4] overflow-hidden bg-secondary mb-2 rounded-sm ring-1 ring-border group-hover:ring-ink/20 transition-colors">
 
         <Link href={`/shop/${product.slug || product.id}`} className="block relative w-full h-full">
-            {/* Discount Badge */}
+            {/* Discount Badge — the one deliberate use of burgundy in the
+                interface, reserved for sale/discount signaling only. */}
             {product.discount > 0 && (
             <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
-                <Badge className="bg-ink text-gold-soft border border-gold/40 rounded-sm px-2 py-1 text-[10px] md:text-xs uppercase font-bold tracking-wider">
+                <Badge className="bg-burgundy text-ivory border-0 rounded-sm px-2 py-1 text-[10px] md:text-xs uppercase font-bold tracking-wider">
                     -{discountPercentage}% OFF
                 </Badge>
             </div>
             )}
 
-            {/* Popular Badge */}
+            {/* Popular Badge — sage, not gold: gold stays reserved for price/
+                CTA-adjacent accents, so this reads as a distinct "editorial
+                pick" signal instead of competing with the discount badge. */}
             {product.is_popular && (
             <div className="absolute top-2 right-2 z-10 flex flex-col gap-1">
-                <div className="flex items-center gap-1 bg-gold text-ink rounded-sm px-1.5 py-1">
+                <div className="flex items-center gap-1 bg-sage text-ivory rounded-sm px-1.5 py-1">
                     <Sparkle className="h-3 w-3 md:h-3.5 md:w-3.5" fill="currentColor" strokeWidth={0} />
-                    <span className="text-[10px] md:text-xs uppercase font-bold tracking-wider">Popular</span>
+                    <span className="text-[10px] md:text-xs uppercase font-bold tracking-wider">{tProduct('popular')}</span>
                 </div>
             </div>
             )}
@@ -114,7 +120,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
                 return (
                     <div className="absolute bottom-2 left-0 right-0 flex justify-center z-20 pointer-events-none">
                         <span className="bg-ivory/95 backdrop-blur-sm text-ink/60 px-3 py-1 text-[10px] md:text-xs font-medium uppercase tracking-wider rounded-sm shadow-sm border border-border">
-                            Sold Out
+                            {tProduct('soldOut')}
                         </span>
                     </div>
                 );
@@ -132,7 +138,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
                             disabled={!v.stock}
                             className={`
                                 min-w-[32px] px-2 py-1 text-[9px] md:text-[10px] font-bold uppercase tracking-wider
-                                bg-ivory/95 backdrop-blur-md text-ink border border-transparent shadow-sm hover:bg-ink hover:text-gold
+                                bg-ivory/95 backdrop-blur-md text-ink border border-transparent shadow-sm hover:bg-ink hover:text-ivory
                                 transition-all duration-200 transform active:scale-95 md:hover:scale-105 rounded-sm
                                 ${!v.stock ? 'opacity-50 cursor-not-allowed line-through bg-secondary' : ''}
                             `}
@@ -144,7 +150,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
                     {variants.length > 3 && (
                         <Link
                             href={`/shop/${product.slug || product.id}`}
-                            className="flex items-center justify-center min-w-[24px] px-1.5 py-1 text-[9px] font-bold bg-ivory/90 text-ink rounded-sm hover:bg-ink hover:text-gold transition-colors"
+                            className="flex items-center justify-center min-w-[24px] px-1.5 py-1 text-[9px] font-bold bg-ivory/90 text-ink rounded-sm hover:bg-ink hover:text-ivory transition-colors"
                         >
                             +
                         </Link>
@@ -179,7 +185,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
                                     size="icon"
                                     className="h-8 w-8 md:h-9 md:w-9 rounded-full bg-ink text-ivory hover:bg-gold hover:text-ink shadow-lg transition-colors border-0"
                                     onClick={(e) => { e.preventDefault(); handleQuickAdd(); }}
-                                    aria-label="Add to cart"
+                                    aria-label={tProduct('addToCartLabel')}
                                 >
                                     <Plus className="h-4 w-4" />
                                 </Button>
@@ -195,15 +201,15 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
       {/* Content */}
       <div className="space-y-2">
         <Link href={`/shop/${product.slug || product.id}`} className="block">
-             <h3 className="font-heading text-xs md:text-sm font-semibold leading-tight truncate md:text-center hover:text-gold-deep transition-colors">{product.name_en}</h3>
+             <h3 className="font-heading text-xs md:text-sm font-semibold leading-tight truncate md:text-center hover:text-ink/70 transition-colors">{product.name_en}</h3>
         </Link>
 
         <div className="flex items-center justify-start md:justify-center gap-2 text-xs md:text-sm">
           {hidePrices ? (
-             <span className="font-medium text-muted-foreground">Contact for price</span>
+             <span className="font-medium text-muted-foreground">{tCommon('contactForPrice')}</span>
           ) : product.has_variants ? (
              <span className="font-medium text-muted-foreground">
-                From <span className="text-foreground">{formatCurrency(product.price)}</span>
+                {tProduct('from', { price: formatCurrency(product.price) })}
              </span>
           ) : product.discount > 0 ? (
             <>

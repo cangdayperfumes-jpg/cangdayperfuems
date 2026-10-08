@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { Check, ChevronsUpDown } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -22,6 +23,7 @@ import { COUNTRIES } from '@/lib/countries';
 import Image from 'next/image';
 
 export function CountrySelector() {
+  const t = useTranslations('shipping');
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState('');
 
@@ -49,18 +51,18 @@ export function CountrySelector() {
             <div className="flex items-center gap-2 truncate">
                 {selectedCountry ? (
                 <>
-                    <Image 
+                    <Image
                         src={`https://flagcdn.com/w20/${selectedCountry.code.toLowerCase()}.png`}
                         width={20}
                         height={15}
-                        alt={`${selectedCountry.name} flag`}
+                        alt={t('flagAlt', { name: selectedCountry.name })}
                         className="rounded-sm object-cover shadow-sm"
                         unoptimized
                     />
                     <span className="truncate">{selectedCountry.name}</span>
                 </>
                 ) : (
-                <span className="text-muted-foreground">Search country...</span>
+                <span className="text-muted-foreground">{t('searchCountry')}</span>
                 )}
             </div>
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -68,9 +70,9 @@ export function CountrySelector() {
         </PopoverTrigger>
         <PopoverContent className="w-[300px] p-0" align="start">
           <Command>
-            <CommandInput placeholder="Search country name or code..." />
+            <CommandInput placeholder={t('searchCountryNameOrCode')} />
             <CommandList>
-                <CommandEmpty>No country found.</CommandEmpty>
+                <CommandEmpty>{t('noCountryFound')}</CommandEmpty>
                 <CommandGroup>
                 {COUNTRIES.map((country) => (
                     <CommandItem
@@ -88,11 +90,11 @@ export function CountrySelector() {
                         value === country.code ? 'opacity-100' : 'opacity-0'
                         )}
                     />
-                    <Image 
+                    <Image
                         src={`https://flagcdn.com/w20/${country.code.toLowerCase()}.png`}
                         width={20}
                         height={15}
-                        alt={`${country.name} flag`}
+                        alt={t('flagAlt', { name: country.name })}
                         className="rounded-sm object-cover shadow-sm"
                         unoptimized
                     />

@@ -7,6 +7,7 @@ import * as z from 'zod';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,25 +36,31 @@ import {
   CategoryTileInput,
 } from '@/app/admin/marketing/category-tiles/actions';
 
-const tileSchema = z.object({
-  label: z.string().min(1, 'Label is required'),
-  link_href: z.string().min(1, 'Link is required'),
-  col_span: z.coerce.number().min(1).max(4),
-  row_span: z.coerce.number().min(1).max(2),
-  display_order: z.coerce.number().default(0),
-  is_active: z.boolean().default(true),
-});
+function buildTileSchema(t: (key: string) => string) {
+  return z.object({
+    label: z.string().min(1, t('validation.labelRequired')),
+    link_href: z.string().min(1, t('validation.linkRequired')),
+    col_span: z.coerce.number().min(1).max(4),
+    row_span: z.coerce.number().min(1).max(2),
+    display_order: z.coerce.number().default(0),
+    is_active: z.boolean().default(true),
+  });
+}
 
-type TileFormValues = z.infer<typeof tileSchema>;
+type TileFormValues = z.infer<ReturnType<typeof buildTileSchema>>;
 
 interface CategoryTileFormProps {
   initialData?: CategoryTile;
 }
 
 export default function CategoryTileForm({ initialData }: CategoryTileFormProps) {
+  const t = useTranslations('categoryTiles');
+  const tc = useTranslations('common');
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [image, setImage] = useState<string | null>(initialData?.image_url || null);
+
+  const tileSchema = buildTileSchema(t);
 
   const form = useForm<TileFormValues>({
     resolver: zodResolver(tileSchema) as any,
@@ -69,7 +76,7 @@ export default function CategoryTileForm({ initialData }: CategoryTileFormProps)
 
   const onSubmit = async (values: TileFormValues) => {
     if (!image) {
-      toast.error('Please upload a tile image');
+      toast.error(t('imageRequired'));
       return;
     }
 
@@ -90,16 +97,16 @@ export default function CategoryTileForm({ initialData }: CategoryTileFormProps)
         : await createCategoryTile(payload);
 
       if (!result.success) {
-        toast.error(result.error || 'Failed to save category tile');
+        toast.error(result.error || t('failedToSave'));
         return;
       }
 
-      toast.success(initialData ? 'Tile updated successfully' : 'Tile created successfully');
+      toast.success(initialData ? t('updatedSuccess') : t('createdSuccess'));
       router.push('/admin/marketing/category-tiles');
       router.refresh();
     } catch (error) {
       console.error('Category tile submit error', error);
-      toast.error('Something went wrong. Please try again.');
+      toast.error(tc('somethingWentWrong'));
     } finally {
       setSaving(false);
     }
@@ -109,16 +116,16 @@ export default function CategoryTileForm({ initialData }: CategoryTileFormProps)
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-3xl space-y-8">
         <section className="space-y-4 rounded-lg border bg-white p-6">
-          <h2 className="font-heading text-lg">Content</h2>
+          <h2 className="font-heading text-lg">{t('sectionContent')}</h2>
 
           <FormField
             control={form.control}
             name="label"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Label</FormLabel>
+                <FormLabel>{t('labelLabel')}</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g. Women's" {...field} />
+                  <Input placeholder={t('labelPlaceholder')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -130,7 +137,7 @@ export default function CategoryTileForm({ initialData }: CategoryTileFormProps)
             name="link_href"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Link</FormLabel>
+                <FormLabel>{t('linkLabel')}</FormLabel>
                 <FormControl>
                   <Input placeholder="/shop?audience=Women" {...field} />
                 </FormControl>
@@ -141,9 +148,9 @@ export default function CategoryTileForm({ initialData }: CategoryTileFormProps)
         </section>
 
         <section className="space-y-4 rounded-lg border bg-white p-6">
-          <h2 className="font-heading text-lg">Media</h2>
+          <h2 className="font-heading text-lg">{t('sectionMedia')}</h2>
           <ImageUploadField
-            label="Tile Image"
+            label={t('tileImageLabel')}
             value={image}
             onChange={setImage}
             uploadPrefix="category-tiles/"
@@ -152,18 +159,15 @@ export default function CategoryTileForm({ initialData }: CategoryTileFormProps)
         </section>
 
         <section className="space-y-4 rounded-lg border bg-white p-6">
-          <h2 className="font-heading text-lg">Bento Sizing</h2>
-          <p className="text-xs text-muted-foreground">
-            The homepage grid is 4 columns × 2 rows. A 2×2 tile is the large
-            feature tile; 1×1 is a standard square. Sizes are clamped to fit.
-          </p>
+          <h2 className="font-heading text-lg">{t('sectionBentoSizing')}</h2>
+          <p className="text-xs text-muted-foreground">{t('bentoSizingHint')}</p>
           <div className="grid gap-4 sm:grid-cols-2">
             <FormField
               control={form.control}
               name="col_span"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Column Span</FormLabel>
+                  <FormLabel>{t('columnSpanLabel')}</FormLabel>
                   <Select value={String(field.value)} onValueChange={(v) => field.onChange(Number(v))}>
                     <FormControl>
                       <SelectTrigger className="w-full">
@@ -184,7 +188,7 @@ export default function CategoryTileForm({ initialData }: CategoryTileFormProps)
               name="row_span"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Row Span</FormLabel>
+                  <FormLabel>{t('rowSpanLabel')}</FormLabel>
                   <Select value={String(field.value)} onValueChange={(v) => field.onChange(Number(v))}>
                     <FormControl>
                       <SelectTrigger className="w-full">
@@ -204,13 +208,13 @@ export default function CategoryTileForm({ initialData }: CategoryTileFormProps)
         </section>
 
         <section className="space-y-4 rounded-lg border bg-white p-6">
-          <h2 className="font-heading text-lg">Activation</h2>
+          <h2 className="font-heading text-lg">{t('sectionActivation')}</h2>
           <FormField
             control={form.control}
             name="display_order"
             render={({ field }) => (
               <FormItem className="max-w-[180px]">
-                <FormLabel>Display Order</FormLabel>
+                <FormLabel>{t('displayOrderLabel')}</FormLabel>
                 <FormControl>
                   <Input type="number" {...field} />
                 </FormControl>
@@ -225,7 +229,7 @@ export default function CategoryTileForm({ initialData }: CategoryTileFormProps)
                 <FormControl>
                   <Switch checked={field.value} onCheckedChange={field.onChange} />
                 </FormControl>
-                <FormLabel className="!mt-0">Enabled</FormLabel>
+                <FormLabel className="!mt-0">{t('enabledLabel')}</FormLabel>
               </FormItem>
             )}
           />
@@ -235,12 +239,12 @@ export default function CategoryTileForm({ initialData }: CategoryTileFormProps)
           {saving ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
+              {tc('saving')}
             </>
           ) : initialData ? (
-            'Update Tile'
+            t('submitUpdate')
           ) : (
-            'Create Tile'
+            t('submitCreate')
           )}
         </Button>
       </form>

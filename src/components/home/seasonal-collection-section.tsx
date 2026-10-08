@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { motion, Variants } from 'framer-motion';
 import { SeasonalCollection } from '@/types';
@@ -151,10 +151,10 @@ export default function SeasonalCollectionSection({ collections }: { collections
   }
 
   return (
-    <section className="w-full py-16 md:py-24">
+    <section className="w-full py-8 md:py-12">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         <div
-          className={`grid grid-cols-1 gap-6 ${
+          className={`grid grid-cols-1 gap-4 md:gap-6 ${
             collections.length === 2 ? 'md:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-3'
           }`}
         >

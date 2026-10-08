@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import { useDebounce } from 'use-debounce';
 import { Check, GripVertical, Loader2, X } from 'lucide-react';
 import {
@@ -33,6 +34,7 @@ interface ProductMultiSelectPickerProps {
 }
 
 export default function ProductMultiSelectPicker({ value, onChange }: ProductMultiSelectPickerProps) {
+  const t = useTranslations('productPicker');
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [debouncedQuery] = useDebounce(query, 300);
@@ -100,19 +102,19 @@ export default function ProductMultiSelectPicker({ value, onChange }: ProductMul
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button type="button" variant="outline" className="w-full justify-start">
-            Search &amp; add products…
+            {t('searchAndAddProducts')}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
           <Command shouldFilter={false}>
-            <CommandInput placeholder="Search products by name..." value={query} onValueChange={setQuery} />
+            <CommandInput placeholder={t('searchPlaceholder')} value={query} onValueChange={setQuery} />
             <CommandList>
               {loading && (
                 <div className="flex items-center justify-center py-6">
                   <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                 </div>
               )}
-              {!loading && <CommandEmpty>No products found.</CommandEmpty>}
+              {!loading && <CommandEmpty>{t('noProductsFound')}</CommandEmpty>}
               {!loading && (
                 <CommandGroup>
                   {results.map((product) => (
@@ -151,7 +153,7 @@ export default function ProductMultiSelectPicker({ value, onChange }: ProductMul
                 type="button"
                 onPointerDown={(e) => dragControls.start(e)}
                 className="cursor-grab touch-none text-muted-foreground hover:text-foreground active:cursor-grabbing"
-                aria-label="Drag to reorder"
+                aria-label={t('dragToReorder')}
               >
                 <GripVertical className="h-4 w-4" />
               </button>

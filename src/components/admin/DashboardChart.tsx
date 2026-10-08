@@ -9,6 +9,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
+import { useTranslations } from 'next-intl';
 
 interface ChartData {
   date: string;
@@ -20,10 +21,11 @@ interface DashboardChartProps {
 }
 
 export default function DashboardChart({ data }: DashboardChartProps) {
+  const t = useTranslations('dashboard');
   if (!data || data.length === 0) {
     return (
       <div className="h-full w-full flex items-center justify-center text-gray-400">
-        No data available for the selected period
+        {t('noDataAvailable')}
       </div>
     );
   }

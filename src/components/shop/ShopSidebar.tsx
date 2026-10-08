@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Search } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useState, useEffect, useMemo } from 'react';
 import {
   Accordion,
@@ -53,7 +54,7 @@ export default function ShopSidebar({
   totalProducts,
   onNavigate,
 }: ShopSidebarProps) {
-  const router = useRouter(); 
+  const t = useTranslations('shop');
   const searchParams = useSearchParams();
   const [brandSearch, setBrandSearch] = useState('');
   const [isViewAllOpen, setIsViewAllOpen] = useState(false);
@@ -172,7 +173,7 @@ export default function ShopSidebar({
       {/* Search - Always visible at top */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
-            <h2 className="font-heading font-medium text-lg hidden md:block">Filters</h2>
+            <h2 className="font-heading font-medium text-lg hidden md:block">{t('filters')}</h2>
             {(optimisticBrands.length > 0 || optimisticCategory || optimisticAudience || optimisticPopular || optimisticFilter || searchQuery) && (
                 <button
                     onClick={() => {
@@ -186,7 +187,7 @@ export default function ShopSidebar({
                     }} 
                     className="text-xs text-gray-500 hover:text-black underline font-medium"
                 >
-                    Reset All
+                    {t('resetAll')}
                 </button>
             )}
         </div>
@@ -194,7 +195,7 @@ export default function ShopSidebar({
           <Search className="absolute left-0 top-2.5 h-4 w-4 text-gray-400" />
           <Input
             type="search"
-            placeholder="Search products..."
+            placeholder={t('searchPlaceholder')}
             className="pl-8 border-0 border-b border-gray-200 rounded-none pr-0 focus-visible:ring-0 focus-visible:border-black font-body text-base placeholder:text-gray-400"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -207,14 +208,14 @@ export default function ShopSidebar({
         {/* Sort By */}
         <AccordionItem value="sort" className="border-none">
           <AccordionTrigger className="text-lg font-playfair font-semibold hover:no-underline py-2">
-            Sort By
+            {t('sortBy')}
           </AccordionTrigger>
           <AccordionContent className="pt-2">
              <div className="flex flex-col border border-gray-200 rounded-sm overflow-hidden">
                 {[
-                  { id: null, label: 'Featured' },
-                  { id: 'new', label: 'New Arrivals' },
-                  { id: 'best', label: 'Best Sellers' },
+                  { id: null, label: t('featured') },
+                  { id: 'new', label: t('newArrivals') },
+                  { id: 'best', label: t('bestSellers') },
                 ].map((item) => {
                     const isSelected = optimisticFilter === item.id;
                     return (
@@ -223,8 +224,8 @@ export default function ShopSidebar({
                             onClick={() => handleFilterChange(item.id)}
                             className={cn(
                                 "py-2 px-3 text-sm font-medium text-left transition-colors border-b last:border-b-0 border-gray-100",
-                                isSelected 
-                                    ? "bg-gray-100 text-black font-semibold" 
+                                isSelected
+                                    ? "bg-gray-100 text-black font-semibold"
                                     : "bg-white text-gray-600 hover:bg-gray-50"
                             )}
                         >
@@ -239,24 +240,28 @@ export default function ShopSidebar({
         {/* 1. Gender / Collection */}
         <AccordionItem value="gender" className="border-none">
           <AccordionTrigger className="text-lg font-playfair font-semibold hover:no-underline py-2">
-            Collection
+            {t('collection')}
           </AccordionTrigger>
           <AccordionContent className="pt-2">
              <div className="flex w-full border border-gray-200 rounded-sm overflow-hidden">
-                {['Men', 'Women', 'Unisex'].map((item) => {
-                    const isSelected = optimisticAudience === item;
+                {[
+                  { value: 'Men', label: t('men') },
+                  { value: 'Women', label: t('women') },
+                  { value: 'Unisex', label: t('unisex') },
+                ].map((item) => {
+                    const isSelected = optimisticAudience === item.value;
                     return (
                         <button
-                            key={item}
-                            onClick={() => handleAudienceChange(isSelected ? null : item)}
+                            key={item.value}
+                            onClick={() => handleAudienceChange(isSelected ? null : item.value)}
                             className={cn(
                                 "flex-1 py-2 text-sm font-medium transition-colors",
-                                isSelected 
-                                    ? "bg-black text-white" 
+                                isSelected
+                                    ? "bg-black text-white"
                                     : "bg-white text-gray-900 hover:bg-gray-50"
                             )}
                         >
-                            {item}
+                            {item.label}
                         </button>
                     )
                 })}
@@ -266,7 +271,7 @@ export default function ShopSidebar({
 
         <AccordionItem value="popular" className="border-none">
           <AccordionTrigger className="text-lg font-playfair font-semibold hover:no-underline py-2">
-            Popular
+            {t('popular')}
           </AccordionTrigger>
           <AccordionContent className="pt-2">
              <div className="flex w-full border border-gray-200 rounded-sm overflow-hidden">
@@ -279,7 +284,7 @@ export default function ShopSidebar({
                             : "bg-white text-gray-900 hover:bg-gray-50"
                     )}
                 >
-                    Popular Items Only
+                    {t('popularItemsOnly')}
                 </button>
              </div>
           </AccordionContent>
@@ -288,7 +293,7 @@ export default function ShopSidebar({
         {/* 2. Categories */}
         <AccordionItem value="categories" className="border-none">
           <AccordionTrigger className="text-lg font-playfair font-semibold hover:no-underline py-2">
-            Categories
+            {t('categories')}
           </AccordionTrigger>
           <AccordionContent className="pt-2">
              <div className="space-y-1">
@@ -306,7 +311,7 @@ export default function ShopSidebar({
                          "flex items-center justify-between py-1.5 px-2 rounded-sm text-sm transition-colors cursor-pointer",
                          !optimisticCategory ? "bg-gray-100 font-medium" : "hover:bg-gray-50 text-gray-600"
                      )}>
-                         <span>All Categories</span>
+                         <span>{t('allCategories')}</span>
                          <span className="text-xs text-gray-400">({productCounts['all'] || totalProducts})</span> 
                      </div>
                 </Link>
@@ -342,16 +347,16 @@ export default function ShopSidebar({
         {/* 3. Brands */}
         <AccordionItem value="brands" className="border-none">
           <AccordionTrigger className="text-lg font-playfair font-semibold hover:no-underline py-2">
-            Brands
+            {t('brands')}
           </AccordionTrigger>
           <AccordionContent className="pt-2">
-             
+
              {/* Brand Search */}
              <div className="relative mb-3">
                  <Search className="absolute left-0 top-2.5 h-3 w-3 text-gray-400" />
-                 <input 
-                    type="text" 
-                    placeholder="Filter brands..." 
+                 <input
+                    type="text"
+                    placeholder={t('filterBrandsPlaceholder')}
                     className="w-full pl-5 py-2 text-xs border-b border-gray-200 focus:outline-none focus:border-black placeholder:text-gray-400 bg-transparent"
                     value={brandSearch}
                     onChange={(e) => setBrandSearch(e.target.value)}
@@ -359,7 +364,7 @@ export default function ShopSidebar({
              </div>
 
              <ScrollArea className="h-[300px] pr-3">
-                 {filteredBrands.length === 0 && <p className="text-xs text-gray-400 py-2">No brands found.</p>}
+                 {filteredBrands.length === 0 && <p className="text-xs text-gray-400 py-2">{t('noBrandsFound')}</p>}
                  <div className="space-y-3">
                      {filteredBrands.map((brand) => (
                          <div key={brand.id} className="flex items-center space-x-3 group cursor-pointer">
@@ -384,12 +389,12 @@ export default function ShopSidebar({
                 <Dialog open={isViewAllOpen} onOpenChange={setIsViewAllOpen}>
                     <DialogTrigger asChild>
                         <button className="text-xs font-bold underline mt-4 hover:text-gray-600">
-                             + View all {brands.length} brands
+                             {t('viewAllBrands', { count: brands.length })}
                         </button>
                     </DialogTrigger>
                     <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col p-6">
                         <DialogHeader className="pb-4 border-b">
-                            <DialogTitle className="text-3xl font-playfair">All Brands</DialogTitle>
+                            <DialogTitle className="text-3xl font-playfair">{t('allBrands')}</DialogTitle>
                         </DialogHeader>
                         <div className="flex-1 overflow-y-auto py-6">
                              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-6 gap-y-4">
@@ -411,7 +416,7 @@ export default function ShopSidebar({
                             </div>
                         </div>
                         <div className="pt-4 border-t flex justify-end">
-                            <Button onClick={() => setIsViewAllOpen(false)}>Done</Button>
+                            <Button onClick={() => setIsViewAllOpen(false)}>{t('done')}</Button>
                         </div>
                     </DialogContent>
                 </Dialog>

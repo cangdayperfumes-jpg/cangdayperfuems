@@ -1,14 +1,16 @@
 
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { Home, Grid, ShoppingBag } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useCartStore } from '@/hooks/use-cart';
 import { useStore } from '@/hooks/use-store';
 import CartSheet from '@/components/cart/cart-sheet';
 import { useState } from 'react';
 
 export default function BottomNav() {
+  const t = useTranslations('nav');
   const [isCartOpen, setIsCartOpen] = useState(false);
   const itemCount = useStore(useCartStore, (state) => state.getItemCount());
 
@@ -17,12 +19,12 @@ export default function BottomNav() {
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t h-16 flex items-center justify-around pb-safe">
         <Link href="/" className="flex flex-col items-center justify-center w-full h-full text-muted-foreground hover:text-foreground">
           <Home className="h-5 w-5" />
-          <span className="text-[10px] mt-1">Home</span>
+          <span className="text-[10px] mt-1">{t('home')}</span>
         </Link>
-        
+
         <Link href="/shop" className="flex flex-col items-center justify-center w-full h-full text-muted-foreground hover:text-foreground">
           <Grid className="h-5 w-5" />
-          <span className="text-[10px] mt-1">Shop</span>
+          <span className="text-[10px] mt-1">{t('shop')}</span>
         </Link>
 
         {/* Cart Button */}
@@ -38,7 +40,7 @@ export default function BottomNav() {
               </span>
             )}
           </div>
-          <span className="text-[10px] mt-1">Cart</span>
+          <span className="text-[10px] mt-1">{t('cart')}</span>
         </button>
       </div>
 

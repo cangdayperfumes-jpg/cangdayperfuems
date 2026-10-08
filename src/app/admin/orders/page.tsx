@@ -14,6 +14,7 @@ import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { getAdminLocale, getAdminT } from '@/i18n/admin-locale';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,33 +25,37 @@ export default async function OrdersPage(props: { searchParams: Promise<{ [key: 
   const page = Number(searchParams?.page) || 1;
   const limit = 20;
 
+  const locale = await getAdminLocale();
+  const t = await getAdminT(locale, 'orders');
+  const tCommon = await getAdminT(locale, 'common');
+
   const { data: orders, totalPages } = await getOrders({ status: statusFilter, query: searchQuery, page, limit });
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4">
-        <h1 className="text-3xl font-bold font-heading">Orders</h1>
-        
+        <h1 className="text-3xl font-bold font-heading">{t('title')}</h1>
+
         {/* Simple Status Filters */}
         <div className="flex flex-wrap gap-2">
           <Link href="/admin/orders">
             <Button variant={!statusFilter || statusFilter === 'all' ? 'default' : 'outline'} size="sm">
-              All Orders
+              {t('allOrders')}
             </Button>
           </Link>
           <Link href="/admin/orders?status=pending">
             <Button variant={statusFilter === 'pending' ? 'default' : 'outline'} size="sm" className="text-amber-600 border-amber-200">
-              Pending
+              {t('pending')}
             </Button>
           </Link>
           <Link href="/admin/orders?status=shipped">
             <Button variant={statusFilter === 'shipped' ? 'default' : 'outline'} size="sm" className="text-emerald-600 border-emerald-200">
-              Shipped
+              {t('shipped')}
             </Button>
           </Link>
           <Link href="/admin/orders?status=cancelled">
             <Button variant={statusFilter === 'cancelled' ? 'default' : 'outline'} size="sm" className="text-rose-600 border-rose-200">
-              Cancelled
+              {t('cancelled')}
             </Button>
           </Link>
         </div>
@@ -62,9 +67,9 @@ export default async function OrdersPage(props: { searchParams: Promise<{ [key: 
              <input type="hidden" name="status" value={statusFilter} />
            )}
            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-           <Input 
+           <Input
               name="q"
-              placeholder="Search by name, email, or order ID..." 
+              placeholder={t('searchPlaceholder')}
               className="pl-9 w-full bg-white"
               defaultValue={searchQuery || ''}
            />
@@ -75,12 +80,12 @@ export default async function OrdersPage(props: { searchParams: Promise<{ [key: 
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Order ID</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Total</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>{t('columnOrderId')}</TableHead>
+              <TableHead>{t('columnCustomer')}</TableHead>
+              <TableHead>{t('columnDate')}</TableHead>
+              <TableHead>{t('columnTotal')}</TableHead>
+              <TableHead>{tCommon('status')}</TableHead>
+              <TableHead className="text-right">{tCommon('actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -98,15 +103,15 @@ export default async function OrdersPage(props: { searchParams: Promise<{ [key: 
                 <TableCell className="capitalize">
                     {order.status === 'shipped' || order.status === 'delivered' ? (
                       <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border-emerald-200 shadow-sm border">
-                        Shipped
+                        {t('shipped')}
                       </Badge>
                     ) : order.status === 'cancelled' ? (
                       <Badge variant="destructive" className="shadow-sm">
-                        Cancelled
+                        {t('cancelled')}
                       </Badge>
                     ) : (
                       <Badge variant="outline" className="text-amber-700 border-amber-200 bg-amber-50 shadow-sm">
-                        Pending
+                        {t('pending')}
                       </Badge>
                     )}
                 </TableCell>
@@ -118,7 +123,7 @@ export default async function OrdersPage(props: { searchParams: Promise<{ [key: 
             {(!orders || orders.length === 0) && (
               <TableRow>
                 <TableCell colSpan={5} className="text-center h-24 text-slate-500">
-                  No orders yet.
+                  {t('noOrders')}
                 </TableCell>
               </TableRow>
             )}
@@ -142,15 +147,15 @@ export default async function OrdersPage(props: { searchParams: Promise<{ [key: 
           <div className="flex items-center justify-center space-x-2">
             <Link href={hrefForPage(Math.max(1, page - 1))} className={page <= 1 ? 'pointer-events-none opacity-50' : ''}>
               <Button variant="outline" size="sm" disabled={page <= 1}>
-                <ChevronLeft className="h-4 w-4" /> Previous
+                <ChevronLeft className="h-4 w-4" /> {t('previous')}
               </Button>
             </Link>
             <span className="text-sm font-medium">
-              Page {page} of {totalPages}
+              {t('pageOf', { page, totalPages })}
             </span>
             <Link href={hrefForPage(Math.min(totalPages, page + 1))} className={page >= totalPages ? 'pointer-events-none opacity-50' : ''}>
               <Button variant="outline" size="sm" disabled={page >= totalPages}>
-                Next <ChevronRight className="h-4 w-4" />
+                {t('next')} <ChevronRight className="h-4 w-4" />
               </Button>
             </Link>
           </div>

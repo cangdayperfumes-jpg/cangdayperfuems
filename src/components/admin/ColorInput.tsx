@@ -2,6 +2,7 @@
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useTranslations } from 'next-intl';
 
 interface ColorInputProps {
   label: string;
@@ -14,6 +15,7 @@ const HEX_PATTERN = /^#[0-9a-fA-F]{6}$/;
 /** Native color swatch + synced hex text field — no new dependency needed. */
 export default function ColorInput({ label, value, onChange }: ColorInputProps) {
   const swatchValue = HEX_PATTERN.test(value) ? value : '#000000';
+  const t = useTranslations('colorInput');
 
   return (
     <div className="space-y-2">
@@ -24,7 +26,7 @@ export default function ColorInput({ label, value, onChange }: ColorInputProps) 
           value={swatchValue}
           onChange={(e) => onChange(e.target.value)}
           className="h-10 w-12 shrink-0 cursor-pointer rounded border border-input bg-background p-1"
-          aria-label={`${label} swatch`}
+          aria-label={t('swatchAriaLabel', { label })}
         />
         <Input
           value={value}

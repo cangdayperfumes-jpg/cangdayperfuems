@@ -1,8 +1,11 @@
 import { createClient } from '@/utils/supabase/server';
 import SettingsForm from '@/components/admin/SettingsForm';
+import { getAdminLocale, getAdminT } from '@/i18n/admin-locale';
 
 export default async function SettingsPage() {
   const supabase = await createClient();
+  const locale = await getAdminLocale();
+  const t = await getAdminT(locale, 'settings');
   const { data, error } = await supabase
     .from('system_settings')
     .select('hide_prices, popup_enabled, popup_title, popup_message, popup_button_text, popup_button_link, popup_image_url, popup_show_on, seasonal_collections_multi_active, seasonal_section_position, theme_gold, theme_gold_deep, theme_ink, theme_ivory')
@@ -16,8 +19,8 @@ export default async function SettingsPage() {
   return (
     <div className="max-w-4xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-playfair font-bold">Store Settings</h1>
-        <p className="text-gray-500 mt-2">Manage global configuration for your store.</p>
+        <h1 className="text-3xl font-playfair font-bold">{t('pageTitle')}</h1>
+        <p className="text-gray-500 mt-2">{t('pageDescription')}</p>
       </div>
 
       <SettingsForm initialData={data} />

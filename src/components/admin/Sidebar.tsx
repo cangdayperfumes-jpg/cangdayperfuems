@@ -2,11 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { LayoutDashboard, Package, ShoppingCart, Truck, Star, LogOut, Settings, Menu, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { useState } from 'react';
+import AdminLanguageToggle from './AdminLanguageToggle';
 
 interface SidebarProps {
   onSignOut: () => void;
@@ -16,33 +18,34 @@ interface SidebarProps {
 
 export default function AdminSidebar({ onSignOut, isCollapsed = false, setIsCollapsed }: SidebarProps) {
   const pathname = usePathname();
+  const t = useTranslations('nav');
   const [isOpen, setIsOpen] = useState(false);
 
   const navGroups = [
     {
-      label: 'Overview',
+      label: t('overview'),
       items: [
-        { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-        { href: '/admin/products', label: 'Products', icon: Package },
-        { href: '/admin/categories', label: 'Categories', icon: LayoutDashboard }, // Using LayoutDashboard as placeholder if needed, or maybe specific icon
-        { href: '/admin/brands', label: 'Brands', icon: Star },
-        { href: '/admin/orders', label: 'Orders', icon: ShoppingCart },
-        { href: '/admin/shipping', label: 'Shipping', icon: Truck },
-        { href: '/admin/catalog', label: 'Catalog Gen', icon: Package },
+        { href: '/admin', label: t('dashboard'), icon: LayoutDashboard },
+        { href: '/admin/products', label: t('products'), icon: Package },
+        { href: '/admin/categories', label: t('categories'), icon: LayoutDashboard }, // Using LayoutDashboard as placeholder if needed, or maybe specific icon
+        { href: '/admin/brands', label: t('brands'), icon: Star },
+        { href: '/admin/orders', label: t('orders'), icon: ShoppingCart },
+        { href: '/admin/shipping', label: t('shipping'), icon: Truck },
+        { href: '/admin/catalog', label: t('catalogGen'), icon: Package },
       ],
     },
     {
-      label: 'Marketing',
+      label: t('marketing'),
       items: [
-        { href: '/admin/marketing/hero-slides', label: 'Hero Slides', icon: Sparkles },
-        { href: '/admin/marketing/category-tiles', label: 'Category Tiles', icon: Sparkles },
-        { href: '/admin/marketing/seasonal-collections', label: 'Seasonal Collection', icon: Sparkles },
+        { href: '/admin/marketing/hero-slides', label: t('heroSlides'), icon: Sparkles },
+        { href: '/admin/marketing/category-tiles', label: t('categoryTiles'), icon: Sparkles },
+        { href: '/admin/marketing/seasonal-collections', label: t('seasonalCollection'), icon: Sparkles },
       ],
     },
     {
-      label: 'System',
+      label: t('system'),
       items: [
-        { href: '/admin/settings', label: 'Settings', icon: Settings },
+        { href: '/admin/settings', label: t('settings'), icon: Settings },
       ],
     },
   ];
@@ -64,7 +67,7 @@ export default function AdminSidebar({ onSignOut, isCollapsed = false, setIsColl
              </div>
              <div className={cn("transition-all duration-300", isCollapsed && "md:hidden")}>
                 <h1 className="text-lg font-heading font-bold whitespace-nowrap">Cangday</h1>
-                <p className="text-[10px] text-zinc-400 uppercase tracking-widest whitespace-nowrap">Admin Panel</p>
+                <p className="text-[10px] text-zinc-400 uppercase tracking-widest whitespace-nowrap">{t('adminPanel')}</p>
              </div>
           </Link>
         </div>
@@ -101,15 +104,16 @@ export default function AdminSidebar({ onSignOut, isCollapsed = false, setIsColl
           ))}
         </nav>
 
-        <div className="p-4 mt-auto border-t border-zinc-900">
+        <div className="p-4 mt-auto border-t border-zinc-900 space-y-3">
+          <AdminLanguageToggle collapsed={isCollapsed} />
           <Button
             variant="ghost"
             className={cn("w-full justify-start gap-3 text-red-400 hover:text-red-300 hover:bg-red-950/30 pl-4", isCollapsed && "md:justify-center md:pl-0")}
             onClick={onSignOut}
-            title={isCollapsed ? "Sign Out" : undefined}
+            title={isCollapsed ? t('signOut') : undefined}
           >
             <LogOut className="h-5 w-5 shrink-0" />
-            <span className={cn(isCollapsed && "md:hidden", "whitespace-nowrap")}>Sign Out</span>
+            <span className={cn(isCollapsed && "md:hidden", "whitespace-nowrap")}>{t('signOut')}</span>
           </Button>
         </div>
     </div>
@@ -128,7 +132,7 @@ export default function AdminSidebar({ onSignOut, isCollapsed = false, setIsColl
              <div className="h-8 w-8 bg-gold rounded-full flex items-center justify-center shrink-0">
                 <span className="text-ink font-bold text-sm">C</span>
              </div>
-             <span className="font-heading font-bold">Admin</span>
+             <span className="font-heading font-bold">{t('admin')}</span>
           </div>
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
@@ -137,7 +141,7 @@ export default function AdminSidebar({ onSignOut, isCollapsed = false, setIsColl
                 </Button>
             </SheetTrigger>
             <SheetContent side="left" className="p-0 border-r-zinc-800 bg-zinc-950 w-80">
-                <SheetTitle className="sr-only">Admin Navigation</SheetTitle>
+                <SheetTitle className="sr-only">{t('adminNavigation')}</SheetTitle>
                 <SidebarContent />
             </SheetContent>
           </Sheet>

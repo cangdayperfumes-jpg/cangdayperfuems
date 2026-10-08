@@ -1,6 +1,7 @@
 import { getCategoryById } from '../actions';
 import CategoryForm from '@/components/admin/CategoryForm';
 import { notFound } from 'next/navigation';
+import { getAdminLocale, getAdminT } from '@/i18n/admin-locale';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -14,9 +15,12 @@ export default async function EditCategoryPage(props: Props) {
     notFound();
   }
 
+  const locale = await getAdminLocale();
+  const t = await getAdminT(locale, 'categories');
+
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-heading font-bold">Edit Category</h1>
+      <h1 className="text-2xl font-heading font-bold">{t('editTitle')}</h1>
       <CategoryForm category={category} />
     </div>
   );

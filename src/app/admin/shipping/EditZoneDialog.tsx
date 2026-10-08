@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Pencil } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -15,6 +16,8 @@ import { updateShippingZone } from '../actions';
 import { CountrySelector } from './CountrySelector';
 
 export function EditZoneDialog({ zone }: { zone: any }) {
+  const t = useTranslations('shipping');
+  const tCommon = useTranslations('common');
   const [open, setOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -44,7 +47,7 @@ export function EditZoneDialog({ zone }: { zone: any }) {
         setOpen(false);
     } catch (e) {
         console.error(e);
-        alert('Failed to update');
+        alert(tCommon('failedToSave'));
     } finally {
         setIsUpdating(false);
     }
@@ -59,41 +62,41 @@ export function EditZoneDialog({ zone }: { zone: any }) {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Shipping Zone: {zone.country}</DialogTitle>
+          <DialogTitle>{t('editZoneTitle', { country: zone.country })}</DialogTitle>
         </DialogHeader>
         <form action={handleUpdate} className="space-y-4 pt-4">
              <div className="space-y-2">
-                <label className="text-sm font-medium">Continent</label>
+                <label className="text-sm font-medium">{t('continent')}</label>
                 <select name="continent" defaultValue={zone.continent || ''} className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm">
-                    <option value="">Select Continent</option>
-                    <option value="Africa">Africa</option>
-                    <option value="Asia">Asia</option>
-                    <option value="Europe">Europe</option>
-                    <option value="North America">North America</option>
-                    <option value="Oceania">Oceania</option>
-                    <option value="South America">South America</option>
+                    <option value="">{t('selectContinent')}</option>
+                    <option value="Africa">{t('continentAfrica')}</option>
+                    <option value="Asia">{t('continentAsia')}</option>
+                    <option value="Europe">{t('continentEurope')}</option>
+                    <option value="North America">{t('continentNorthAmerica')}</option>
+                    <option value="Oceania">{t('continentOceania')}</option>
+                    <option value="South America">{t('continentSouthAmerica')}</option>
                 </select>
             </div>
              <div className="space-y-2">
-                <label className="text-sm font-medium">Country (Leave empty to keep "{zone.country}")</label>
+                <label className="text-sm font-medium">{t('countryKeepLabel', { country: zone.country })}</label>
                 <CountrySelector />
             </div>
             <div className="space-y-2">
-                <label className="text-sm font-medium">Price ($)</label>
+                <label className="text-sm font-medium">{t('price')}</label>
                 <Input name="price" type="number" defaultValue={zone.price} placeholder="20.00" step="0.01" required />
             </div>
             <div className="space-y-2">
-                <label className="text-sm font-medium">Custom Shipping Details</label>
-                <textarea 
-                    name="shipping_details" 
+                <label className="text-sm font-medium">{t('customShippingDetails')}</label>
+                <textarea
+                    name="shipping_details"
                     defaultValue={zone.shipping_details || ''}
-                    placeholder="e.g. Delivery within 3-5 days."
+                    placeholder={t('shippingDetailsPlaceholderShort')}
                     className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 />
             </div>
             <div className="flex justify-end gap-2 text-right pt-2">
-                <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-                <Button type="submit" disabled={isUpdating}>{isUpdating ? 'Saving...' : 'Save Changes'}</Button>
+                <Button type="button" variant="outline" onClick={() => setOpen(false)}>{tCommon('cancel')}</Button>
+                <Button type="submit" disabled={isUpdating}>{isUpdating ? tCommon('saving') : tCommon('save')}</Button>
             </div>
         </form>
       </DialogContent>

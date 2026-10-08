@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { GripVertical, Pencil } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import DeleteButton from '@/components/admin/DeleteButton';
@@ -12,6 +13,8 @@ import { HeroSlide } from '@/types';
 import { deleteHeroSlide, updateHeroSlidesOrder } from '@/app/admin/marketing/hero-slides/actions';
 
 export default function HeroSlidesTable({ slides }: { slides: HeroSlide[] }) {
+  const t = useTranslations('heroSlides');
+  const tc = useTranslations('common');
   const [items, setItems] = useState(slides);
 
   async function handleReorder(next: HeroSlide[]) {
@@ -22,7 +25,7 @@ export default function HeroSlidesTable({ slides }: { slides: HeroSlide[] }) {
   if (items.length === 0) {
     return (
       <div className="border rounded-lg bg-white p-8 text-center text-muted-foreground">
-        No hero slides yet. Create one to get started.
+        {t('noItemsYet')}
       </div>
     );
   }
@@ -40,7 +43,7 @@ export default function HeroSlidesTable({ slides }: { slides: HeroSlide[] }) {
               type="button"
               onPointerDown={(e) => dragControls.start(e)}
               className="cursor-grab touch-none text-muted-foreground hover:text-foreground active:cursor-grabbing"
-              aria-label="Drag to reorder"
+              aria-label={t('dragToReorder')}
             >
               <GripVertical className="h-4 w-4" />
             </button>
@@ -63,17 +66,17 @@ export default function HeroSlidesTable({ slides }: { slides: HeroSlide[] }) {
             </div>
 
             <Badge variant={slide.is_active ? 'default' : 'outline'}>
-              {slide.is_active ? 'Active' : 'Disabled'}
+              {slide.is_active ? tc('active') : t('disabled')}
             </Badge>
 
             <div className="flex items-center gap-1">
               <Link href={`/admin/marketing/hero-slides/${slide.id}`}>
                 <Button variant="ghost" size="icon">
                   <Pencil className="h-4 w-4" />
-                  <span className="sr-only">Edit</span>
+                  <span className="sr-only">{tc('edit')}</span>
                 </Button>
               </Link>
-              <DeleteButton id={slide.id} onDelete={deleteHeroSlide} itemName="hero slide" />
+              <DeleteButton id={slide.id} onDelete={deleteHeroSlide} itemName={t('itemName')} />
             </div>
           </div>
         )}

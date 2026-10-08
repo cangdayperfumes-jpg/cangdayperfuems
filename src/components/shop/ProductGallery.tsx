@@ -13,8 +13,8 @@ export default function ProductGallery({ images, name }: ProductGalleryProps) {
   const [selectedImage, setSelectedImage] = useState(images[0] || '/placeholder.svg');
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="relative aspect-[3/4] overflow-hidden bg-gray-100 dark:bg-gray-800 rounded-lg">
+    <div className="flex flex-col gap-2.5 md:gap-3">
+      <div className="relative aspect-[4/5] overflow-hidden bg-gray-100 dark:bg-gray-800 rounded-lg">
         <ImageWithFallback
           src={selectedImage}
           alt={name}
@@ -26,13 +26,13 @@ export default function ProductGallery({ images, name }: ProductGalleryProps) {
       </div>
 
       {images.length > 1 && (
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-4 gap-2.5 md:gap-3">
           {images.map((image, index) => (
             <button
               key={index}
               onClick={() => setSelectedImage(image)}
               className={cn(
-                "relative aspect-[3/4] overflow-hidden rounded-md border-2 transition-all",
+                "relative aspect-[4/5] overflow-hidden rounded-md border-2 transition-all",
                 selectedImage === image ? "border-black dark:border-white" : "border-transparent hover:border-gray-200"
               )}
             >

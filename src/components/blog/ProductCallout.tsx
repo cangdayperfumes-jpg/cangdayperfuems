@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { ArrowRight } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 import ImageWithFallback from '@/components/shared/ImageWithFallback';
 
 interface ProductCalloutProps {
@@ -14,6 +15,7 @@ interface ProductCalloutProps {
  * if the product is edited or its image changes.
  */
 export default async function ProductCallout({ slug }: ProductCalloutProps) {
+  const t = await getTranslations('blog');
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -48,7 +50,7 @@ export default async function ProductCallout({ slug }: ProductCalloutProps) {
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-xs uppercase tracking-widest text-gray-400 mb-1">
-          Featured Fragrance
+          {t('featuredFragrance')}
         </p>
         {brandName && (
           <p className="text-xs text-gray-500 uppercase tracking-wide">{brandName}</p>
@@ -57,7 +59,7 @@ export default async function ProductCallout({ slug }: ProductCalloutProps) {
           {product.name_en}
         </p>
         <span className="inline-flex items-center gap-1 text-sm text-gray-700 group-hover:text-gray-900 mt-1">
-          Shop this fragrance
+          {t('shopThisFragrance')}
           <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
         </span>
       </div>

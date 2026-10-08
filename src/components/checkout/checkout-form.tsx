@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -30,20 +30,29 @@ import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 import { useCheckout } from '@/contexts/checkout-context';
 import { useSettings } from '@/components/providers/SettingsProvider';
+import { useTranslations } from 'next-intl';
 
-const formSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Please enter a valid email'),
-  phone: z.string().min(10, 'Please enter a valid phone number'),
-  country: z.string().min(2, 'Country is required'),
-  city: z.string().min(2, 'City is required'),
-  address: z.string().min(10, 'Address must be at least 10 characters'),
-  postal_code: z.string().min(3, 'Postal code is required'),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = {
+  name: string;
+  email: string;
+  phone: string;
+  country: string;
+  city: string;
+  address: string;
+  postal_code: string;
+};
 
 export default function CheckoutForm() {
+  const t = useTranslations('checkout');
+  const formSchema = z.object({
+    name: z.string().min(2, t('nameMin')),
+    email: z.string().email(t('emailInvalid')),
+    phone: z.string().min(10, t('phoneInvalid')),
+    country: z.string().min(2, t('countryRequired')),
+    city: z.string().min(2, t('cityRequired')),
+    address: z.string().min(10, t('addressMin')),
+    postal_code: z.string().min(3, t('postalCodeRequired')),
+  });
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [shippingZones, setShippingZones] = useState<any[]>([]);
@@ -145,7 +154,7 @@ export default function CheckoutForm() {
 
       if (orderError) {
         console.error('Error saving order:', JSON.stringify(orderError, null, 2));
-        toast.error(orderError.message || 'Failed to save order. Please try again.');
+        toast.error(orderError.message || t('orderFailed'));
         return;
       }
 
@@ -189,14 +198,14 @@ export default function CheckoutForm() {
         console.error('Non-fatal error: Failed to send confirmation email', emailError);
       }
 
-      toast.success('Order placed successfully!');
-      
+      toast.success(t('orderPlaced'));
+
       // Redirect to the success page to handle UI updates
       router.push(`/checkout/success?orderId=${order.id}`);
 
     } catch (error) {
       console.error('Error placing order:', error);
-      toast.error('Failed to place order. Please try again.');
+      toast.error(t('orderFailed'));
     } finally {
       setIsSubmitting(false);
     }
@@ -204,7 +213,7 @@ export default function CheckoutForm() {
 
   return (
     <div className="border rounded-lg p-6">
-      <h2 className="text-2xl font-heading font-medium mb-6">Delivery Information</h2>
+      <h2 className="text-2xl font-heading font-medium mb-6">{t('deliveryInformation')}</h2>
       
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -214,7 +223,7 @@ export default function CheckoutForm() {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Full Name</FormLabel>
+                <FormLabel>{t('fullName')}</FormLabel>
                 <FormControl>
                   <Input placeholder="John Doe" {...field} />
                 </FormControl>
@@ -229,7 +238,7 @@ export default function CheckoutForm() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>{t('email')}</FormLabel>
                 <FormControl>
                   <Input type="email" placeholder="john@example.com" {...field} />
                 </FormControl>
@@ -244,7 +253,7 @@ export default function CheckoutForm() {
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Phone Number</FormLabel>
+                <FormLabel>{t('phoneNumber')}</FormLabel>
                 <FormControl>
                   <PhoneInput
                     country={'tr'}
@@ -254,7 +263,7 @@ export default function CheckoutForm() {
                     containerClass="phone-input-container"
                     buttonClass="phone-input-button"
                     enableSearch
-                    searchPlaceholder="Search country"
+                    searchPlaceholder={t('searchCountry')}
                     countryCodeEditable={false}
                   />
                 </FormControl>
@@ -269,11 +278,11 @@ export default function CheckoutForm() {
             name="country"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Country</FormLabel>
+                <FormLabel>{t('country')}</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select country" />
+                      <SelectValue placeholder={t('selectCountryPlaceholder')} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -295,7 +304,7 @@ export default function CheckoutForm() {
             name="city"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>City</FormLabel>
+                <FormLabel>{t('city')}</FormLabel>
                 <FormControl>
                   <Input placeholder="Istanbul" {...field} />
                 </FormControl>
@@ -310,10 +319,10 @@ export default function CheckoutForm() {
             name="address"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Full Address</FormLabel>
+                <FormLabel>{t('fullAddress')}</FormLabel>
                 <FormControl>
-                  <Textarea 
-                    placeholder="Street address, apartment, building, etc."
+                  <Textarea
+                    placeholder={t('addressPlaceholder')}
                     className="min-h-[100px]"
                     {...field}
                   />
@@ -329,7 +338,7 @@ export default function CheckoutForm() {
             name="postal_code"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Postal Code</FormLabel>
+                <FormLabel>{t('postalCode')}</FormLabel>
                 <FormControl>
                   <Input placeholder="34000" {...field} />
                 </FormControl>
@@ -348,10 +357,10 @@ export default function CheckoutForm() {
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Generating Invoice...
+                {t('generatingInvoice')}
               </>
             ) : (
-              'Place Order'
+              t('placeOrder')
             )}
           </Button>
         </form>

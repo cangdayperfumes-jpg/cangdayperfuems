@@ -73,6 +73,12 @@ const config = {
           soft: "rgb(var(--brand-gold-soft) / <alpha-value>)",
           deep: "rgb(var(--brand-gold-deep) / <alpha-value>)",
         },
+        sage: {
+          DEFAULT: "rgb(var(--brand-sage) / <alpha-value>)",
+          deep: "rgb(var(--brand-sage-deep) / <alpha-value>)",
+        },
+        // Deep Burgundy — reserved for the discount/sale badge only.
+        burgundy: "rgb(var(--brand-burgundy) / <alpha-value>)",
         ivory: "rgb(var(--brand-ivory) / <alpha-value>)",
       },
       borderRadius: {
@@ -85,6 +91,8 @@ const config = {
         "accordion-up": "accordion-up 0.2s ease-out",
         "scroll": "scroll 30s linear infinite",
         "marquee": "marquee 30s linear infinite",
+        "marquee-slow": "marquee 55s linear infinite",
+        "marquee-banner": "marquee 90s linear infinite",
       },
       keyframes: {
         "accordion-down": {

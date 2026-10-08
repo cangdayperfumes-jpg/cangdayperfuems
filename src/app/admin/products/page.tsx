@@ -7,10 +7,13 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { Product } from '@/types';
+import { getAdminLocale, getAdminT } from '@/i18n/admin-locale';
 
 type ProductRow = Product & { categories?: { name: string } | null; brands?: { name: string } | null };
 
 export default async function ProductsPage() {
+    const locale = await getAdminLocale();
+    const t = await getAdminT(locale, 'products');
     const supabase = await createClient();
 
     const [products, categories, brands] = await Promise.all([
@@ -37,16 +40,16 @@ export default async function ProductsPage() {
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="flex items-baseline gap-3">
-                    <h1 className="text-3xl font-bold font-playfair">Products</h1>
+                    <h1 className="text-3xl font-bold font-playfair">{t('title')}</h1>
                     <span className="text-sm font-medium text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">
-                        {formattedProducts.length} total
+                        {t('totalCount', { count: formattedProducts.length })}
                     </span>
                 </div>
                 <div className="flex items-center gap-2">
                     <Link href="/admin/products/new">
                         <Button>
                             <Plus className="mr-2 h-4 w-4" />
-                            Add Product
+                            {t('addProduct')}
                         </Button>
                     </Link>
                     <BulkImport />

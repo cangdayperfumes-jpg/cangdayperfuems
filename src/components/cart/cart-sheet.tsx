@@ -2,7 +2,8 @@
 
 import { Minus, Plus, X } from 'lucide-react';
 import ImageWithFallback from '@/components/shared/ImageWithFallback';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import {
   Sheet,
@@ -20,6 +21,8 @@ interface CartSheetProps {
 }
 
 export default function CartSheet({ open, onOpenChange }: CartSheetProps) {
+  const t = useTranslations('cart');
+  const tCommon = useTranslations('common');
   const items = useStore(useCartStore, (state) => state.items);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const removeItem = useCartStore((state) => state.removeItem);
@@ -32,10 +35,10 @@ export default function CartSheet({ open, onOpenChange }: CartSheetProps) {
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent aria-describedby={undefined} className="w-full sm:max-w-lg flex flex-col">
           <SheetHeader>
-            <SheetTitle className="font-heading text-2xl">Your Royal Collection</SheetTitle>
+            <SheetTitle className="font-heading text-2xl">{t('title')}</SheetTitle>
           </SheetHeader>
           <div className="flex-1 flex items-center justify-center">
-            <p className="text-muted-foreground">Loading...</p>
+            <p className="text-muted-foreground">{tCommon('loading')}</p>
           </div>
         </SheetContent>
       </Sheet>
@@ -48,7 +51,7 @@ export default function CartSheet({ open, onOpenChange }: CartSheetProps) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent aria-describedby={undefined} className="w-full sm:max-w-lg flex flex-col">
         <SheetHeader>
-          <SheetTitle className="font-heading text-2xl">Your Royal Collection</SheetTitle>
+          <SheetTitle className="font-heading text-2xl">{t('title')}</SheetTitle>
         </SheetHeader>
 
         {isEmpty ? (
@@ -69,9 +72,9 @@ export default function CartSheet({ open, onOpenChange }: CartSheetProps) {
               </svg>
             </div>
             <div>
-              <h3 className="font-heading text-lg font-medium">Your Royal Collection is empty</h3>
+              <h3 className="font-heading text-lg font-medium">{t('emptyTitle')}</h3>
               <p className="text-sm text-muted-foreground mt-1">
-                Add some luxurious perfumes to get started
+                {t('emptySubtitle')}
               </p>
             </div>
             <Button
@@ -79,7 +82,7 @@ export default function CartSheet({ open, onOpenChange }: CartSheetProps) {
               className="mt-4"
               asChild
             >
-              <Link href="/shop">Browse Collection</Link>
+              <Link href="/shop">{t('browseCollection')}</Link>
             </Button>
           </div>
         ) : (
@@ -103,7 +106,7 @@ export default function CartSheet({ open, onOpenChange }: CartSheetProps) {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
-                        No Image
+                        {tCommon('noImage')}
                       </div>
                     )}
                   </div>
@@ -118,7 +121,7 @@ export default function CartSheet({ open, onOpenChange }: CartSheetProps) {
                       <p className="text-xs text-muted-foreground mt-1">{item.category}</p>
                     )}
                     <p className="text-sm font-medium mt-2">
-                       {hidePrices ? 'Contact for price' : `$${item.price.toFixed(2)}`}
+                       {hidePrices ? tCommon('contactForPrice') : `$${item.price.toFixed(2)}`}
                     </p>
 
                     {/* Quantity Controls */}
@@ -160,9 +163,9 @@ export default function CartSheet({ open, onOpenChange }: CartSheetProps) {
             {/* Footer */}
             <div className="border-t pt-4 space-y-4">
               <div className="flex items-center justify-between text-lg font-heading">
-                <span>Total</span>
+                <span>{t('total')}</span>
                 <span className="font-bold">
-                    {hidePrices ? 'Contact for price' : `$${getTotalPrice.toFixed(2)}`}
+                    {hidePrices ? tCommon('contactForPrice') : `$${getTotalPrice.toFixed(2)}`}
                 </span>
               </div>
               <Button
@@ -174,7 +177,7 @@ export default function CartSheet({ open, onOpenChange }: CartSheetProps) {
                 }}
                 asChild
               >
-                <Link href="/checkout">Proceed to Checkout</Link>
+                <Link href="/checkout">{t('checkout')}</Link>
               </Button>
             </div>
           </>

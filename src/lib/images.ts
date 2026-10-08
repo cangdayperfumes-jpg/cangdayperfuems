@@ -145,3 +145,32 @@ export function buildProxiedRenderUrl(
 export function isSupabaseTransformsEnabled(): boolean {
   return process.env.NEXT_PUBLIC_SUPABASE_IMAGE_TRANSFORMS_ENABLED !== 'false';
 }
+
+/**
+ * Unsplash's CDN honors a `w`/`q` query param the same way Supabase's
+ * transform endpoint does — used so third-party fallback/demo imagery (which
+ * next/image can't resize itself, since a custom `loader` bypasses Next's
+ * own optimizer) still serves a size matched to what was actually requested
+ * instead of shipping the same full-resolution image to every breakpoint.
+ */
+export function isUnsplashUrl(src: string): boolean {
+  try {
+    return new URL(src).hostname === 'images.unsplash.com';
+  } catch {
+    return false;
+  }
+}
+
+/** Rewrite an images.unsplash.com URL's `w`/`q` params to the requested size. Falls back to the original src for any other host. */
+export function resizeUnsplashUrl(src: string, width: number, quality?: number): string {
+  if (!isUnsplashUrl(src)) return src;
+  try {
+    const url = new URL(src);
+    const { width: w, quality: q } = clampTransformParams(width, quality);
+    url.searchParams.set('w', String(w));
+    url.searchParams.set('q', String(q));
+    return url.toString();
+  } catch {
+    return src;
+  }
+}

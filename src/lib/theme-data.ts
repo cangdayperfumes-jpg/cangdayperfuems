@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { unstable_cache } from 'next/cache';
+import { isSupabaseConfigured } from '@/lib/is-supabase-configured';
 
 export interface SiteTheme {
   gold: string;
@@ -11,14 +12,15 @@ export interface SiteTheme {
 // Matches the --brand-* defaults in globals.css — used whenever
 // system_settings has no row yet (fresh/unconfigured database).
 const DEFAULT_THEME: SiteTheme = {
-  gold: '#C9A24B',
-  goldDeep: '#8A6A2F',
-  ink: '#120D0A',
-  ivory: '#F5EFE6',
+  gold: '#B89A63',
+  goldDeep: '#8A744A',
+  ink: '#0D0D0C',
+  ivory: '#F3EEE5',
 };
 
 export const getSiteTheme = unstable_cache(
   async (): Promise<SiteTheme> => {
+    if (!isSupabaseConfigured()) return DEFAULT_THEME;
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!

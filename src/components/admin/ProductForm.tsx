@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
+import { useState, useEffect, useMemo, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { Loader2, Upload, X, Check, ChevronsUpDown, Plus, ZoomIn, ZoomOut } from 'lucide-react';
@@ -54,14 +55,15 @@ import { cn } from '@/lib/utils';
 import { resolveUniqueProductSlug } from '@/lib/utils';
 import { Product, Category, Brand } from '@/types';
 
-// Zod Schema
-const productSchema = z.object({
-  name_en: z.string().min(2, 'Name must be at least 2 characters'),
+// Zod Schema — built from a translate function so validation messages follow the
+// active admin locale (see useMemo below where it's instantiated with `t`).
+const buildProductSchema = (t: (key: string) => string) => z.object({
+  name_en: z.string().min(2, t('validation.nameMinLength')),
   description_en: z.string().optional(),
-  price: z.coerce.number().min(0, 'Price must be positive'),
-  discount: z.coerce.number().min(0, 'Discount must be positive').default(0),
-  category_id: z.string().min(1, 'Please select a category'),
-  brand_id: z.string().min(1, 'Please select a brand'),
+  price: z.coerce.number().min(0, t('validation.pricePositive')),
+  discount: z.coerce.number().min(0, t('validation.discountPositive')).default(0),
+  category_id: z.string().min(1, t('validation.categoryRequired')),
+  brand_id: z.string().min(1, t('validation.brandRequired')),
   target_audience: z.enum(['Men', 'Women', 'Unisex']),
   stock: z.boolean().default(true),
   is_active: z.boolean().default(true),
@@ -70,14 +72,14 @@ const productSchema = z.object({
   is_popular: z.boolean().default(false),
   variants: z.array(z.object({
       id: z.string().optional(),
-      name: z.string().min(1, 'Variant name required'),
+      name: z.string().min(1, t('validation.variantNameRequired')),
       price: z.coerce.number().min(0),
       discount: z.coerce.number().default(0),
       stock: z.boolean().default(true),
   })).optional(),
 });
 
-type ProductFormValues = z.infer<typeof productSchema>;
+type ProductFormValues = z.infer<ReturnType<typeof buildProductSchema>>;
 
 interface ProductFormProps {
   initialData?: Product;
@@ -88,6 +90,9 @@ interface ProductFormProps {
 
 export default function ProductForm({ initialData, categories: initialCategories = [], brands: initialBrands = [], onSuccess }: ProductFormProps) {
   const router = useRouter();
+  const t = useTranslations('products');
+  const tc = useTranslations('common');
+  const productSchema = useMemo(() => buildProductSchema(t), [t]);
   const supabase = createClient();
   const [loading, setLoading] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -269,7 +274,7 @@ export default function ProductForm({ initialData, categories: initialCategories
           }
       }
 
-      toast.success("Product saved successfully");
+      toast.success(t('productSavedSuccessfully'));
       
       startTransition(() => {
         router.refresh();
@@ -281,7 +286,7 @@ export default function ProductForm({ initialData, categories: initialCategories
       });
     } catch (error) {
       console.error('Error submitting form:', error);
-      toast.error("Failed to save product");
+      toast.error(t('failedToSaveProduct'));
     } finally {
       setLoading(false);
     }
@@ -329,9 +334,9 @@ export default function ProductForm({ initialData, categories: initialCategories
      } catch (error: any) {
         console.error('Error creating category:', error);
         if (error?.code === '42501' || error?.message?.includes('violates row-level security')) {
-            alert("Permission denied: You must run the fix_rls_policies.sql script in your Supabase Dashboard to allow creating categories.");
+            alert(t('permissionDeniedCategory'));
         } else {
-            alert("Failed to create category. See console for details.");
+            alert(t('failedToCreateCategory'));
         }
      }
   };
@@ -381,7 +386,7 @@ export default function ProductForm({ initialData, categories: initialCategories
       form.setValue('images', [...currentImages, publicUrl]);
     } catch (error) {
        console.error('Error uploading cropped image:', error);
-       alert('Error uploading image. Make sure "products" bucket exists in Supabase Storage.');
+       alert(t('errorUploadingImageBucket'));
     } finally {
       setUploading(false);
     }
@@ -405,9 +410,9 @@ export default function ProductForm({ initialData, categories: initialCategories
             name="name_en"
             render={({ field }) => (
                 <FormItem>
-                <FormLabel>Product Name</FormLabel>
+                <FormLabel>{t('productName')}</FormLabel>
                 <FormControl>
-                    <Input placeholder="Royal Oud" {...field} />
+                    <Input placeholder={t('productNamePlaceholder')} {...field} />
                 </FormControl>
                 <FormMessage />
                 </FormItem>
@@ -419,9 +424,9 @@ export default function ProductForm({ initialData, categories: initialCategories
             name="description_en"
             render={({ field }) => (
                 <FormItem>
-                <FormLabel>Description</FormLabel>
+                <FormLabel>{t('description')}</FormLabel>
                 <FormControl>
-                    <Textarea placeholder="A rich scent..." className="min-h-[100px]" {...field} />
+                    <Textarea placeholder={t('descriptionPlaceholder')} className="min-h-[100px]" {...field} />
                 </FormControl>
                 <FormMessage />
                 </FormItem>
@@ -436,9 +441,9 @@ export default function ProductForm({ initialData, categories: initialCategories
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">Has Variants?</FormLabel>
+                    <FormLabel className="text-base">{t('hasVariants')}</FormLabel>
                     <FormDescription>
-                      Does this product have different sizes?
+                      {t('hasVariantsDescription')}
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -459,7 +464,7 @@ export default function ProductForm({ initialData, categories: initialCategories
                 name="price"
                 render={({ field }) => (
                     <FormItem>
-                    <FormLabel>Price ($)</FormLabel>
+                    <FormLabel>{t('priceLabel')}</FormLabel>
                     <FormControl>
                         <Input type="number" step="0.01" {...field} />
                     </FormControl>
@@ -467,17 +472,17 @@ export default function ProductForm({ initialData, categories: initialCategories
                     </FormItem>
                 )}
                 />
-                
+
                 <FormField
                 control={form.control}
                 name="discount"
                 render={({ field }) => (
                     <FormItem>
-                    <FormLabel>Discount Amount ($)</FormLabel>
+                    <FormLabel>{t('discountAmount')}</FormLabel>
                     <FormControl>
                         <Input type="number" step="0.01" {...field} />
                     </FormControl>
-                    <FormDescription>Amount to subtract from price</FormDescription>
+                    <FormDescription>{t('discountDescription')}</FormDescription>
                     <FormMessage />
                     </FormItem>
                 )}
@@ -486,9 +491,9 @@ export default function ProductForm({ initialData, categories: initialCategories
         ) : (
              <div className="space-y-4 rounded-lg border p-4 bg-gray-50">
                  <div className="flex items-center justify-between">
-                     <FormLabel className="text-lg">Product Variants</FormLabel>
+                     <FormLabel className="text-lg">{t('productVariants')}</FormLabel>
                      <Button type="button" size="sm" onClick={() => form.setValue('variants', [...(form.getValues('variants') || []), { name: '', price: 0, discount: 0, stock: true }])}>
-                         <Plus className="mr-2 h-4 w-4" /> Add Variant
+                         <Plus className="mr-2 h-4 w-4" /> {t('addVariant')}
                      </Button>
                  </div>
                  
@@ -499,9 +504,9 @@ export default function ProductForm({ initialData, categories: initialCategories
                             name={`variants.${index}.name`}
                             render={({ field }) => (
                                 <FormItem className="md:col-span-2">
-                                <FormLabel>Size / Name</FormLabel>
+                                <FormLabel>{t('sizeName')}</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="e.g. 100ml" {...field} />
+                                    <Input placeholder={t('sizeNamePlaceholder')} {...field} />
                                 </FormControl>
                                 <FormMessage />
                                 </FormItem>
@@ -512,7 +517,7 @@ export default function ProductForm({ initialData, categories: initialCategories
                             name={`variants.${index}.price`}
                             render={({ field }) => (
                                 <FormItem>
-                                <FormLabel>Price</FormLabel>
+                                <FormLabel>{t('price')}</FormLabel>
                                 <FormControl>
                                     <Input type="number" step="0.01" {...field} />
                                 </FormControl>
@@ -525,7 +530,7 @@ export default function ProductForm({ initialData, categories: initialCategories
                             name={`variants.${index}.discount`}
                             render={({ field }) => (
                                 <FormItem>
-                                <FormLabel>Discount</FormLabel>
+                                <FormLabel>{t('discount')}</FormLabel>
                                 <FormControl>
                                     <Input type="number" step="0.01" {...field} />
                                 </FormControl>
@@ -542,7 +547,7 @@ export default function ProductForm({ initialData, categories: initialCategories
                                             <FormControl>
                                                 <Switch checked={field.value} onCheckedChange={field.onChange} />
                                             </FormControl>
-                                            <FormLabel className="text-xs">Stock</FormLabel>
+                                            <FormLabel className="text-xs">{t('stock')}</FormLabel>
                                         </FormItem>
                                     )}
                                 />
@@ -573,7 +578,7 @@ export default function ProductForm({ initialData, categories: initialCategories
             name="brand_id"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Brand</FormLabel>
+                <FormLabel>{t('brand')}</FormLabel>
                 <Popover open={openBrand} onOpenChange={setOpenBrand}>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -589,16 +594,16 @@ export default function ProductForm({ initialData, categories: initialCategories
                           ? brands.find(
                               (brand) => brand.id === field.value
                             )?.name
-                          : "Select brand"}
+                          : t('selectBrand')}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
                   <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                     <Command>
-                      <CommandInput placeholder="Search brand..." />
+                      <CommandInput placeholder={t('searchBrand')} />
                       <CommandList>
-                        <CommandEmpty>No brand found.</CommandEmpty>
+                        <CommandEmpty>{t('noBrandFound')}</CommandEmpty>
                         <CommandGroup>
                           {brands.map((brand) => (
                             <CommandItem
@@ -635,7 +640,7 @@ export default function ProductForm({ initialData, categories: initialCategories
             name="category_id"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Category</FormLabel>
+                <FormLabel>{t('category')}</FormLabel>
                 <Popover open={openCategory} onOpenChange={setOpenCategory}>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -651,27 +656,27 @@ export default function ProductForm({ initialData, categories: initialCategories
                           ? categories.find(
                               (category) => category.id === field.value
                             )?.name
-                          : "Select category"}
+                          : t('selectCategory')}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
                   <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                     <Command>
-                      <CommandInput placeholder="Search category..." onValueChange={setSearchValue} />
+                      <CommandInput placeholder={t('searchCategory')} onValueChange={setSearchValue} />
                       <CommandList>
                         <CommandEmpty>
                             <div className="p-2">
-                                <p className="text-sm text-muted-foreground mb-2">No category found.</p>
-                                <Button 
-                                    variant="secondary" 
-                                    size="sm" 
+                                <p className="text-sm text-muted-foreground mb-2">{t('noCategoryFound')}</p>
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
                                     className="w-full"
                                     onClick={handleCreateCategory}
                                     type="button"
                                 >
                                     <Plus className="mr-2 h-4 w-4" />
-                                    Create "{searchValue}"
+                                    {t('createCategoryWithName', { name: searchValue })}
                                 </Button>
                             </div>
                         </CommandEmpty>
@@ -714,14 +719,14 @@ export default function ProductForm({ initialData, categories: initialCategories
             name="target_audience"
             render={({ field }) => (
               <FormItem className="space-y-3">
-                <FormLabel>Target Audience</FormLabel>
+                <FormLabel>{t('targetAudience')}</FormLabel>
                 <FormControl>
                   <RadioGroup
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                     className="flex flex-row space-x-1"
                   >
-                    {['Men', 'Women', 'Unisex'].map((option) => (
+                    {(['Men', 'Women', 'Unisex'] as const).map((option) => (
                         <FormItem key={option} className="flex-1">
                             <FormControl>
                                 <RadioGroupItem value={option} className="sr-only" />
@@ -730,7 +735,7 @@ export default function ProductForm({ initialData, categories: initialCategories
                                 "flex flex-1 items-center justify-center rounded-md border-2 border-muted bg-popover p-2 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all",
                                 field.value === option && "border-black bg-black text-white hover:bg-black/90"
                             )}>
-                                {option}
+                                {option === 'Men' ? t('men') : option === 'Women' ? t('women') : t('unisex')}
                             </FormLabel>
                         </FormItem>
                     ))}
@@ -747,9 +752,9 @@ export default function ProductForm({ initialData, categories: initialCategories
             render={({ field }) => (
               <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                 <div className="space-y-0.5">
-                  <FormLabel className="text-base">Popular Item</FormLabel>
+                  <FormLabel className="text-base">{t('popularItem')}</FormLabel>
                   <FormDescription>
-                    Feature this product as popular
+                    {t('popularItemDescription')}
                   </FormDescription>
                 </div>
                 <FormControl>
@@ -764,7 +769,7 @@ export default function ProductForm({ initialData, categories: initialCategories
         </div>
 
         <div className="space-y-4">
-            <FormLabel>Images</FormLabel>
+            <FormLabel>{t('images')}</FormLabel>
             <div className="flex flex-wrap gap-4">
                 {form.watch('images')?.map((url, index) => (
                     <div key={index} className="relative group">
@@ -809,9 +814,9 @@ export default function ProductForm({ initialData, categories: initialCategories
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">In Stock</FormLabel>
+                    <FormLabel className="text-base">{t('inStock')}</FormLabel>
                     <FormDescription>
-                      Is this product available?
+                      {t('inStockDescription')}
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -829,9 +834,9 @@ export default function ProductForm({ initialData, categories: initialCategories
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">Active</FormLabel>
+                    <FormLabel className="text-base">{tc('active')}</FormLabel>
                     <FormDescription>
-                      Show in store?
+                      {t('activeDescription')}
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -847,11 +852,11 @@ export default function ProductForm({ initialData, categories: initialCategories
 
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t flex gap-4 z-50 md:relative md:bg-transparent md:border-0 md:p-0 md:pt-4 md:z-auto">
             <Button type="button" variant="outline" onClick={() => router.back()} className="flex-1 md:flex-none md:w-auto">
-                Cancel
+                {tc('cancel')}
             </Button>
             <Button type="submit" disabled={loading} className="flex-1 md:flex-none md:w-auto md:min-w-[150px]">
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {initialData ? 'Update Product' : 'Create Product'}
+                {initialData ? t('updateProduct') : t('createProduct')}
             </Button>
         </div>
       </form>
@@ -861,7 +866,7 @@ export default function ProductForm({ initialData, categories: initialCategories
     <Dialog open={isCropModalOpen} onOpenChange={setIsCropModalOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Crop Image</DialogTitle>
+            <DialogTitle>{t('cropImage')}</DialogTitle>
           </DialogHeader>
           <div className="relative h-[400px] w-full bg-black rounded-md overflow-hidden">
              {selectedImageStr && (
@@ -894,11 +899,11 @@ export default function ProductForm({ initialData, categories: initialCategories
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsCropModalOpen(false)}>
-              Cancel
+              {tc('cancel')}
             </Button>
             <Button onClick={handleCropConfirm} disabled={uploading}>
               {uploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Crop & Upload
+              {t('cropAndUpload')}
             </Button>
           </DialogFooter>
         </DialogContent>

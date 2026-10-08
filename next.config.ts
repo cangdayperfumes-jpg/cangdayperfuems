@@ -1,5 +1,8 @@
 import path from "path";
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
+
+const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 // upgrade-insecure-requests rewrites every http:// subresource request (CSS, JS
 // chunks, ...) to https:// before fetching it. localhost is exempt as an
@@ -78,4 +81,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

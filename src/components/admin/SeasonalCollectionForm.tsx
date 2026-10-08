@@ -7,6 +7,7 @@ import * as z from 'zod';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -54,30 +55,32 @@ const SEASON_TYPE_PRESETS = [
   'Limited Edition',
 ];
 
-const seasonalCollectionSchema = z.object({
-  title: z.string().min(2, 'Title must be at least 2 characters'),
-  subtitle: z.string().optional(),
-  description: z.string().optional(),
-  season_type: z.string().optional(),
-  seo_title: z.string().optional(),
-  seo_description: z.string().optional(),
-  background_color: z.string().min(1),
-  text_color: z.string().min(1),
-  overlay_opacity: z.coerce.number().min(0).max(100),
-  image_position: z.enum(['center', 'top', 'bottom', 'left', 'right']),
-  section_height: z.enum(['sm', 'md', 'lg', 'full']),
-  text_alignment: z.enum(['left', 'center', 'right']),
-  animation_style: z.enum(['fade-up', 'fade-in', 'slide-left', 'slide-right', 'zoom-in', 'none']),
-  button_text: z.string().min(1, 'Button text is required'),
-  button_color: z.string().optional(),
-  button_style: z.enum(['solid', 'outline', 'ghost']),
-  display_order: z.coerce.number().default(0),
-  is_active: z.boolean().default(false),
-  start_date: z.string().optional(),
-  end_date: z.string().optional(),
-});
+function buildSeasonalCollectionSchema(t: (key: string) => string) {
+  return z.object({
+    title: z.string().min(2, t('validation.titleMinLength')),
+    subtitle: z.string().optional(),
+    description: z.string().optional(),
+    season_type: z.string().optional(),
+    seo_title: z.string().optional(),
+    seo_description: z.string().optional(),
+    background_color: z.string().min(1),
+    text_color: z.string().min(1),
+    overlay_opacity: z.coerce.number().min(0).max(100),
+    image_position: z.enum(['center', 'top', 'bottom', 'left', 'right']),
+    section_height: z.enum(['sm', 'md', 'lg', 'full']),
+    text_alignment: z.enum(['left', 'center', 'right']),
+    animation_style: z.enum(['fade-up', 'fade-in', 'slide-left', 'slide-right', 'zoom-in', 'none']),
+    button_text: z.string().min(1, t('validation.buttonTextRequired')),
+    button_color: z.string().optional(),
+    button_style: z.enum(['solid', 'outline', 'ghost']),
+    display_order: z.coerce.number().default(0),
+    is_active: z.boolean().default(false),
+    start_date: z.string().optional(),
+    end_date: z.string().optional(),
+  });
+}
 
-type SeasonalCollectionFormValues = z.infer<typeof seasonalCollectionSchema>;
+type SeasonalCollectionFormValues = z.infer<ReturnType<typeof buildSeasonalCollectionSchema>>;
 
 interface SeasonalCollectionFormProps {
   initialData?: SeasonalCollection;
@@ -93,6 +96,8 @@ export default function SeasonalCollectionForm({
   initialData,
   initialProducts = [],
 }: SeasonalCollectionFormProps) {
+  const t = useTranslations('seasonalCollections');
+  const tc = useTranslations('common');
   const router = useRouter();
   const [saving, setSaving] = useState(false);
 
@@ -113,6 +118,8 @@ export default function SeasonalCollectionForm({
       display_order: link.display_order,
     }))
   );
+
+  const seasonalCollectionSchema = buildSeasonalCollectionSchema(t);
 
   const form = useForm<SeasonalCollectionFormValues>({
     resolver: zodResolver(seasonalCollectionSchema) as any,
@@ -178,16 +185,16 @@ export default function SeasonalCollectionForm({
         : await createSeasonalCollection(payload);
 
       if (!result.success) {
-        toast.error(result.error || 'Failed to save seasonal collection');
+        toast.error(result.error || t('failedToSave'));
         return;
       }
 
-      toast.success(initialData ? 'Collection updated successfully' : 'Collection created successfully');
+      toast.success(initialData ? t('updatedSuccess') : t('createdSuccess'));
       router.push('/admin/marketing/seasonal-collections');
       router.refresh();
     } catch (error) {
       console.error('Seasonal collection submit error', error);
-      toast.error('Something went wrong. Please try again.');
+      toast.error(tc('somethingWentWrong'));
     } finally {
       setSaving(false);
     }
@@ -198,10 +205,10 @@ export default function SeasonalCollectionForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-3xl space-y-8">
         {/* Basic Info */}
         <section className="space-y-4 rounded-lg border bg-white p-6">
-          <h2 className="font-heading text-lg">Basic Info</h2>
+          <h2 className="font-heading text-lg">{t('sectionBasicInfo')}</h2>
 
           <div className="space-y-2">
-            <Label>Season Type</Label>
+            <Label>{t('seasonTypeLabel')}</Label>
             <Select
               value={isCustomSeasonType ? '__custom__' : form.watch('season_type')}
               onValueChange={(val) => {
@@ -215,7 +222,7 @@ export default function SeasonalCollectionForm({
               }}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select a season type" />
+                <SelectValue placeholder={t('seasonTypePlaceholder')} />
               </SelectTrigger>
               <SelectContent>
                 {SEASON_TYPE_PRESETS.map((preset) => (
@@ -223,12 +230,12 @@ export default function SeasonalCollectionForm({
                     {preset}
                   </SelectItem>
                 ))}
-                <SelectItem value="__custom__">Custom…</SelectItem>
+                <SelectItem value="__custom__">{t('seasonTypeCustomOption')}</SelectItem>
               </SelectContent>
             </Select>
             {isCustomSeasonType && (
               <Input
-                placeholder="Custom campaign name"
+                placeholder={t('seasonTypeCustomPlaceholder')}
                 value={form.watch('season_type')}
                 onChange={(e) => form.setValue('season_type', e.target.value)}
                 className="mt-2"
@@ -241,9 +248,9 @@ export default function SeasonalCollectionForm({
             name="title"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Title</FormLabel>
+                <FormLabel>{t('titleLabel')}</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g. Summer Radiance" {...field} />
+                  <Input placeholder={t('titlePlaceholder')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -255,9 +262,9 @@ export default function SeasonalCollectionForm({
             name="subtitle"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Subtitle</FormLabel>
+                <FormLabel>{t('subtitleLabel')}</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g. Light, fresh scents for the season" {...field} />
+                  <Input placeholder={t('subtitlePlaceholder')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -269,9 +276,9 @@ export default function SeasonalCollectionForm({
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Description</FormLabel>
+                <FormLabel>{t('descriptionLabel')}</FormLabel>
                 <FormControl>
-                  <Textarea placeholder="A short description of this collection..." {...field} />
+                  <Textarea placeholder={t('descriptionPlaceholder')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -281,28 +288,28 @@ export default function SeasonalCollectionForm({
 
         {/* Media */}
         <section className="space-y-4 rounded-lg border bg-white p-6">
-          <h2 className="font-heading text-lg">Media</h2>
+          <h2 className="font-heading text-lg">{t('sectionMedia')}</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <ImageUploadField
-              label="Desktop Banner"
+              label={t('desktopBannerLabel')}
               value={bannerDesktop}
               onChange={setBannerDesktop}
               uploadPrefix="seasonal/banners/desktop/"
             />
             <ImageUploadField
-              label="Mobile Banner"
+              label={t('mobileBannerLabel')}
               value={bannerMobile}
               onChange={setBannerMobile}
               uploadPrefix="seasonal/banners/mobile/"
             />
             <ImageUploadField
-              label="Background Pattern (Optional)"
+              label={t('backgroundPatternLabel')}
               value={backgroundPattern}
               onChange={setBackgroundPattern}
               uploadPrefix="seasonal/patterns/"
             />
             <ImageUploadField
-              label="Decorative Image (Optional)"
+              label={t('decorativeImageLabel')}
               value={decorativeImage}
               onChange={setDecorativeImage}
               uploadPrefix="seasonal/decorative/"
@@ -312,7 +319,7 @@ export default function SeasonalCollectionForm({
 
         {/* Appearance */}
         <section className="space-y-4 rounded-lg border bg-white p-6">
-          <h2 className="font-heading text-lg">Appearance</h2>
+          <h2 className="font-heading text-lg">{t('sectionAppearance')}</h2>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <FormField
@@ -321,7 +328,7 @@ export default function SeasonalCollectionForm({
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <ColorInput label="Background Color" value={field.value} onChange={field.onChange} />
+                    <ColorInput label={t('backgroundColorLabel')} value={field.value} onChange={field.onChange} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -333,7 +340,7 @@ export default function SeasonalCollectionForm({
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <ColorInput label="Text Color" value={field.value} onChange={field.onChange} />
+                    <ColorInput label={t('textColorLabel')} value={field.value} onChange={field.onChange} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -342,7 +349,7 @@ export default function SeasonalCollectionForm({
           </div>
 
           <div className="space-y-2">
-            <Label>Overlay Opacity ({overlayOpacity}%)</Label>
+            <Label>{t('overlayOpacityLabel', { value: overlayOpacity })}</Label>
             <Slider
               value={[overlayOpacity]}
               onValueChange={([v]) => form.setValue('overlay_opacity', v)}
@@ -358,7 +365,7 @@ export default function SeasonalCollectionForm({
               name="image_position"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Image Position</FormLabel>
+                  <FormLabel>{t('imagePositionLabel')}</FormLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger className="w-full">
@@ -381,7 +388,7 @@ export default function SeasonalCollectionForm({
               name="text_alignment"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Text Alignment</FormLabel>
+                  <FormLabel>{t('textAlignmentLabel')}</FormLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger className="w-full">
@@ -404,7 +411,7 @@ export default function SeasonalCollectionForm({
               name="section_height"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Section Height</FormLabel>
+                  <FormLabel>{t('sectionHeightLabel')}</FormLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger className="w-full">
@@ -429,7 +436,7 @@ export default function SeasonalCollectionForm({
             name="animation_style"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Animation Style</FormLabel>
+                <FormLabel>{t('animationStyleLabel')}</FormLabel>
                 <Select value={field.value} onValueChange={field.onChange}>
                   <FormControl>
                     <SelectTrigger className="w-full sm:w-64">
@@ -451,16 +458,16 @@ export default function SeasonalCollectionForm({
 
         {/* Call to Action */}
         <section className="space-y-4 rounded-lg border bg-white p-6">
-          <h2 className="font-heading text-lg">Call to Action</h2>
+          <h2 className="font-heading text-lg">{t('sectionCta')}</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <FormField
               control={form.control}
               name="button_text"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Button Text</FormLabel>
+                  <FormLabel>{t('buttonTextLabel')}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Shop Now" {...field} />
+                    <Input placeholder={t('buttonTextPlaceholder')} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -471,7 +478,7 @@ export default function SeasonalCollectionForm({
               name="button_style"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Button Style</FormLabel>
+                  <FormLabel>{t('buttonStyleLabel')}</FormLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger className="w-full">
@@ -496,7 +503,7 @@ export default function SeasonalCollectionForm({
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <ColorInput label="Button Color" value={field.value || '#FFFFFF'} onChange={field.onChange} />
+                  <ColorInput label={t('buttonColorLabel')} value={field.value || '#FFFFFF'} onChange={field.onChange} />
                 </FormControl>
               </FormItem>
             )}
@@ -505,16 +512,16 @@ export default function SeasonalCollectionForm({
 
         {/* Products */}
         <section className="space-y-4 rounded-lg border bg-white p-6">
-          <h2 className="font-heading text-lg">Products</h2>
+          <h2 className="font-heading text-lg">{t('sectionProducts')}</h2>
           <p className="text-sm text-muted-foreground">
-            Only these products will show on <code>/shop?season=…</code> for this collection.
+            {t('productsHintBefore')} <code>/shop?season=…</code> {t('productsHintAfter')}
           </p>
           <ProductMultiSelectPicker value={selectedProducts} onChange={setSelectedProducts} />
         </section>
 
         {/* Scheduling & Activation */}
         <section className="space-y-4 rounded-lg border bg-white p-6">
-          <h2 className="font-heading text-lg">Scheduling &amp; Activation</h2>
+          <h2 className="font-heading text-lg">{t('sectionScheduling')}</h2>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <FormField
@@ -522,7 +529,7 @@ export default function SeasonalCollectionForm({
               name="start_date"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Start Date</FormLabel>
+                  <FormLabel>{t('startDateLabel')}</FormLabel>
                   <FormControl>
                     <Input type="date" {...field} />
                   </FormControl>
@@ -534,7 +541,7 @@ export default function SeasonalCollectionForm({
               name="end_date"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>End Date</FormLabel>
+                  <FormLabel>{t('endDateLabel')}</FormLabel>
                   <FormControl>
                     <Input type="date" {...field} />
                   </FormControl>
@@ -548,7 +555,7 @@ export default function SeasonalCollectionForm({
             name="display_order"
             render={({ field }) => (
               <FormItem className="max-w-[180px]">
-                <FormLabel>Display Order</FormLabel>
+                <FormLabel>{t('displayOrderLabel')}</FormLabel>
                 <FormControl>
                   <Input type="number" {...field} />
                 </FormControl>
@@ -564,27 +571,24 @@ export default function SeasonalCollectionForm({
                 <FormControl>
                   <Switch checked={field.value} onCheckedChange={field.onChange} />
                 </FormControl>
-                <FormLabel className="!mt-0">Enabled</FormLabel>
+                <FormLabel className="!mt-0">{t('enabledLabel')}</FormLabel>
               </FormItem>
             )}
           />
-          <p className="text-xs text-muted-foreground">
-            Even when enabled, the collection only shows while today falls within its Start/End
-            Date window (leave either blank for no limit).
-          </p>
+          <p className="text-xs text-muted-foreground">{t('schedulingHint')}</p>
         </section>
 
         {/* SEO */}
         <section className="space-y-4 rounded-lg border bg-white p-6">
-          <h2 className="font-heading text-lg">SEO</h2>
+          <h2 className="font-heading text-lg">{t('sectionSeo')}</h2>
           <FormField
             control={form.control}
             name="seo_title"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>SEO Title (Optional)</FormLabel>
+                <FormLabel>{t('seoTitleLabel')}</FormLabel>
                 <FormControl>
-                  <Input placeholder="Defaults to Title if left blank" {...field} />
+                  <Input placeholder={t('seoTitlePlaceholder')} {...field} />
                 </FormControl>
               </FormItem>
             )}
@@ -594,29 +598,26 @@ export default function SeasonalCollectionForm({
             name="seo_description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>SEO Description (Optional)</FormLabel>
+                <FormLabel>{t('seoDescriptionLabel')}</FormLabel>
                 <FormControl>
-                  <Textarea placeholder="Defaults to Description if left blank" {...field} />
+                  <Textarea placeholder={t('seoDescriptionPlaceholder')} {...field} />
                 </FormControl>
               </FormItem>
             )}
           />
-          <p className="text-xs text-muted-foreground">
-            Slug, canonical URL, and Open Graph image are generated automatically from the title
-            and banner image.
-          </p>
+          <p className="text-xs text-muted-foreground">{t('seoHint')}</p>
         </section>
 
         <Button type="submit" disabled={saving} size="lg">
           {saving ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
+              {tc('saving')}
             </>
           ) : initialData ? (
-            'Update Collection'
+            t('submitUpdate')
           ) : (
-            'Create Collection'
+            t('submitCreate')
           )}
         </Button>
       </form>

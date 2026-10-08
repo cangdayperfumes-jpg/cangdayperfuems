@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -34,6 +35,7 @@ export default function ImageUploadField({
 }: ImageUploadFieldProps) {
   const [uploading, setUploading] = useState(false);
   const supabase = createClient();
+  const t = useTranslations('imageUpload');
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
@@ -51,7 +53,7 @@ export default function ImageUploadField({
       onChange(publicUrl);
     } catch (error) {
       console.error('Error uploading image', error);
-      alert('Error uploading image');
+      alert(t('errorUploadingImage'));
     } finally {
       setUploading(false);
       e.target.value = '';
@@ -63,7 +65,7 @@ export default function ImageUploadField({
       <Label>{label}</Label>
       <Input type="file" accept="image/*" onChange={handleUpload} disabled={uploading} />
       {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
-      {uploading && <p className="text-sm text-yellow-600">Uploading...</p>}
+      {uploading && <p className="text-sm text-yellow-600">{t('uploading')}</p>}
       {value && (
         <div className={`relative w-full ${aspectClassName} mt-2 rounded overflow-hidden border`}>
           <Image

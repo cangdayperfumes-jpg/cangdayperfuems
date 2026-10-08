@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { Category } from '@/types';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import ImageWithFallback from '@/components/shared/ImageWithFallback';
 
 interface CategoryCarouselProps {

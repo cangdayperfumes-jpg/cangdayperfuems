@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { GripVertical, Pencil } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import DeleteButton from '@/components/admin/DeleteButton';
@@ -11,19 +12,21 @@ import { DragReorderList } from '@/components/shared/DragReorderList';
 import { SeasonalCollection } from '@/types';
 import { deleteSeasonalCollection, updateSeasonalCollectionsOrder } from '@/app/admin/marketing/seasonal-collections/actions';
 
-function getStatus(collection: SeasonalCollection): { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' } {
-  if (!collection.is_active) return { label: 'Disabled', variant: 'outline' };
+function getStatusKey(collection: SeasonalCollection): { key: 'disabled' | 'scheduled' | 'expired' | 'active'; variant: 'default' | 'secondary' | 'outline' | 'destructive' } {
+  if (!collection.is_active) return { key: 'disabled', variant: 'outline' };
 
   const now = Date.now();
   const start = collection.start_date ? new Date(collection.start_date).getTime() : null;
   const end = collection.end_date ? new Date(collection.end_date).getTime() : null;
 
-  if (start && now < start) return { label: 'Scheduled', variant: 'secondary' };
-  if (end && now > end) return { label: 'Expired', variant: 'destructive' };
-  return { label: 'Active', variant: 'default' };
+  if (start && now < start) return { key: 'scheduled', variant: 'secondary' };
+  if (end && now > end) return { key: 'expired', variant: 'destructive' };
+  return { key: 'active', variant: 'default' };
 }
 
 export default function SeasonalCollectionsTable({ collections }: { collections: SeasonalCollection[] }) {
+  const t = useTranslations('seasonalCollections');
+  const tc = useTranslations('common');
   const [items, setItems] = useState(collections);
 
   async function handleReorder(next: SeasonalCollection[]) {
@@ -34,7 +37,7 @@ export default function SeasonalCollectionsTable({ collections }: { collections:
   if (items.length === 0) {
     return (
       <div className="border rounded-lg bg-white p-8 text-center text-muted-foreground">
-        No seasonal collections yet. Create one to get started.
+        {t('noItemsYet')}
       </div>
     );
   }
@@ -47,14 +50,15 @@ export default function SeasonalCollectionsTable({ collections }: { collections:
         onReorder={handleReorder}
         className="divide-y"
         renderItem={(collection, _index, dragControls) => {
-          const status = getStatus(collection);
+          const status = getStatusKey(collection);
+          const statusLabel = status.key === 'active' ? tc('active') : t(`status.${status.key}`);
           return (
             <div className="flex items-center gap-3 p-4">
               <button
                 type="button"
                 onPointerDown={(e) => dragControls.start(e)}
                 className="cursor-grab touch-none text-muted-foreground hover:text-foreground active:cursor-grabbing"
-                aria-label="Drag to reorder"
+                aria-label={t('dragToReorder')}
               >
                 <GripVertical className="h-4 w-4" />
               </button>
@@ -70,7 +74,7 @@ export default function SeasonalCollectionsTable({ collections }: { collections:
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-[10px] text-gray-400">
-                    No Img
+                    {tc('noImage')}
                   </div>
                 )}
               </div>
@@ -82,16 +86,16 @@ export default function SeasonalCollectionsTable({ collections }: { collections:
                 </p>
               </div>
 
-              <Badge variant={status.variant}>{status.label}</Badge>
+              <Badge variant={status.variant}>{statusLabel}</Badge>
 
               <div className="flex items-center gap-1">
                 <Link href={`/admin/marketing/seasonal-collections/${collection.id}`}>
                   <Button variant="ghost" size="icon">
                     <Pencil className="h-4 w-4" />
-                    <span className="sr-only">Edit</span>
+                    <span className="sr-only">{tc('edit')}</span>
                   </Button>
                 </Link>
-                <DeleteButton id={collection.id} onDelete={deleteSeasonalCollection} itemName="seasonal collection" />
+                <DeleteButton id={collection.id} onDelete={deleteSeasonalCollection} itemName={t('itemName')} />
               </div>
             </div>
           );

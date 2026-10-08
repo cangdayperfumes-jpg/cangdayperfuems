@@ -7,6 +7,7 @@ import * as z from 'zod';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,30 +37,36 @@ import {
   HeroSlideInput,
 } from '@/app/admin/marketing/hero-slides/actions';
 
-const heroSlideSchema = z.object({
-  eyebrow: z.string().min(1, 'Eyebrow text is required'),
-  headline: z.string().min(1, 'Headline is required'),
-  headline_accent: z.string().optional(),
-  subheading: z.string().optional(),
-  image_position: z.enum(['center', 'top', 'bottom', 'left', 'right']),
-  button_text: z.string().min(1, 'Button text is required'),
-  button_link: z.string().min(1, 'Button link is required'),
-  secondary_button_text: z.string().optional(),
-  secondary_button_link: z.string().optional(),
-  display_order: z.coerce.number().default(0),
-  is_active: z.boolean().default(true),
-});
+function buildHeroSlideSchema(t: (key: string) => string) {
+  return z.object({
+    eyebrow: z.string().min(1, t('validation.eyebrowRequired')),
+    headline: z.string().min(1, t('validation.headlineRequired')),
+    headline_accent: z.string().optional(),
+    subheading: z.string().optional(),
+    image_position: z.enum(['center', 'top', 'bottom', 'left', 'right']),
+    button_text: z.string().min(1, t('validation.buttonTextRequired')),
+    button_link: z.string().min(1, t('validation.buttonLinkRequired')),
+    secondary_button_text: z.string().optional(),
+    secondary_button_link: z.string().optional(),
+    display_order: z.coerce.number().default(0),
+    is_active: z.boolean().default(true),
+  });
+}
 
-type HeroSlideFormValues = z.infer<typeof heroSlideSchema>;
+type HeroSlideFormValues = z.infer<ReturnType<typeof buildHeroSlideSchema>>;
 
 interface HeroSlideFormProps {
   initialData?: HeroSlide;
 }
 
 export default function HeroSlideForm({ initialData }: HeroSlideFormProps) {
+  const t = useTranslations('heroSlides');
+  const tc = useTranslations('common');
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [image, setImage] = useState<string | null>(initialData?.image_url || null);
+
+  const heroSlideSchema = buildHeroSlideSchema(t);
 
   const form = useForm<HeroSlideFormValues>({
     resolver: zodResolver(heroSlideSchema) as any,
@@ -80,7 +87,7 @@ export default function HeroSlideForm({ initialData }: HeroSlideFormProps) {
 
   const onSubmit = async (values: HeroSlideFormValues) => {
     if (!image) {
-      toast.error('Please upload a slide image');
+      toast.error(t('imageRequired'));
       return;
     }
 
@@ -106,16 +113,16 @@ export default function HeroSlideForm({ initialData }: HeroSlideFormProps) {
         : await createHeroSlide(payload);
 
       if (!result.success) {
-        toast.error(result.error || 'Failed to save hero slide');
+        toast.error(result.error || t('failedToSave'));
         return;
       }
 
-      toast.success(initialData ? 'Slide updated successfully' : 'Slide created successfully');
+      toast.success(initialData ? t('updatedSuccess') : t('createdSuccess'));
       router.push('/admin/marketing/hero-slides');
       router.refresh();
     } catch (error) {
       console.error('Hero slide submit error', error);
-      toast.error('Something went wrong. Please try again.');
+      toast.error(tc('somethingWentWrong'));
     } finally {
       setSaving(false);
     }
@@ -126,16 +133,16 @@ export default function HeroSlideForm({ initialData }: HeroSlideFormProps) {
       <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-3xl space-y-8">
         {/* Content */}
         <section className="space-y-4 rounded-lg border bg-white p-6">
-          <h2 className="font-heading text-lg">Content</h2>
+          <h2 className="font-heading text-lg">{t('sectionContent')}</h2>
 
           <FormField
             control={form.control}
             name="eyebrow"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Eyebrow Label</FormLabel>
+                <FormLabel>{t('eyebrowLabel')}</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g. Modern Perfumery" {...field} />
+                  <Input placeholder={t('eyebrowPlaceholder')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -148,9 +155,9 @@ export default function HeroSlideForm({ initialData }: HeroSlideFormProps) {
               name="headline"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Headline</FormLabel>
+                  <FormLabel>{t('headlineLabel')}</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. Wear what" {...field} />
+                    <Input placeholder={t('headlinePlaceholder')} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -161,9 +168,9 @@ export default function HeroSlideForm({ initialData }: HeroSlideFormProps) {
               name="headline_accent"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Headline Accent (Optional, italic)</FormLabel>
+                  <FormLabel>{t('headlineAccentLabel')}</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. lingers." {...field} />
+                    <Input placeholder={t('headlineAccentPlaceholder')} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -176,9 +183,9 @@ export default function HeroSlideForm({ initialData }: HeroSlideFormProps) {
             name="subheading"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Subheading</FormLabel>
+                <FormLabel>{t('subheadingLabel')}</FormLabel>
                 <FormControl>
-                  <Textarea placeholder="A short line supporting the headline..." {...field} />
+                  <Textarea placeholder={t('subheadingPlaceholder')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -188,9 +195,9 @@ export default function HeroSlideForm({ initialData }: HeroSlideFormProps) {
 
         {/* Media */}
         <section className="space-y-4 rounded-lg border bg-white p-6">
-          <h2 className="font-heading text-lg">Media</h2>
+          <h2 className="font-heading text-lg">{t('sectionMedia')}</h2>
           <ImageUploadField
-            label="Slide Image"
+            label={t('slideImageLabel')}
             value={image}
             onChange={setImage}
             uploadPrefix="hero-slides/"
@@ -201,7 +208,7 @@ export default function HeroSlideForm({ initialData }: HeroSlideFormProps) {
             name="image_position"
             render={({ field }) => (
               <FormItem className="max-w-xs">
-                <FormLabel>Image Focal Point</FormLabel>
+                <FormLabel>{t('imageFocalPointLabel')}</FormLabel>
                 <Select value={field.value} onValueChange={field.onChange}>
                   <FormControl>
                     <SelectTrigger className="w-full">
@@ -223,16 +230,16 @@ export default function HeroSlideForm({ initialData }: HeroSlideFormProps) {
 
         {/* Call to Action */}
         <section className="space-y-4 rounded-lg border bg-white p-6">
-          <h2 className="font-heading text-lg">Call to Action</h2>
+          <h2 className="font-heading text-lg">{t('sectionCta')}</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <FormField
               control={form.control}
               name="button_text"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Primary Button Text</FormLabel>
+                  <FormLabel>{t('primaryButtonTextLabel')}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Shop the Collection" {...field} />
+                    <Input placeholder={t('primaryButtonTextPlaceholder')} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -243,7 +250,7 @@ export default function HeroSlideForm({ initialData }: HeroSlideFormProps) {
               name="button_link"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Primary Button Link</FormLabel>
+                  <FormLabel>{t('primaryButtonLinkLabel')}</FormLabel>
                   <FormControl>
                     <Input placeholder="/shop" {...field} />
                   </FormControl>
@@ -258,9 +265,9 @@ export default function HeroSlideForm({ initialData }: HeroSlideFormProps) {
               name="secondary_button_text"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Secondary Button Text (Optional)</FormLabel>
+                  <FormLabel>{t('secondaryButtonTextLabel')}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Our Story" {...field} />
+                    <Input placeholder={t('secondaryButtonTextPlaceholder')} {...field} />
                   </FormControl>
                 </FormItem>
               )}
@@ -270,7 +277,7 @@ export default function HeroSlideForm({ initialData }: HeroSlideFormProps) {
               name="secondary_button_link"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Secondary Button Link (Optional)</FormLabel>
+                  <FormLabel>{t('secondaryButtonLinkLabel')}</FormLabel>
                   <FormControl>
                     <Input placeholder="/about" {...field} />
                   </FormControl>
@@ -282,14 +289,14 @@ export default function HeroSlideForm({ initialData }: HeroSlideFormProps) {
 
         {/* Activation */}
         <section className="space-y-4 rounded-lg border bg-white p-6">
-          <h2 className="font-heading text-lg">Activation</h2>
+          <h2 className="font-heading text-lg">{t('sectionActivation')}</h2>
 
           <FormField
             control={form.control}
             name="display_order"
             render={({ field }) => (
               <FormItem className="max-w-[180px]">
-                <FormLabel>Display Order</FormLabel>
+                <FormLabel>{t('displayOrderLabel')}</FormLabel>
                 <FormControl>
                   <Input type="number" {...field} />
                 </FormControl>
@@ -305,25 +312,23 @@ export default function HeroSlideForm({ initialData }: HeroSlideFormProps) {
                 <FormControl>
                   <Switch checked={field.value} onCheckedChange={field.onChange} />
                 </FormControl>
-                <FormLabel className="!mt-0">Enabled</FormLabel>
+                <FormLabel className="!mt-0">{t('enabledLabel')}</FormLabel>
               </FormItem>
             )}
           />
-          <p className="text-xs text-muted-foreground">
-            Only enabled slides appear in the homepage carousel, in Display Order.
-          </p>
+          <p className="text-xs text-muted-foreground">{t('activationHint')}</p>
         </section>
 
         <Button type="submit" disabled={saving} size="lg">
           {saving ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
+              {tc('saving')}
             </>
           ) : initialData ? (
-            'Update Slide'
+            t('submitUpdate')
           ) : (
-            'Create Slide'
+            t('submitCreate')
           )}
         </Button>
       </form>

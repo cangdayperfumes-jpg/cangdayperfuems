@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useTransition } from 'react';
+import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import {
   ColumnDef,
@@ -59,8 +60,13 @@ import ImageWithFallback from '@/components/shared/ImageWithFallback';
 import { DataTableFacetedFilter } from '@/components/ui/data-table-faceted-filter';
 import dynamic from 'next/dynamic';
 
+function ProductFormLoading() {
+  const t = useTranslations('products');
+  return <div className="p-8 text-center text-muted-foreground">{t('loadingForm')}</div>;
+}
+
 const ProductForm = dynamic(() => import('./ProductForm'), {
-  loading: () => <div className="p-8 text-center text-muted-foreground">Loading form...</div>,
+  loading: () => <ProductFormLoading />,
   ssr: false,
 });
 
@@ -69,6 +75,8 @@ type ProductWithDetails = Product & { category?: string; brand?: string };
 
 export function ProductsTable({ data, categories, brands }: { data: ProductWithDetails[]; categories: Category[]; brands: Brand[] }) {
   const router = useRouter();
+  const t = useTranslations('products');
+  const tc = useTranslations('common');
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -98,14 +106,14 @@ export function ProductsTable({ data, categories, brands }: { data: ProductWithD
             <Checkbox
                 checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
                 onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-                aria-label="Select all"
+                aria-label={t('selectAll')}
             />
         ),
         cell: ({ row }) => (
             <Checkbox
                 checked={row.getIsSelected()}
                 onCheckedChange={(value) => row.toggleSelected(!!value)}
-                aria-label="Select row"
+                aria-label={t('selectRow')}
             />
         ),
         enableSorting: false,
@@ -113,7 +121,7 @@ export function ProductsTable({ data, categories, brands }: { data: ProductWithD
     },
     {
         id: 'image',
-        header: 'Image',
+        header: tc('image'),
         cell: ({ row }) => {
             const images = row.original.images;
             const mainImage = images && images.length > 0 ? images[0] : null;
@@ -143,7 +151,7 @@ export function ProductsTable({ data, categories, brands }: { data: ProductWithD
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           >
-            Name (EN)
+            {t('nameEn')}
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         );
@@ -162,7 +170,7 @@ export function ProductsTable({ data, categories, brands }: { data: ProductWithD
     },
     {
       accessorKey: 'brand',
-      header: 'Brand',
+      header: t('brand'),
       cell: ({ row }) => <div className="font-medium">{row.getValue('brand') || '-'}</div>,
       filterFn: (row, id, value) => {
           return value.includes(row.getValue(id));
@@ -170,15 +178,15 @@ export function ProductsTable({ data, categories, brands }: { data: ProductWithD
     },
     {
       accessorKey: 'category',
-      header: 'Category',
-      cell: ({ row }) => <div>{row.getValue('category') || 'Uncategorized'}</div>,
+      header: t('category'),
+      cell: ({ row }) => <div>{row.getValue('category') || t('uncategorized')}</div>,
       filterFn: (row, id, value) => {
           return value.includes(row.getValue(id));
       },
     },
     {
       accessorKey: 'price',
-      header: 'Price',
+      header: t('price'),
       cell: ({ row }) => {
         if (isOpenMode) {
             return <EditableTextCell productId={row.original.id} field="price" type="number" initialValue={row.getValue('price') as number} />;
@@ -189,15 +197,15 @@ export function ProductsTable({ data, categories, brands }: { data: ProductWithD
     },
     {
         accessorKey: 'stock',
-        header: 'Stock Status',
+        header: t('stockStatus'),
         cell: ({ row }) => {
             const inStock = row.getValue('stock') as boolean;
             if (isOpenMode) {
-                return <ToggleCell productId={row.original.id} field="stock" initialValue={inStock} trueLabel="In Stock" falseLabel="Out of Stock" />;
+                return <ToggleCell productId={row.original.id} field="stock" initialValue={inStock} trueLabel={t('inStock')} falseLabel={t('outOfStock')} />;
             }
             return (
                 <Badge variant={inStock ? 'default' : 'destructive'}>
-                    {inStock ? 'In Stock' : 'Out of Stock'}
+                    {inStock ? t('inStock') : t('outOfStock')}
                 </Badge>
             );
         },
@@ -209,15 +217,15 @@ export function ProductsTable({ data, categories, brands }: { data: ProductWithD
     },
     {
         accessorKey: 'is_active',
-        header: 'Status',
+        header: tc('status'),
         cell: ({ row }) => {
             const isActive = row.getValue('is_active') as boolean;
             if (isOpenMode) {
-                return <ToggleCell productId={row.original.id} field="is_active" initialValue={isActive} trueLabel="Active" falseLabel="Inactive" />;
+                return <ToggleCell productId={row.original.id} field="is_active" initialValue={isActive} trueLabel={tc('active')} falseLabel={tc('inactive')} />;
             }
             return (
                 <Badge variant={isActive ? 'default' : 'secondary'}>
-                    {isActive ? 'Active' : 'Inactive'}
+                    {isActive ? tc('active') : tc('inactive')}
                 </Badge>
             );
         },
@@ -228,19 +236,19 @@ export function ProductsTable({ data, categories, brands }: { data: ProductWithD
     },
     {
         accessorKey: 'is_popular',
-        header: 'Popular',
+        header: t('popular'),
         cell: ({ row }) => {
             const isPopular = row.getValue('is_popular') as boolean;
             if (isOpenMode) {
-                return <ToggleCell productId={row.original.id} field="is_popular" initialValue={isPopular} trueLabel="Popular" falseLabel="No" />;
+                return <ToggleCell productId={row.original.id} field="is_popular" initialValue={isPopular} trueLabel={t('popular')} falseLabel={tc('no')} />;
             }
             return isPopular ? (
                 <Badge className="bg-black text-white gap-1">
                     <img src="/fire.svg" alt="" className="h-3 w-3" />
-                    Popular
+                    {t('popular')}
                 </Badge>
             ) : (
-                <Badge variant="secondary">No</Badge>
+                <Badge variant="secondary">{tc('no')}</Badge>
             );
         },
         filterFn: (row, id, value) => {
@@ -256,7 +264,7 @@ export function ProductsTable({ data, categories, brands }: { data: ProductWithD
         return <ProductActions product={product} onEdit={() => openEditSheet(product)} />;
       },
     },
-  ], [isOpenMode]);
+  ], [isOpenMode, t, tc]);
 
   const table = useReactTable({
     data,
@@ -278,7 +286,7 @@ export function ProductsTable({ data, categories, brands }: { data: ProductWithD
   });
 
   // Unique categories for filter options
-  const uniqueCategories = Array.from(new Set(data.map(p => p.category || 'Uncategorized')))
+  const uniqueCategories = Array.from(new Set(data.map(p => p.category || t('uncategorized'))))
     .filter(Boolean)
     .map(cat => ({
         label: cat,
@@ -286,7 +294,7 @@ export function ProductsTable({ data, categories, brands }: { data: ProductWithD
     }));
 
   // Unique brands for filter options
-  const uniqueBrands = Array.from(new Set(data.map(p => p.brand || 'No Brand')))
+  const uniqueBrands = Array.from(new Set(data.map(p => p.brand || t('noBrand'))))
     .filter(Boolean)
     .map(b => ({
         label: b,
@@ -297,7 +305,7 @@ export function ProductsTable({ data, categories, brands }: { data: ProductWithD
     <div className="w-full space-y-4">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2">
         <Input
-          placeholder="Filter by name (EN) or ID..."
+          placeholder={t('filterPlaceholder')}
           value={(table.getColumn('name_en')?.getFilterValue() as string) ?? ''}
           onChange={(event) =>
             table.getColumn('name_en')?.setFilterValue(event.target.value)
@@ -310,7 +318,7 @@ export function ProductsTable({ data, categories, brands }: { data: ProductWithD
             {table.getColumn('category') && (
                 <DataTableFacetedFilter
                     column={table.getColumn('category')}
-                    title="Category"
+                    title={t('category')}
                     options={uniqueCategories}
                 />
             )}
@@ -319,7 +327,7 @@ export function ProductsTable({ data, categories, brands }: { data: ProductWithD
             {table.getColumn('brand') && (
                 <DataTableFacetedFilter
                     column={table.getColumn('brand')}
-                    title="Brand"
+                    title={t('brand')}
                     options={uniqueBrands}
                 />
             )}
@@ -328,10 +336,10 @@ export function ProductsTable({ data, categories, brands }: { data: ProductWithD
              {table.getColumn('stock') && (
                  <DataTableFacetedFilter
                     column={table.getColumn('stock')}
-                    title="Stock"
+                    title={t('stock')}
                     options={[
-                        { label: 'In Stock', value: 'true' },
-                        { label: 'Out of Stock', value: 'false' }
+                        { label: t('inStock'), value: 'true' },
+                        { label: t('outOfStock'), value: 'false' }
                     ]}
                  />
              )}
@@ -340,10 +348,10 @@ export function ProductsTable({ data, categories, brands }: { data: ProductWithD
              {table.getColumn('is_active') && (
                  <DataTableFacetedFilter
                     column={table.getColumn('is_active')}
-                    title="Status"
+                    title={tc('status')}
                     options={[
-                        { label: 'Active', value: 'true' },
-                        { label: 'Inactive', value: 'false' }
+                        { label: tc('active'), value: 'true' },
+                        { label: tc('inactive'), value: 'false' }
                     ]}
                  />
              )}
@@ -352,10 +360,10 @@ export function ProductsTable({ data, categories, brands }: { data: ProductWithD
              {table.getColumn('is_popular') && (
                  <DataTableFacetedFilter
                     column={table.getColumn('is_popular')}
-                    title="Popular"
+                    title={t('popular')}
                     options={[
-                        { label: 'Popular', value: 'true' },
-                        { label: 'Not Popular', value: 'false' }
+                        { label: t('popular'), value: 'true' },
+                        { label: t('notPopular'), value: 'false' }
                     ]}
                  />
              )}
@@ -366,13 +374,13 @@ export function ProductsTable({ data, categories, brands }: { data: ProductWithD
                 className="gap-2"
             >
                 <Pencil className="h-4 w-4" />
-                {isOpenMode ? 'Open Mode: ON' : 'Open Mode'}
+                {isOpenMode ? t('openModeOn') : t('openMode')}
             </Button>
 
             <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="ml-auto">
-                Columns <ChevronDown className="ml-2 h-4 w-4" />
+                {t('columns')} <ChevronDown className="ml-2 h-4 w-4" />
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -399,20 +407,20 @@ export function ProductsTable({ data, categories, brands }: { data: ProductWithD
       </div>
       {isOpenMode && (
         <div className="rounded-md border border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-800">
-          Open Mode is on — edit Name, Price, Stock, Status, and Popular directly in the table below. Changes save automatically. Use "Edit Product" for brand, category, images, or description.
+          {t('openModeBanner')}
         </div>
       )}
       {table.getSelectedRowModel().rows.length > 0 && (
         <div className="flex items-center justify-between gap-4 rounded-md border bg-slate-50 px-4 py-2">
           <span className="text-sm font-medium text-slate-700">
-            {table.getSelectedRowModel().rows.length} selected
+            {t('selectedCount', { count: table.getSelectedRowModel().rows.length })}
           </span>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={() => setIsBulkPriceOpen(true)}>
-              Edit Price
+              {t('editPrice')}
             </Button>
             <Button variant="ghost" size="sm" onClick={() => table.resetRowSelection()}>
-              Clear
+              {t('clear')}
             </Button>
           </div>
         </div>
@@ -460,7 +468,7 @@ export function ProductsTable({ data, categories, brands }: { data: ProductWithD
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  {tc('noResults')}
                 </TableCell>
               </TableRow>
             )}
@@ -469,8 +477,7 @@ export function ProductsTable({ data, categories, brands }: { data: ProductWithD
       </div>
       <div className="flex items-center justify-between space-x-2 py-4 px-2">
         <div className="text-sm text-muted-foreground">
-          Page {table.getState().pagination.pageIndex + 1} of{" "}
-          {table.getPageCount() === 0 ? 1 : table.getPageCount()}
+          {t('pageOf', { page: table.getState().pagination.pageIndex + 1, total: table.getPageCount() === 0 ? 1 : table.getPageCount() })}
         </div>
         <div className="flex items-center space-x-2">
           <Button
@@ -479,7 +486,7 @@ export function ProductsTable({ data, categories, brands }: { data: ProductWithD
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
           >
-            <span className="sr-only">Go to first page</span>
+            <span className="sr-only">{t('goToFirstPage')}</span>
             <ChevronsLeft className="h-4 w-4" />
           </Button>
           <Button
@@ -488,7 +495,7 @@ export function ProductsTable({ data, categories, brands }: { data: ProductWithD
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            <span className="sr-only">Go to previous page</span>
+            <span className="sr-only">{t('goToPreviousPage')}</span>
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <Button
@@ -497,7 +504,7 @@ export function ProductsTable({ data, categories, brands }: { data: ProductWithD
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            <span className="sr-only">Go to next page</span>
+            <span className="sr-only">{t('goToNextPage')}</span>
             <ChevronRight className="h-4 w-4" />
           </Button>
           <Button
@@ -506,7 +513,7 @@ export function ProductsTable({ data, categories, brands }: { data: ProductWithD
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
             disabled={!table.getCanNextPage()}
           >
-            <span className="sr-only">Go to last page</span>
+            <span className="sr-only">{t('goToLastPage')}</span>
             <ChevronsRight className="h-4 w-4" />
           </Button>
         </div>
@@ -516,9 +523,9 @@ export function ProductsTable({ data, categories, brands }: { data: ProductWithD
       <Sheet open={isEditSheetOpen} onOpenChange={setIsEditSheetOpen}>
         <SheetContent className="sm:max-w-2xl overflow-y-auto w-full">
             <SheetHeader>
-                <SheetTitle>Edit Product</SheetTitle>
+                <SheetTitle>{t('editProduct')}</SheetTitle>
                 <SheetDescription>
-                    Make changes to your product here. Click save when you're done.
+                    {t('editProductDescription')}
                 </SheetDescription>
             </SheetHeader>
             <div className="mt-6">
@@ -538,23 +545,23 @@ export function ProductsTable({ data, categories, brands }: { data: ProductWithD
       <Dialog open={isBulkPriceOpen} onOpenChange={setIsBulkPriceOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit Price for {table.getSelectedRowModel().rows.length} Products</DialogTitle>
+            <DialogTitle>{t('editPriceForCount', { count: table.getSelectedRowModel().rows.length })}</DialogTitle>
           </DialogHeader>
           <div className="space-y-2 py-2">
-            <label className="text-sm font-medium">New Price ($)</label>
+            <label className="text-sm font-medium">{t('newPrice')}</label>
             <Input
               type="number"
               step="0.01"
               min="0"
               value={bulkPrice}
               onChange={(e) => setBulkPrice(e.target.value)}
-              placeholder="e.g. 25.00"
+              placeholder={t('pricePlaceholderExample')}
               autoFocus
             />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsBulkPriceOpen(false)} disabled={isBulkSaving}>
-              Cancel
+              {tc('cancel')}
             </Button>
             <Button
               disabled={isBulkSaving || bulkPrice === '' || isNaN(Number(bulkPrice)) || Number(bulkPrice) < 0}
@@ -564,19 +571,19 @@ export function ProductsTable({ data, categories, brands }: { data: ProductWithD
                 startBulkSaving(async () => {
                   try {
                     await bulkUpdatePrice(productIds, price);
-                    toast.success(`Updated price for ${productIds.length} products`);
+                    toast.success(t('updatedPriceForCount', { count: productIds.length }));
                     table.resetRowSelection();
                     setIsBulkPriceOpen(false);
                     setBulkPrice('');
                     router.refresh();
                   } catch (error) {
-                    toast.error('Failed to update prices');
+                    toast.error(t('failedToUpdatePrices'));
                   }
                 });
               }}
             >
               {isBulkSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Save
+              {tc('save')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -587,17 +594,19 @@ export function ProductsTable({ data, categories, brands }: { data: ProductWithD
 
 function ProductActions({ product, onEdit }: { product: Product, onEdit: () => void }) {
   const router = useRouter();
+  const t = useTranslations('products');
+  const tc = useTranslations('common');
   const [isPending, startTransition] = useTransition();
 
   const handleDelete = () => {
-    if (confirm('Are you sure you want to delete this product?')) {
+    if (confirm(t('confirmDeleteProduct'))) {
       startTransition(async () => {
         try {
           await deleteProduct(product.id);
-          toast.success('Product deleted successfully');
+          toast.success(t('productDeletedSuccessfully'));
           router.refresh();
         } catch (error) {
-          toast.error('Failed to delete product');
+          toast.error(t('failedToDeleteProduct'));
         }
       });
     }
@@ -607,21 +616,21 @@ function ProductActions({ product, onEdit }: { product: Product, onEdit: () => v
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="h-8 w-8 p-0" disabled={isPending}>
-          <span className="sr-only">Open menu</span>
+          <span className="sr-only">{t('openMenu')}</span>
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DropdownMenuLabel>{tc('actions')}</DropdownMenuLabel>
         <DropdownMenuItem onClick={() => navigator.clipboard.writeText(product.id)}>
-          Copy Product ID
+          {t('copyProductId')}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={onEdit}>
-          Edit Product
+          {t('editProduct')}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleDelete} className="text-red-600 font-medium focus:text-red-700">
-          Delete Product
+          {t('deleteProduct')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -640,6 +649,8 @@ function EditableTextCell({
   type?: 'text' | 'number';
 }) {
   const router = useRouter();
+  const t = useTranslations('products');
+  const tc = useTranslations('common');
   const [value, setValue] = useState(String(initialValue));
   const [saving, setSaving] = useState(false);
 
@@ -647,7 +658,7 @@ function EditableTextCell({
     if (type === 'number') {
       const parsed = Number(value);
       if (value.trim() === '' || isNaN(parsed) || parsed < 0) {
-        toast.error('Invalid price');
+        toast.error(t('invalidPrice'));
         setValue(String(initialValue));
         return;
       }
@@ -656,10 +667,10 @@ function EditableTextCell({
       setSaving(true);
       try {
         await updateProductFields(productId, { [field]: parsed });
-        toast.success('Saved');
+        toast.success(t('saved'));
         router.refresh();
       } catch {
-        toast.error('Failed to save');
+        toast.error(tc('failedToSave'));
         setValue(String(initialValue));
       } finally {
         setSaving(false);
@@ -668,7 +679,7 @@ function EditableTextCell({
     }
 
     if (value.trim() === '') {
-      toast.error('Value cannot be empty');
+      toast.error(t('valueCannotBeEmpty'));
       setValue(String(initialValue));
       return;
     }
@@ -677,10 +688,10 @@ function EditableTextCell({
     setSaving(true);
     try {
       await updateProductFields(productId, { [field]: value });
-      toast.success('Saved');
+      toast.success(t('saved'));
       router.refresh();
     } catch {
-      toast.error('Failed to save');
+      toast.error(tc('failedToSave'));
       setValue(String(initialValue));
     } finally {
       setSaving(false);
@@ -715,6 +726,8 @@ function ToggleCell({
   falseLabel: string;
 }) {
   const router = useRouter();
+  const t = useTranslations('products');
+  const tc = useTranslations('common');
   const [value, setValue] = useState(initialValue);
   const [saving, setSaving] = useState(false);
 
@@ -724,10 +737,10 @@ function ToggleCell({
     setSaving(true);
     try {
       await updateProductFields(productId, { [field]: checked });
-      toast.success('Saved');
+      toast.success(t('saved'));
       router.refresh();
     } catch {
-      toast.error('Failed to save');
+      toast.error(tc('failedToSave'));
       setValue(previous);
     } finally {
       setSaving(false);
