@@ -23,6 +23,7 @@ import { unstable_cache } from "next/cache";
 import StorefrontLayoutWrapper from "@/components/shared/StorefrontLayoutWrapper";
 import { getSiteTheme, hexToRgbTriplet } from "@/lib/theme-data";
 import { isSupabaseConfigured } from "@/lib/is-supabase-configured";
+import { PLACEHOLDER_SUPABASE_URL } from "@/utils/supabase/placeholder";
 
 // Fraunces: an expressive, high-contrast "soft serif" with genuine optical-size
 // character — carries the jewelry-editorial feel without reaching for the
@@ -141,17 +142,21 @@ export default async function LocaleLayout({
 
   setRequestLocale(locale);
 
+  const supabaseConfigured = isSupabaseConfigured();
+
   // Cookie-free client: the storefront layout only reads public data (categories,
   // settings), so it must not pull in next/headers cookies() — doing so opts every
   // route under this layout into fully dynamic (uncached) rendering, overriding each
   // page's own `revalidate`/ISR config. Admin auth is handled separately by
   // proxy.ts, which is scoped to /admin only and is unaffected by this client.
+  // Falls back to the placeholder URL (never an empty string) when unconfigured —
+  // createClient throws synchronously on an empty URL (e.g. a Docker build with no
+  // env vars supplied at all, not even the placeholder), and both call sites below
+  // already no-op via the `supabaseConfigured` check before ever using this client.
   const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_URL || PLACEHOLDER_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
   );
-
-  const supabaseConfigured = isSupabaseConfigured();
 
   // Run all three in parallel + cache results for 60s
   const [rawCategories, settings, theme] = await Promise.all([

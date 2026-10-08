@@ -1,5 +1,6 @@
 
 import { createClient } from '@supabase/supabase-js';
+import { PLACEHOLDER_SUPABASE_URL } from '@/utils/supabase/placeholder';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -25,8 +26,8 @@ export default async function CategoriesPage() {
   // Cookie-free client: this page only reads public data, and cookies() would
   // force fully dynamic (uncached) rendering, overriding `revalidate` above.
   const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_URL || PLACEHOLDER_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
   );
 
   const { data: categories } = await supabase

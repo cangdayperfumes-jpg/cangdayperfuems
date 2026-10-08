@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { PLACEHOLDER_SUPABASE_URL } from '@/utils/supabase/placeholder';
 import { unstable_cache } from 'next/cache';
 import { isSupabaseConfigured } from '@/lib/is-supabase-configured';
 
@@ -22,8 +23,8 @@ export const getSiteTheme = unstable_cache(
   async (): Promise<SiteTheme> => {
     if (!isSupabaseConfigured()) return DEFAULT_THEME;
     const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      process.env.NEXT_PUBLIC_SUPABASE_URL || PLACEHOLDER_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
     );
     const { data } = await supabase
       .from('system_settings')

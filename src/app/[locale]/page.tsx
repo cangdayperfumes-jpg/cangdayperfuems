@@ -2,13 +2,13 @@
 
 import type { Metadata } from 'next';
 import { createClient } from '@supabase/supabase-js';
+import { PLACEHOLDER_SUPABASE_URL } from '@/utils/supabase/placeholder';
 import Hero from "@/components/shared/Hero";
 import BrandTicker from '@/components/home/brand-ticker';
 import { Link } from '@/i18n/navigation';
-import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import CategoryCarousel from '@/components/home/category-carousel';
-import dynamic from 'next/dynamic';
+import DiscoverCategories from '@/components/home/discover-categories';
 import SeasonalCollectionSection from '@/components/home/seasonal-collection-section';
 import {
   getActiveSeasonalCollections,
@@ -21,15 +21,15 @@ import type { CategoryTile } from '@/types';
 import { isSupabaseConfigured } from '@/lib/is-supabase-configured';
 import { getTranslations } from 'next-intl/server';
 
-const BrandBreaker = dynamic(() => import('@/components/home/brand-breaker'), {
-  ssr: true,
-});
 import NewArrivalsCarousel from '@/components/home/new-arrivals-carousel';
 // Same generic carousel reused for Best Sellers — it only ever takes a
 // products array, no "new arrivals"-specific behavior baked in.
 import BestSellersCarousel from '@/components/home/new-arrivals-carousel';
 import QuickNav from '@/components/home/quick-nav';
 import PromoBanners from '@/components/home/promo-banners';
+import TrustBadges from '@/components/home/trust-badges';
+import Testimonials from '@/components/home/testimonials';
+import { getActiveTestimonials } from '@/lib/testimonials-data';
 
 export const revalidate = 60;
 
@@ -42,8 +42,8 @@ export default async function Home() {
   // Cookie-free client: this page only reads public data, and cookies() would
   // force fully dynamic (uncached) rendering, overriding `revalidate` above.
   const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_URL || PLACEHOLDER_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
   );
 
   // Skips these 3 network calls entirely when Supabase isn't configured
@@ -90,13 +90,15 @@ export default async function Home() {
     // Use the same "has active products" pattern as the shop page's brand
     // list instead, so this shows real catalog data.
     supabaseConfigured
-      ? supabase.from('brands').select('name, slug, products!inner(id)').eq('products.is_active', true).order('name').limit(24)
+      ? supabase.from('brands').select('name, slug, image_url, products!inner(id)').eq('products.is_active', true).order('name').limit(24)
       : emptyQueryResult,
     getActiveSeasonalCollections(),
     getSeasonalSectionSettings(),
     getActiveHeroSlides(),
     getActiveCategoryTiles(),
   ]);
+
+  const testimonials = await getActiveTestimonials();
 
   const visibleSeasonalCollections = resolveVisibleSeasonalCollections(
     seasonalCollections,
@@ -108,12 +110,18 @@ export default async function Home() {
   ) : null;
 
   // Fallback used only if /admin/marketing/category-tiles has no rows yet —
-  // matches the migration's seed data so the grid never renders empty.
+  // same shape the migration seeds, except the last two slots point at real
+  // product-type categories (Gift Sets, Body Mists) instead of the removed
+  // Designer/Niche concept the original seed's "Niche" tile dangled a link
+  // to (`category=niche-perfumes` — that category no longer exists; see
+  // 20260730000000_replace_type_with_popular.sql). DiscoverCategories maps
+  // these four link patterns to localized copy; any other admin-added tile
+  // falls back to its own label.
   const FALLBACK_TILES: CategoryTile[] = [
     { id: 'fallback-1', label: "Women's", link_href: '/shop?audience=Women', image_url: 'https://images.unsplash.com/photo-1774682060959-efe13b7a12b9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=900', col_span: 2, row_span: 2, display_order: 0, is_active: true, created_at: '', updated_at: '' },
     { id: 'fallback-2', label: "Men's", link_href: '/shop?audience=Men', image_url: 'https://images.unsplash.com/photo-1780943004155-1b2c5424fb2e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=900', col_span: 2, row_span: 1, display_order: 1, is_active: true, created_at: '', updated_at: '' },
-    { id: 'fallback-3', label: 'Unisex', link_href: '/shop?audience=Unisex', image_url: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=700', col_span: 1, row_span: 1, display_order: 2, is_active: true, created_at: '', updated_at: '' },
-    { id: 'fallback-4', label: 'Niche', link_href: '/shop?category=niche-perfumes', image_url: 'https://images.unsplash.com/photo-1780811070739-faa3b575b669?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=700', col_span: 1, row_span: 1, display_order: 3, is_active: true, created_at: '', updated_at: '' },
+    { id: 'fallback-3', label: 'Gift Sets', link_href: '/shop?category=gift-sets', image_url: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=700', col_span: 1, row_span: 1, display_order: 2, is_active: true, created_at: '', updated_at: '' },
+    { id: 'fallback-4', label: 'Body Mists', link_href: '/shop?category=body-mists', image_url: 'https://images.unsplash.com/photo-1780811070739-faa3b575b669?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=700', col_span: 1, row_span: 1, display_order: 3, is_active: true, created_at: '', updated_at: '' },
   ];
   const collections = categoryTiles.length > 0 ? categoryTiles : FALLBACK_TILES;
 
@@ -141,72 +149,24 @@ export default async function Home() {
       <Hero slides={heroSlides} />
       {seasonalPosition === 'after_hero' && seasonalSection}
 
+      {/* ── 1a. Trust Badges — static icon grid restating the same facts as
+             the top marquee, but prominent and unmissable right under the
+             hero's emotional pitch, before any product content. ── */}
+      <TrustBadges />
+
       {/* ── 2. Brand Ticker (Infinite Loop) ── */}
       <BrandTicker brands={brands || []} />
       {seasonalPosition === 'after_brand_ticker' && seasonalSection}
 
-      {/* ── 3. Category Discovery — framed gallery cards, not full-bleed
-             overlay tiles with a hover-reveal caption (the generic pattern
-             Royal used, shared by most fashion e-commerce templates). Each
-             tile is a small "matted print": image inset with a frame margin,
-             caption always visible on its own plaque strip below. ── */}
-      <section className="py-6 md:py-8 w-full bg-ivory">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-5 md:mb-6">
-            <p className="text-xs uppercase tracking-[0.35em] text-gold-deep font-semibold mb-2">
-              {t('shopByCategory')}
-            </p>
-            <h2 className="font-heading text-2xl md:text-3xl font-medium text-ink">
-              {t('findYourCategory')}
-            </h2>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 md:grid-rows-2 gap-2.5 md:gap-4 md:h-[520px]">
-            {collections.map((item) => {
-              // Tailwind's JIT needs these as literal strings somewhere in
-              // source (not built from a template string) to generate them.
-              const colSpanClass = { 1: '', 2: 'md:col-span-2', 3: 'md:col-span-3', 4: 'md:col-span-4' }[item.col_span];
-              const rowSpanClass = { 1: 'md:row-span-1', 2: 'md:row-span-2' }[item.row_span];
-              // Mobile is a fixed 2-up grid (spans only apply from md up), so
-              // every tile gets the same compact aspect-square there. At md
-              // the per-item ratio class is inert: with both md:w-full and
-              // md:h-full making the tile's width/height explicit (not
-              // "auto"), aspect-ratio has no dimension left to compute from,
-              // so the tile simply fills its grid area instead of shrinking
-              // to satisfy the ratio (which is what happened without the
-              // explicit md:w-full — the box shrank to keep the ratio and
-              // left blank space in the rest of its grid cell).
-              const aspectClass = item.row_span === 2 ? 'md:aspect-[3/4]' : item.col_span >= 2 ? 'md:aspect-[4/3]' : 'md:aspect-square';
-
-              return (
-              <Link
-                key={item.id}
-                href={item.link_href}
-                className={`group flex flex-col bg-ivory border border-border hover:border-gold/50 transition-colors overflow-hidden ${colSpanClass} ${rowSpanClass} aspect-square ${aspectClass} md:h-full md:w-full`}
-              >
-                <div className="relative flex-1 overflow-hidden m-1.5 mb-0 md:m-2">
-                  <Image
-                    src={item.image_url}
-                    alt={item.label}
-                    fill
-                    loading="lazy"
-                    sizes="(max-width: 768px) 50vw, 50vw"
-                    // One consistent grading pass (desaturate + warm + darken) so
-                    // photos from different sources still read as one material.
-                    className="object-cover transition-all duration-700 group-hover:scale-105 [filter:grayscale(0.55)_sepia(0.2)_saturate(0.85)_brightness(0.72)]"
-                  />
-                </div>
-                <div className="flex items-center justify-between px-2.5 py-2 md:px-4 md:py-3.5 shrink-0">
-                  <h3 className="text-sm md:text-xl font-heading text-ink font-medium truncate">
-                    {item.label}
-                  </h3>
-                  <ArrowRight className="hidden md:block h-4 w-4 text-gold-deep -translate-x-1 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
-                </div>
-              </Link>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+      {/* ── 3. Category Discovery — large, image-driven editorial cards
+             (Women's/Men's as the hero pair, Gift Sets/Body Mists secondary)
+             with bottom-anchored gradient overlays, bilingual via
+             next-intl rather than the admin-entered `label` column (which
+             isn't locale-aware). Replaces the previous compact "matted
+             print" bento — kept as one section rather than two, since both
+             were the same audience-driven category story at different
+             sizes. ── */}
+      <DiscoverCategories tiles={collections} />
       {seasonalPosition === 'after_gender_collection' && seasonalSection}
 
       {/* ── 3a. Quick Nav — icon shortcuts straight to real shop filters. ── */}
@@ -254,9 +214,10 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ── 4. Browse by Type (Carousel) — deliberately distinct wording and
-             layout from "Find Your Category" above: that one is audience
-             (Men/Women/Unisex/Niche), this is product type (Perfumes, Body
+      {/* ── 4. Browse by Type (Carousel) — deliberately distinct from
+             "Find Your Category" above: that's a curated 4-tile editorial
+             mix (Women's/Men's plus two product types), this is the full,
+             exhaustive list of every product-type category (Perfumes, Body
              Mists, Gift Sets…), so the two sections don't read as repeats. ── */}
       <section className="py-4 md:py-5 w-full bg-secondary/50">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mb-3 md:mb-4">
@@ -336,8 +297,10 @@ export default async function Home() {
       {/* ── 6. Promo Banners — discount/bundle/gift-threshold cards. ── */}
       <PromoBanners />
 
-       {/* ── 7. Brand Breaker (quote) ── */}
-      <BrandBreaker />
+      {/* ── 7. Testimonials — swipeable customer feedback photos, each
+             opening a fullscreen lightbox on click. Replaces the previous
+             static quote "brand breaker" section in this slot. ── */}
+      <Testimonials testimonials={testimonials} />
       {seasonalPosition === 'before_footer' && seasonalSection}
     </div>
   );

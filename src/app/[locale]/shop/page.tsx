@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { PLACEHOLDER_SUPABASE_URL } from '@/utils/supabase/placeholder';
 import ShopClientWrapper from '@/components/shop/ShopClientWrapper';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
@@ -12,8 +13,8 @@ export const revalidate = 60; // Revalidate every minute, or 0 for dynamic
 
 function getSupabase() {
   return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_URL || PLACEHOLDER_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
   );
 }
 

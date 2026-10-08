@@ -93,8 +93,13 @@ const config = {
         "marquee": "marquee 30s linear infinite",
         "marquee-slow": "marquee 55s linear infinite",
         "marquee-banner": "marquee 90s linear infinite",
+        "nudge-x": "nudge-x 1.3s ease-in-out infinite",
       },
       keyframes: {
+        "nudge-x": {
+          "0%, 100%": { transform: "translateX(0)" },
+          "50%": { transform: "translateX(6px)" },
+        },
         "accordion-down": {
           from: { height: "0" },
           to: { height: "var(--radix-accordion-content-height)" },

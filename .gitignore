@@ -54,3 +54,6 @@ docker-compose.override.yml
 # supabase CLI local link cache (project ref/pooler info, not secrets, but
 # ephemeral local state that shouldn't be versioned)
 /supabase/.temp/
+
+.vercel
+.env*

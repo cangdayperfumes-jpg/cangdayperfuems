@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { PLACEHOLDER_SUPABASE_URL } from '@/utils/supabase/placeholder';
 import { Separator } from '@/components/ui/separator';
 import ShippingContent from '@/components/shipping/ShippingContent';
 import { Link } from '@/i18n/navigation';
@@ -30,8 +31,8 @@ export default async function ShippingPage() {
   // Cookie-free client: this page only reads public data, and cookies() would
   // force fully dynamic (uncached) rendering, overriding `revalidate` above.
   const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_URL || PLACEHOLDER_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
   );
   const { data: zones } = await supabase
     .from('shipping_zones')

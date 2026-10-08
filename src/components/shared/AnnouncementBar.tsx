@@ -22,10 +22,10 @@ function Row({ t, hidden }: { t: (key: (typeof ITEMS)[number]['key']) => string;
       {REPEATED_ITEMS.map(({ icon: Icon, key }, index) => (
         <Fragment key={`${key}-${index}`}>
           <div className="flex items-center gap-2 whitespace-nowrap">
-            <Icon className="h-3.5 w-3.5 text-gold-deep shrink-0" strokeWidth={1.75} />
-            <span className="text-[11px] font-medium tracking-wide text-ink/70">{t(key)}</span>
+            <Icon className="h-3.5 w-3.5 text-gold shrink-0" strokeWidth={1.75} />
+            <span className="text-[11px] font-medium tracking-wide text-ivory/90">{t(key)}</span>
           </div>
-          <span aria-hidden="true" className="inline-block h-1 w-1 rotate-45 border border-gold/50 shrink-0" />
+          <span aria-hidden="true" className="inline-block h-1 w-1 rotate-45 border border-gold/60 shrink-0" />
         </Fragment>
       ))}
     </div>
@@ -33,16 +33,16 @@ function Row({ t, hidden }: { t: (key: (typeof ITEMS)[number]['key']) => string;
 }
 
 /**
- * Light, continuously auto-scrolling strip above the header — same marquee
+ * Continuously auto-scrolling strip above the header — same marquee
  * technique as BrandTicker (two duplicated rows translated via CSS, no JS
- * timer), but on an ivory ground instead of ink so it reads as part of the
- * light chrome, not a dark holdover. Visible at every breakpoint, unlike the
+ * timer). Uses the brand burgundy as an accent ground to draw the eye before
+ * the rest of the (ivory) chrome. Visible at every breakpoint, unlike the
  * old desktop-only static TrustBar it replaces.
  */
 export default function AnnouncementBar() {
   const t = useTranslations('trustBar');
   return (
-    <div className="w-full bg-ivory border-b border-border overflow-hidden">
+    <div className="w-full bg-burgundy border-b border-burgundy overflow-hidden">
       <div
         className="flex whitespace-nowrap h-8 items-center"
         style={{ maskImage: 'linear-gradient(to right, transparent, black 14%, black 86%, transparent)' }}

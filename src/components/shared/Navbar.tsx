@@ -96,7 +96,7 @@ export default function Navbar({ categories = [] }: NavbarProps) {
       )}
       suppressHydrationWarning
     >
-      <div className="container grid grid-cols-[auto_1fr_auto] md:grid-cols-3 items-center h-16 md:h-20 gap-4">
+      <div className="container relative flex items-center justify-between h-16 md:h-20 gap-4">
         {/* Left: mobile trigger + desktop link group */}
         <div className="flex items-center gap-6">
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -249,8 +249,13 @@ export default function Navbar({ categories = [] }: NavbarProps) {
           </div>
         </div>
 
-        {/* Center: logo, dead-center regardless of side content width */}
-        <Link href="/" className="flex flex-col items-center justify-self-center leading-none">
+        {/* Center: logo, absolutely positioned so it stays dead-center on
+            the viewport regardless of how wide the left/right content is
+            (a grid's middle 1fr track only centers between the side
+            tracks, which drifts off-center whenever they're unequal width —
+            e.g. once the mobile language switcher made the right side wider
+            than the hamburger button on the left). */}
+        <Link href="/" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center leading-none">
           <span className="text-xl md:text-2xl font-heading font-semibold tracking-tight">
             Cangday
           </span>
@@ -271,7 +276,7 @@ export default function Navbar({ categories = [] }: NavbarProps) {
           </div>
 
           <div className="flex items-center gap-1">
-            <LanguageSwitcher className="hidden md:flex mr-1" />
+            <LanguageSwitcher className="flex mr-1" />
 
             <Button
               variant="ghost"
@@ -304,8 +309,8 @@ export default function Navbar({ categories = [] }: NavbarProps) {
       </div>
 
       {/* Inline search panel — drops down below the nav instead of taking
-          over the centered-logo header, so the 3-column grid above never
-          has to rearrange itself to make room for an input. */}
+          over the centered-logo header, so the row above never has to
+          rearrange itself to make room for an input. */}
       {isSearchOpen && (
         <div
           ref={searchPanelRef}
