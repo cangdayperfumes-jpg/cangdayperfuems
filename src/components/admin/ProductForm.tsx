@@ -7,21 +7,19 @@ import * as z from 'zod';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
-import { Loader2, Upload, X, Check, ChevronsUpDown, Plus, ZoomIn, ZoomOut } from 'lucide-react';
+import { Loader2, Upload, X, Check, ChevronsUpDown, Plus } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from "sonner";
-import Cropper from 'react-easy-crop';
-import getCroppedImg from '@/lib/cropImage';
 import { validateImageFile, uploadToProductsBucket } from '@/lib/upload-image';
+import ImageUploadField from '@/components/admin/ImageUploadField';
+import ImageCropEditorModal from '@/components/admin/ImageCropEditorModal';
+import type { CropMeta } from '@/lib/image-crop';
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogClose,
-} from '@/components/ui/dialog';
+// Matches ProductCard's responsive aspect classes (aspect-[4/5] mobile,
+// aspect-[3/4] desktop) so the crop editor's frame matches what actually
+// renders on the storefront grid.
+const PRODUCT_DESKTOP_ASPECT = 3 / 4;
+const PRODUCT_MOBILE_ASPECT = 4 / 5;
 
 import { Button } from '@/components/ui/button';
 import {
@@ -105,14 +103,14 @@ export default function ProductForm({ initialData, categories: initialCategories
   const [openBrand, setOpenBrand] = useState(false);
   const [searchValue, setSearchValue] = useState("");
 
-  // Crop states
-  const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
-  const [selectedImageStr, setSelectedImageStr] = useState<string | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [isCropModalOpen, setIsCropModalOpen] = useState(false);
-  
+  // Optional mobile-only override for the cover image, with graceful
+  // fallback to images[0] when not set — see src/lib/image-crop.ts for why
+  // crop is stored as non-destructive metadata rather than a baked file.
+  const [mobileImage, setMobileImage] = useState<string | null>(initialData?.mobile_image_url ?? null);
+  const [cropDesktop, setCropDesktop] = useState<CropMeta | null>(initialData?.image_crop_desktop ?? null);
+  const [cropMobile, setCropMobile] = useState<CropMeta | null>(initialData?.image_crop_mobile ?? null);
+  const [isCropEditorOpen, setIsCropEditorOpen] = useState(false);
+
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema) as any,
     defaultValues: initialData ? {
@@ -200,6 +198,9 @@ export default function ProductForm({ initialData, categories: initialCategories
           target_audience: data.target_audience,
           is_active: data.is_active,
           images: data.images,
+          mobile_image_url: mobileImage || null,
+          image_crop_desktop: cropDesktop,
+          image_crop_mobile: cropMobile,
           has_variants: data.has_variants,
           price: derivedPrice,
           discount: data.has_variants ? 0 : data.discount,
@@ -341,11 +342,12 @@ export default function ProductForm({ initialData, categories: initialCategories
      }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
     const file = files[0];
+    e.target.value = ''; // reset input
 
     const validation = validateImageFile(file);
     if (!validation.valid) {
@@ -353,40 +355,16 @@ export default function ProductForm({ initialData, categories: initialCategories
       return;
     }
 
-    setSelectedFile(file);
-    const objectUrl = URL.createObjectURL(file);
-    setSelectedImageStr(objectUrl);
-    setIsCropModalOpen(true);
-    e.target.value = ''; // reset input
-  };
-
-  const onCropComplete = (croppedArea: any, croppedAreaPixels: any) => {
-    setCroppedAreaPixels(croppedAreaPixels);
-  };
-
-  const handleCropConfirm = async () => {
-    if (!selectedImageStr || !croppedAreaPixels || !selectedFile) return;
-
-    // Close the crop modal immediately — the upload continues in the
-    // background with a skeleton tile in the images grid as progress feedback.
-    const imageToCrop = selectedImageStr;
-    const cropArea = croppedAreaPixels;
-    setIsCropModalOpen(false);
-    setSelectedImageStr(null);
-    setSelectedFile(null);
-
+    // Stores the true original — no upload-time crop bake. Framing is set
+    // afterward (and non-destructively) via "Edit crop" on the cover image.
     try {
       setUploading(true);
-      const croppedFile = await getCroppedImg(imageToCrop, cropArea);
-      if (!croppedFile) throw new Error("Failed to crop image");
-
-      const publicUrl = await uploadToProductsBucket(supabase, croppedFile);
-
+      const publicUrl = await uploadToProductsBucket(supabase, file);
       const currentImages = form.getValues('images') || [];
       form.setValue('images', [...currentImages, publicUrl]);
     } catch (error) {
-       console.error('Error uploading cropped image:', error);
-       alert(t('errorUploadingImageBucket'));
+      console.error('Error uploading image:', error);
+      alert(t('errorUploadingImageBucket'));
     } finally {
       setUploading(false);
     }
@@ -396,14 +374,21 @@ export default function ProductForm({ initialData, categories: initialCategories
       // Only drops the reference from this product — the file may be shared
       // (uploads are content-addressed/deduped) so it's not deleted from storage.
       const currentImages = form.getValues('images') || [];
-      form.setValue('images', currentImages.filter(url => url !== urlToRemove));
+      const wasCover = currentImages[0] === urlToRemove;
+      const nextImages = currentImages.filter(url => url !== urlToRemove);
+      form.setValue('images', nextImages);
+      // The cover image changed identity — a previously-saved crop box no
+      // longer corresponds to the image it would now apply to.
+      if (wasCover && nextImages[0] !== currentImages[0]) {
+        setCropDesktop(null);
+        setCropMobile(null);
+      }
   };
 
   return (
-    <>
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-6xl bg-white p-6 rounded-lg border shadow-sm">
-        
+
         <div className="grid grid-cols-1 gap-6">
             <FormField
             control={form.control}
@@ -770,12 +755,22 @@ export default function ProductForm({ initialData, categories: initialCategories
 
         <div className="space-y-4">
             <FormLabel>{t('images')}</FormLabel>
+            <p className="text-xs text-muted-foreground">{t('coverImageHint')}</p>
             <div className="flex flex-wrap gap-4">
                 {form.watch('images')?.map((url, index) => (
                     <div key={index} className="relative group">
                         <div className="relative w-24 h-32 rounded-md overflow-hidden border">
                           <Image src={url} alt="Product" fill sizes="96px" className="object-cover" />
                         </div>
+                        {index === 0 && (
+                            <button
+                                type="button"
+                                onClick={() => setIsCropEditorOpen(true)}
+                                className="absolute bottom-1 left-1 right-1 bg-black/70 text-white text-[10px] leading-tight rounded py-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                                {t('editCropAction')}
+                            </button>
+                        )}
                         <button
                             type="button"
                             onClick={() => removeImage(url)}
@@ -796,8 +791,8 @@ export default function ProductForm({ initialData, categories: initialCategories
                     ) : (
                         <Upload className="h-6 w-6 text-gray-400" />
                     )}
-                    <input 
-                        type="file" 
+                    <input
+                        type="file"
                         accept="image/*"
                         className="absolute inset-0 opacity-0 cursor-pointer"
                         onChange={handleImageUpload}
@@ -805,6 +800,32 @@ export default function ProductForm({ initialData, categories: initialCategories
                     />
                 </div>
             </div>
+
+            <ImageUploadField
+              label={t('mobileImageLabel')}
+              value={mobileImage}
+              onChange={setMobileImage}
+              uploadPrefix="products/mobile/"
+              aspectClassName="h-40"
+              hint={t('mobileImageHint')}
+            />
+
+            {form.watch('images')?.[0] && (
+              <ImageCropEditorModal
+                open={isCropEditorOpen}
+                onOpenChange={setIsCropEditorOpen}
+                imageUrl={form.watch('images')![0]}
+                title={t('coverImageHint')}
+                desktopAspect={PRODUCT_DESKTOP_ASPECT}
+                mobileAspect={PRODUCT_MOBILE_ASPECT}
+                initialDesktopCrop={cropDesktop}
+                initialMobileCrop={cropMobile}
+                onSave={({ desktop, mobile }) => {
+                  setCropDesktop(desktop);
+                  setCropMobile(mobile);
+                }}
+              />
+            )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -861,53 +882,5 @@ export default function ProductForm({ initialData, categories: initialCategories
         </div>
       </form>
     </Form>
-    
-    {/* Crop Modal */}
-    <Dialog open={isCropModalOpen} onOpenChange={setIsCropModalOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>{t('cropImage')}</DialogTitle>
-          </DialogHeader>
-          <div className="relative h-[400px] w-full bg-black rounded-md overflow-hidden">
-             {selectedImageStr && (
-                <Cropper
-                  image={selectedImageStr}
-                  crop={crop}
-                  zoom={zoom}
-                  aspect={3 / 4}
-                  onCropChange={setCrop}
-                  onCropComplete={onCropComplete}
-                  onZoomChange={setZoom}
-                />
-             )}
-          </div>
-          <div className="flex items-center gap-4 py-4">
-              <ZoomOut className="w-5 h-5 text-gray-500" />
-              <input
-                  type="range"
-                  value={zoom}
-                  min={1}
-                  max={3}
-                  step={0.1}
-                  aria-labelledby="Zoom"
-                  onChange={(e) => {
-                      setZoom(Number(e.target.value));
-                  }}
-                  className="w-full"
-              />
-              <ZoomIn className="w-5 h-5 text-gray-500" />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsCropModalOpen(false)}>
-              {tc('cancel')}
-            </Button>
-            <Button onClick={handleCropConfirm} disabled={uploading}>
-              {uploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {t('cropAndUpload')}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-    </Dialog>
-    </>
   );
 }

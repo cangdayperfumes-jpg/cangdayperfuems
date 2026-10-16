@@ -2,21 +2,32 @@
 
 import { useState } from 'react';
 import ImageWithFallback from '@/components/shared/ImageWithFallback';
+import ResponsiveCroppedImage from '@/components/shared/ResponsiveCroppedImage';
 import { cn } from '@/lib/utils';
+import type { CropMeta } from '@/lib/image-crop';
 
 interface ProductGalleryProps {
   images: string[];
   name: string;
+  /** Mobile override + crop apply only to the cover (images[0]) — a crop set
+   *  for the cover has no defined meaning for the other gallery photos. */
+  mobileImageUrl?: string | null;
+  cropDesktop?: CropMeta | null;
+  cropMobile?: CropMeta | null;
 }
 
-export default function ProductGallery({ images, name }: ProductGalleryProps) {
+export default function ProductGallery({ images, name, mobileImageUrl, cropDesktop, cropMobile }: ProductGalleryProps) {
   const [selectedImage, setSelectedImage] = useState(images[0] || '/placeholder.svg');
+  const isViewingCover = selectedImage === images[0];
 
   return (
     <div className="flex flex-col gap-2.5 md:gap-3">
       <div className="relative aspect-[4/5] overflow-hidden bg-gray-100 dark:bg-gray-800 rounded-lg">
-        <ImageWithFallback
+        <ResponsiveCroppedImage
           src={selectedImage}
+          mobileSrc={isViewingCover ? mobileImageUrl : undefined}
+          cropDesktop={isViewingCover ? cropDesktop : undefined}
+          cropMobile={isViewingCover ? cropMobile : undefined}
           alt={name}
           fill
           className="object-cover object-center"

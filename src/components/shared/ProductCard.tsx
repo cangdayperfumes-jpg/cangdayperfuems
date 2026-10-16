@@ -1,7 +1,7 @@
 'use client';
 
 import { Link, useRouter } from '@/i18n/navigation';
-import ImageWithFallback from '@/components/shared/ImageWithFallback';
+import ResponsiveCroppedImage from '@/components/shared/ResponsiveCroppedImage';
 import { Product } from '@/types';
 import { formatCurrency } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -100,8 +100,11 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
             </div>
             )}
 
-            <ImageWithFallback
+            <ResponsiveCroppedImage
             src={mainImage}
+            mobileSrc={product.mobile_image_url}
+            cropDesktop={product.image_crop_desktop}
+            cropMobile={product.image_crop_mobile}
             alt={product.name_en}
             fill
             priority={priority}

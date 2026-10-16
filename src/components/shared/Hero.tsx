@@ -2,20 +2,30 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { Link } from '@/i18n/navigation';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
 import { HeroSlide } from '@/types';
+import ResponsiveCroppedImage from '@/components/shared/ResponsiveCroppedImage';
+import type { CropMeta } from '@/lib/image-crop';
 
-const OBJECT_POSITION: Record<HeroSlide['image_position'], string> = {
-  center: '70% center',
-  top: '70% top',
-  bottom: '70% bottom',
-  left: 'left center',
-  right: 'right center',
+// Legacy focal-point presets, kept as the fallback for slides with no
+// image_crop_desktop/mobile set yet. Expressed as full-frame CropMeta boxes
+// (100% width/height, zoom 1) so they flow through the same rendering path
+// as a real crop — only the center point differs.
+const LEGACY_FOCAL_CENTER: Record<HeroSlide['image_position'], { x: number; y: number }> = {
+  center: { x: 70, y: 50 },
+  top: { x: 70, y: 0 },
+  bottom: { x: 70, y: 100 },
+  left: { x: 0, y: 50 },
+  right: { x: 100, y: 50 },
 };
+
+function legacyFocalCrop(position: HeroSlide['image_position']): CropMeta {
+  const { x, y } = LEGACY_FOCAL_CENTER[position];
+  return { x: x - 50, y: y - 50, width: 100, height: 100, zoom: 1 };
+}
 
 // Used only if no slides are configured yet in /admin/marketing/hero-slides —
 // keeps the homepage looking intentional before the admin sets one up.
@@ -47,14 +57,15 @@ function Slide({ slide, priority }: { slide: HeroSlide; priority: boolean }) {
   return (
     <div className="relative h-full w-full overflow-hidden bg-ivory text-ink">
       <div className="absolute inset-0 z-0">
-        <Image
+        <ResponsiveCroppedImage
           src={slide.image_url}
           alt=""
           fill
           priority={priority}
           fetchPriority={priority ? 'high' : 'auto'}
           sizes="100vw"
-          style={{ objectPosition: OBJECT_POSITION[slide.image_position] }}
+          cropDesktop={slide.image_crop_desktop ?? legacyFocalCrop(slide.image_position)}
+          cropMobile={slide.image_crop_mobile ?? legacyFocalCrop(slide.image_position)}
           className="object-cover"
         />
         {/* Light ivory scrim, strongest where the text sits (left) and clear

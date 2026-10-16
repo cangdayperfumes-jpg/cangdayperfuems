@@ -111,7 +111,7 @@ async function getRelatedProducts(
   if (categoryId) {
     const { data } = await supabase
       .from('products')
-      .select('id, name_en, slug, price, discount, images, stock, has_variants, is_popular, product_variants(*)')
+      .select('id, name_en, slug, price, discount, images, mobile_image_url, image_crop_desktop, image_crop_mobile, stock, has_variants, is_popular, product_variants(*)')
       .eq('category_id', categoryId)
       .eq('is_active', true)
       .neq('id', productId)
@@ -128,7 +128,7 @@ async function getRelatedProducts(
   if (results.length < limit && brandId) {
     const { data } = await supabase
       .from('products')
-      .select('id, name_en, slug, price, discount, images, stock, has_variants, is_popular, product_variants(*)')
+      .select('id, name_en, slug, price, discount, images, mobile_image_url, image_crop_desktop, image_crop_mobile, stock, has_variants, is_popular, product_variants(*)')
       .eq('brand_id', brandId)
       .eq('is_active', true)
       .neq('id', productId)
@@ -355,7 +355,13 @@ export default async function ProductPage({ params }: PageProps) {
         <div className="grid grid-cols-1 gap-6 md:gap-10 lg:grid-cols-2 lg:gap-14 lg:items-start">
           {/* Left: Gallery — sticks in view on large screens while a long description scrolls */}
           <div className="lg:sticky lg:top-20 max-w-md mx-auto lg:mx-0 w-full">
-            <ProductGallery images={product.images || []} name={product.name_en} />
+            <ProductGallery
+              images={product.images || []}
+              name={product.name_en}
+              mobileImageUrl={product.mobile_image_url}
+              cropDesktop={product.image_crop_desktop}
+              cropMobile={product.image_crop_mobile}
+            />
           </div>
 
           {/* Right: Details */}

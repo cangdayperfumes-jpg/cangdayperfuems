@@ -17,6 +17,8 @@ interface ImageUploadFieldProps {
   uploadPrefix: string;
   hint?: string;
   aspectClassName?: string;
+  /** Shows an "Edit crop" button next to the preview when provided. */
+  onEditCrop?: () => void;
 }
 
 /**
@@ -32,10 +34,12 @@ export default function ImageUploadField({
   uploadPrefix,
   hint,
   aspectClassName = 'h-40',
+  onEditCrop,
 }: ImageUploadFieldProps) {
   const [uploading, setUploading] = useState(false);
   const supabase = createClient();
   const t = useTranslations('imageUpload');
+  const tCrop = useTranslations('imageCrop');
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
@@ -75,15 +79,22 @@ export default function ImageUploadField({
             sizes="(max-width: 768px) 100vw, 512px"
             className="object-cover"
           />
-          <Button
-            type="button"
-            variant="destructive"
-            size="icon"
-            className="absolute top-2 right-2 h-7 w-7"
-            onClick={() => onChange(null)}
-          >
-            <X className="h-3.5 w-3.5" />
-          </Button>
+          <div className="absolute top-2 right-2 flex gap-1.5">
+            {onEditCrop && (
+              <Button type="button" variant="secondary" size="sm" className="h-7" onClick={onEditCrop}>
+                {tCrop('editCrop')}
+              </Button>
+            )}
+            <Button
+              type="button"
+              variant="destructive"
+              size="icon"
+              className="h-7 w-7"
+              onClick={() => onChange(null)}
+            >
+              <X className="h-3.5 w-3.5" />
+            </Button>
+          </div>
         </div>
       )}
     </div>

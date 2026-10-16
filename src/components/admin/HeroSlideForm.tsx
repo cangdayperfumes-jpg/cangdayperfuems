@@ -30,12 +30,20 @@ import {
 } from '@/components/ui/form';
 
 import ImageUploadField from '@/components/admin/ImageUploadField';
+import ImageCropEditorModal from '@/components/admin/ImageCropEditorModal';
 import { HeroSlide } from '@/types';
+import type { CropMeta } from '@/lib/image-crop';
 import {
   createHeroSlide,
   updateHeroSlide,
   HeroSlideInput,
 } from '@/app/admin/marketing/hero-slides/actions';
+
+// Approximate — the live hero section is fluid-height (clamped vh, not a
+// fixed box), so these are representative guides for the crop editor rather
+// than an exact match to every viewport size.
+const HERO_DESKTOP_ASPECT = 2.6;
+const HERO_MOBILE_ASPECT = 1;
 
 function buildHeroSlideSchema(t: (key: string) => string) {
   return z.object({
@@ -65,6 +73,9 @@ export default function HeroSlideForm({ initialData }: HeroSlideFormProps) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [image, setImage] = useState<string | null>(initialData?.image_url || null);
+  const [cropDesktop, setCropDesktop] = useState<CropMeta | null>(initialData?.image_crop_desktop ?? null);
+  const [cropMobile, setCropMobile] = useState<CropMeta | null>(initialData?.image_crop_mobile ?? null);
+  const [isCropEditorOpen, setIsCropEditorOpen] = useState(false);
 
   const heroSlideSchema = buildHeroSlideSchema(t);
 
@@ -100,6 +111,8 @@ export default function HeroSlideForm({ initialData }: HeroSlideFormProps) {
         subheading: values.subheading || null,
         image_url: image,
         image_position: values.image_position,
+        image_crop_desktop: cropDesktop,
+        image_crop_mobile: cropMobile,
         button_text: values.button_text,
         button_link: values.button_link,
         secondary_button_text: values.secondary_button_text || null,
@@ -199,10 +212,33 @@ export default function HeroSlideForm({ initialData }: HeroSlideFormProps) {
           <ImageUploadField
             label={t('slideImageLabel')}
             value={image}
-            onChange={setImage}
+            onChange={(url) => {
+              setImage(url);
+              // A replaced image invalidates any crop computed for the old one.
+              setCropDesktop(null);
+              setCropMobile(null);
+            }}
             uploadPrefix="hero-slides/"
             aspectClassName="h-56"
+            hint={t('slideImageHint')}
+            onEditCrop={image ? () => setIsCropEditorOpen(true) : undefined}
           />
+          {image && (
+            <ImageCropEditorModal
+              open={isCropEditorOpen}
+              onOpenChange={setIsCropEditorOpen}
+              imageUrl={image}
+              title={t('slideImageLabel')}
+              desktopAspect={HERO_DESKTOP_ASPECT}
+              mobileAspect={HERO_MOBILE_ASPECT}
+              initialDesktopCrop={cropDesktop}
+              initialMobileCrop={cropMobile}
+              onSave={({ desktop, mobile }) => {
+                setCropDesktop(desktop);
+                setCropMobile(mobile);
+              }}
+            />
+          )}
           <FormField
             control={form.control}
             name="image_position"

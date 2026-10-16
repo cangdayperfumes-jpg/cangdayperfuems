@@ -1,3 +1,5 @@
+import type { CropMeta } from '@/lib/image-crop';
+
 export interface Product {
   id: string;
   name_en: string;
@@ -9,6 +11,11 @@ export interface Product {
   brand_id: string | null;
   stock: boolean;
   images: string[];
+  /** Optional override shown on mobile in place of images[0]; falls back to it when null. */
+  mobile_image_url?: string | null;
+  /** Non-destructive focal-point/zoom crop applied to the cover image (images[0] on desktop, mobile_image_url ?? images[0] on mobile). */
+  image_crop_desktop?: CropMeta | null;
+  image_crop_mobile?: CropMeta | null;
   is_active: boolean;
   target_audience: string; // 'Men', 'Women', 'Unisex'
   is_popular: boolean;
@@ -34,6 +41,8 @@ export interface Category {
   image_url?: string | null;
   description?: string | null;
   is_featured?: boolean;
+  image_crop_desktop?: CropMeta | null;
+  image_crop_mobile?: CropMeta | null;
 }
 
 export interface Brand {
@@ -42,6 +51,8 @@ export interface Brand {
   slug: string;
   image_url?: string | null;
   is_featured?: boolean;
+  image_crop_desktop?: CropMeta | null;
+  image_crop_mobile?: CropMeta | null;
 }
 
 export interface Address {
@@ -123,6 +134,8 @@ export interface HeroSlide {
   subheading?: string | null;
   image_url: string;
   image_position: 'center' | 'top' | 'bottom' | 'left' | 'right';
+  image_crop_desktop?: CropMeta | null;
+  image_crop_mobile?: CropMeta | null;
   button_text: string;
   button_link: string;
   secondary_button_text?: string | null;
@@ -140,6 +153,8 @@ export interface CategoryTile {
   link_href: string;
   col_span: 1 | 2 | 3 | 4;
   row_span: 1 | 2;
+  image_crop_desktop?: CropMeta | null;
+  image_crop_mobile?: CropMeta | null;
   display_order: number;
   is_active: boolean;
   created_at: string;

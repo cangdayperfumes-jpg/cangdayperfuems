@@ -293,7 +293,8 @@
     "subheadingPlaceholder": "A short line supporting the headline...",
     "sectionMedia": "Media",
     "slideImageLabel": "Slide Image",
-    "imageFocalPointLabel": "Image Focal Point",
+    "slideImageHint": "Wide banner on desktop, taller/squarer on mobile — use \"Edit crop\" to set an independent focal point and zoom for each.",
+    "imageFocalPointLabel": "Image Focal Point (fallback when no crop is set)",
     "sectionCta": "Call to Action",
     "primaryButtonTextLabel": "Primary Button Text",
     "primaryButtonTextPlaceholder": "Shop the Collection",
@@ -497,6 +498,10 @@
     "popularItem": "Popular Item",
     "popularItemDescription": "Feature this product as popular",
     "images": "Images",
+    "coverImageHint": "First image is the cover shown in listings and the product page. Independent desktop/mobile crop applies to it.",
+    "editCropAction": "Edit crop",
+    "mobileImageLabel": "Mobile Image (optional)",
+    "mobileImageHint": "Shown on mobile instead of the cover image. Leave empty to use the cover image on mobile too.",
     "inStockDescription": "Is this product available?",
     "activeDescription": "Show in store?",
     "updateProduct": "Update Product",
@@ -520,6 +525,16 @@
   "imageUpload": {
     "errorUploadingImage": "Error uploading image",
     "uploading": "Uploading..."
+  },
+  "imageCrop": {
+    "editCrop": "Edit crop",
+    "desktop": "Desktop",
+    "mobile": "Mobile",
+    "zoom": "Zoom",
+    "reset": "Reset",
+    "save": "Save",
+    "cancel": "Cancel",
+    "usesDesktopFallback": "Using the desktop image (no mobile override set)"
   },
   "bulkImport": {
     "failedToExportProducts": "Failed to export products",

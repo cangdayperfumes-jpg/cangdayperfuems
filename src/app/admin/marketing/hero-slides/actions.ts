@@ -3,6 +3,7 @@
 import { createClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { HeroSlide } from '@/types';
+import type { CropMeta } from '@/lib/image-crop';
 
 export interface HeroSlideInput {
   eyebrow: string;
@@ -11,6 +12,8 @@ export interface HeroSlideInput {
   subheading?: string | null;
   image_url: string;
   image_position: HeroSlide['image_position'];
+  image_crop_desktop?: CropMeta | null;
+  image_crop_mobile?: CropMeta | null;
   button_text: string;
   button_link: string;
   secondary_button_text?: string | null;

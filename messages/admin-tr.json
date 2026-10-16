@@ -293,7 +293,8 @@
     "subheadingPlaceholder": "Başlığı destekleyen kısa bir satır...",
     "sectionMedia": "Medya",
     "slideImageLabel": "Slayt Görseli",
-    "imageFocalPointLabel": "Görsel Odak Noktası",
+    "slideImageHint": "Masaüstünde geniş banner, mobilde daha dar/kare — her biri için bağımsız odak noktası ve yakınlaştırma ayarlamak için \"Kırpmayı düzenle\"yi kullanın.",
+    "imageFocalPointLabel": "Görsel Odak Noktası (kırpma ayarlanmadığında kullanılır)",
     "sectionCta": "Harekete Geçirici Mesaj",
     "primaryButtonTextLabel": "Birincil Buton Metni",
     "primaryButtonTextPlaceholder": "Koleksiyonu İncele",
@@ -497,6 +498,10 @@
     "popularItem": "Popüler Ürün",
     "popularItemDescription": "Bu ürünü popüler olarak öne çıkar",
     "images": "Görseller",
+    "coverImageHint": "İlk görsel, listelerde ve ürün sayfasında gösterilen kapak görselidir. Bağımsız masaüstü/mobil kırpma ona uygulanır.",
+    "editCropAction": "Kırpmayı düzenle",
+    "mobileImageLabel": "Mobil Görsel (opsiyonel)",
+    "mobileImageHint": "Mobilde kapak görseli yerine gösterilir. Mobilde de kapak görselinin kullanılması için boş bırakın.",
     "inStockDescription": "Bu ürün satışa hazır mı?",
     "activeDescription": "Mağazada gösterilsin mi?",
     "updateProduct": "Ürünü Güncelle",
@@ -520,6 +525,16 @@
   "imageUpload": {
     "errorUploadingImage": "Görsel yüklenirken hata oluştu",
     "uploading": "Yükleniyor..."
+  },
+  "imageCrop": {
+    "editCrop": "Kırpmayı düzenle",
+    "desktop": "Masaüstü",
+    "mobile": "Mobil",
+    "zoom": "Yakınlaştırma",
+    "reset": "Sıfırla",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "usesDesktopFallback": "Masaüstü görseli kullanılıyor (mobil görsel ayarlanmadı)"
   },
   "bulkImport": {
     "failedToExportProducts": "Ürünler dışa aktarılamadı",
