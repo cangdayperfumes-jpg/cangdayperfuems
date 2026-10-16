@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { ShoppingBag, Search, Menu, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -91,12 +92,17 @@ export default function Navbar({ categories = [] }: NavbarProps) {
   return (
     <nav
       className={cn(
-        'sticky top-0 z-50 w-full bg-ivory text-ink transition-shadow duration-300',
+        'w-full bg-ivory text-ink transition-shadow duration-300',
         isScrolled ? 'shadow-[0_4px_20px_rgba(0,0,0,0.08)]' : 'border-b border-border'
       )}
       suppressHydrationWarning
     >
-      <div className="container relative flex items-center justify-between h-16 md:h-20 gap-4">
+      <div
+        className={cn(
+          'container relative flex items-center justify-between gap-4 transition-[height] duration-300',
+          isScrolled ? 'h-14 md:h-16' : 'h-16 md:h-20'
+        )}
+      >
         {/* Left: mobile trigger + desktop link group */}
         <div className="flex items-center gap-6">
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -256,12 +262,17 @@ export default function Navbar({ categories = [] }: NavbarProps) {
             e.g. once the mobile language switcher made the right side wider
             than the hamburger button on the left). */}
         <Link href="/" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center leading-none">
-          <span className="text-xl md:text-2xl font-heading font-semibold tracking-tight">
-            Cangday
-          </span>
-          <span className="hidden sm:block text-[9px] md:text-[10px] font-body uppercase tracking-[0.2em] text-gold/80">
-            {t('tagline')}
-          </span>
+          <Image
+            src="/images/cangday-logo.png"
+            alt="Cangday — Modern Perfumery"
+            width={2172}
+            height={724}
+            priority
+            className={cn(
+              'w-auto transition-[height] duration-300',
+              isScrolled ? 'h-9 md:h-12' : 'h-12 md:h-16'
+            )}
+          />
         </Link>
 
         {/* Right: desktop link group + icons */}

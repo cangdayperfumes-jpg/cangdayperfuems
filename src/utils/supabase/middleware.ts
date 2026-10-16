@@ -9,7 +9,7 @@ export async function updateSession(request: NextRequest) {
   // routes through unauthenticated so the dashboard can be built without a
   // DB. This re-enables itself automatically once real project values are set.
   if (isAdminRoute && isPlaceholderSupabaseProject()) {
-    if (request.nextUrl.pathname === '/admin/login') {
+    if (request.nextUrl.pathname === '/admin/login' || request.nextUrl.pathname === '/admin/reset-password') {
       return NextResponse.redirect(new URL('/admin', request.url))
     }
     return NextResponse.next()
@@ -56,6 +56,13 @@ export async function updateSession(request: NextRequest) {
           if (user) {
               return NextResponse.redirect(new URL('/admin', request.url))
           }
+          return response;
+      }
+
+      // Allow access to the password-recovery page even when signed out —
+      // it authenticates itself client-side from the recovery link's token,
+      // which lives in the URL hash and never reaches this server-side check.
+      if (request.nextUrl.pathname === '/admin/reset-password') {
           return response;
       }
 

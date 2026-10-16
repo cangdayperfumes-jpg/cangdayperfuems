@@ -25,10 +25,10 @@ export default async function ContactPage() {
           <div>
             <p className="font-medium">{t('email')}</p>
             <a
-              href="mailto:hello@cangday.com"
+              href="mailto:support@cangdayperfume.com"
               className="text-muted-foreground hover:text-black transition-colors"
             >
-              hello@cangday.com
+              support@cangdayperfume.com
             </a>
           </div>
         </div>

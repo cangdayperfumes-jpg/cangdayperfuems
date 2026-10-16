@@ -1,6 +1,8 @@
-import { Truck, Gift, ShieldCheck, RotateCcw } from 'lucide-react';
+'use client';
+
+import { Truck, Gift, ShieldCheck, RotateCcw, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Fragment } from 'react';
+import { Fragment, useState } from 'react';
 
 const ITEMS = [
   { icon: Truck, key: 'freeShipping' },
@@ -41,8 +43,13 @@ function Row({ t, hidden }: { t: (key: (typeof ITEMS)[number]['key']) => string;
  */
 export default function AnnouncementBar() {
   const t = useTranslations('trustBar');
+  const tNav = useTranslations('nav');
+  const [isVisible, setIsVisible] = useState(true);
+
+  if (!isVisible) return null;
+
   return (
-    <div className="w-full bg-burgundy border-b border-burgundy overflow-hidden">
+    <div className="relative w-full bg-burgundy border-b border-burgundy overflow-hidden">
       <div
         className="flex whitespace-nowrap h-8 items-center"
         style={{ maskImage: 'linear-gradient(to right, transparent, black 14%, black 86%, transparent)' }}
@@ -50,6 +57,14 @@ export default function AnnouncementBar() {
         <Row t={t} />
         <Row t={t} hidden />
       </div>
+      <button
+        type="button"
+        aria-label={tNav('close')}
+        onClick={() => setIsVisible(false)}
+        className="absolute right-0 top-0 h-8 w-8 flex items-center justify-center bg-burgundy text-ivory/60 hover:text-ivory transition-colors"
+      >
+        <X className="h-3.5 w-3.5" strokeWidth={2} />
+      </button>
     </div>
   );
 }

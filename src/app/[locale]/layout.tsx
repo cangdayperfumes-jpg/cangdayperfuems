@@ -15,6 +15,7 @@ import ScrollToTop from "@/components/shared/ScrollToTop";
 import SitePopup from "@/components/shared/SitePopup";
 import CookieBanner from "@/components/shared/CookieBanner";
 import AnnouncementBar from "@/components/shared/AnnouncementBar";
+import AuthRecoveryRedirect from "@/components/shared/AuthRecoveryRedirect";
 import { Toaster } from "@/components/ui/sonner";
 import NextTopLoader from "nextjs-toploader";
 import { createClient } from "@supabase/supabase-js";
@@ -241,12 +242,15 @@ export default async function LocaleLayout({
           showSpinner={false}
           shadow="0 0 10px rgb(var(--brand-gold)),0 0 5px rgb(var(--brand-gold))"
         />
+        <AuthRecoveryRedirect />
         <NextIntlClientProvider>
           <SettingsProvider hidePrices={hidePrices} popupSettings={popupSettings}>
             <Suspense fallback={null}>
               <StorefrontLayoutWrapper>
-                <AnnouncementBar />
-                <Navbar categories={categories || []} />
+                <div className="sticky top-0 z-50 w-full">
+                  <AnnouncementBar />
+                  <Navbar categories={categories || []} />
+                </div>
               </StorefrontLayoutWrapper>
             </Suspense>
             <main className="flex-1 w-full">

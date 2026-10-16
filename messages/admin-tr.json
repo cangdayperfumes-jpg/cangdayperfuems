@@ -249,6 +249,18 @@
     "signIn": "Giriş Yap",
     "footer": "Cangday Dahili Sistem"
   },
+  "resetPassword": {
+    "title": "Şifreyi Sıfırla",
+    "description": "Hesabınız için yeni bir şifre girin",
+    "newPasswordLabel": "Yeni şifre",
+    "confirmPasswordLabel": "Yeni şifreyi onayla",
+    "submit": "Şifreyi güncelle",
+    "submitting": "Güncelleniyor...",
+    "mismatch": "Şifreler eşleşmiyor.",
+    "tooShort": "Şifre en az {min} karakter olmalıdır.",
+    "invalidLink": "Bu sıfırlama bağlantısı geçersiz veya süresi dolmuş. Lütfen yeni bir bağlantı isteyin.",
+    "success": "Şifre güncellendi. Panele yönlendiriliyorsunuz…"
+  },
   "heroSlides": {
     "title": "Hero Slaytları",
     "totalCount": "{count} toplam",

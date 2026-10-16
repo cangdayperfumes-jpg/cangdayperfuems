@@ -249,6 +249,18 @@
     "signIn": "Sign In",
     "footer": "Cangday Internal System"
   },
+  "resetPassword": {
+    "title": "Reset Password",
+    "description": "Enter a new password for your account",
+    "newPasswordLabel": "New password",
+    "confirmPasswordLabel": "Confirm new password",
+    "submit": "Update password",
+    "submitting": "Updating...",
+    "mismatch": "Passwords do not match.",
+    "tooShort": "Password must be at least {min} characters.",
+    "invalidLink": "This reset link is invalid or has expired. Please request a new one.",
+    "success": "Password updated. Redirecting to the dashboard…"
+  },
   "heroSlides": {
     "title": "Hero Slides",
     "totalCount": "{count} total",
