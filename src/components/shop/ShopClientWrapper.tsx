@@ -7,9 +7,12 @@ import { useRouter } from '@/i18n/navigation';
 import { Product, Category, Brand } from '@/types';
 import ShopSidebar from '@/components/shop/ShopSidebar';
 import ProductCard from '@/components/shared/ProductCard';
-import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { SlidersHorizontal, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { SlidersHorizontal, X, ChevronDown, SearchX } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Link } from '@/i18n/navigation';
 import { useDebounce } from 'use-debounce';
 import { useTranslations } from 'next-intl';
 
@@ -25,6 +28,9 @@ interface ShopClientWrapperProps {
   initialFilter?: string;
   initialSeason?: string;
   seasonTitle?: string;
+  initialSearchQuery?: string;
+  /** Exact count of products matching the current filters (not just the loaded pages). */
+  totalProducts: number;
   pagination: {
     page: number;
     totalPages: number;
@@ -44,16 +50,24 @@ export default function ShopClientWrapper({
   initialFilter,
   initialSeason,
   seasonTitle,
+  initialSearchQuery,
+  totalProducts,
   pagination,
 }: ShopClientWrapperProps) {
   const t = useTranslations('shop');
+  // Must match `limit` in app/[locale]/shop/page.tsx — used to restart the
+  // fade-in stagger at the top of every newly loaded page.
+  const limitPerPage = 12;
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   
   // Initialize search query from URL
   const [selectedBrands, setSelectedBrands] = useState<string[]>(initialBrands);
-  const [searchQuery, setSearchQuery] = useState('');
+  // Seeded from ?q= — starting from '' made the debounced-search effect below
+  // see '' !== 'dior' on first render and push a URL with q removed, wiping
+  // any search arriving via a link (or Google's sitelinks search box).
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery || '');
   const [debouncedQuery] = useDebounce(searchQuery, 500);
   const [filter, setFilter] = useState<string | null>(initialFilter || null);
 
@@ -69,6 +83,26 @@ export default function ShopClientWrapper({
   }, [products]);
 
   const loadMoreSentinelRef = useRef<HTMLDivElement>(null);
+
+  // Products present on first paint render immediately (no fade) so the
+  // server-rendered grid isn't hidden until hydration; anything that arrives
+  // afterwards — filter changes, infinite-scroll pages — fades in.
+  const [firstPaintIds] = useState(() => new Set(products.map((p) => p.id)));
+
+  // Mobile: a floating "Filters" pill appears once the in-page header row
+  // (with its own Filters button) has scrolled out of view.
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [showFloatingFilters, setShowFloatingFilters] = useState(false);
+  const headerRowRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = headerRowRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      setShowFloatingFilters(!entry.isIntersecting && entry.boundingClientRect.top < 0);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const sentinel = loadMoreSentinelRef.current;
@@ -185,6 +219,94 @@ export default function ShopClientWrapper({
     });
   };
 
+  const navigateWithParams = (mutate: (params: URLSearchParams) => void) => {
+    const params = new URLSearchParams(searchParams.toString());
+    mutate(params);
+    params.set('page', '1');
+    startTransition(() => {
+      router.push(`/shop?${params.toString()}`, { scroll: false });
+    });
+  };
+
+  const handleSortChange = (value: string) => {
+    setFilter(value || null);
+    navigateWithParams((params) => {
+      if (value) params.set('filter', value);
+      else params.delete('filter');
+    });
+  };
+
+  // Removable chips for every active filter (season keeps its own banner above).
+  const activeChips: { key: string; label: string; onRemove: () => void }[] = [];
+  if (selectedCategory) {
+    activeChips.push({ key: 'category', label: selectedCategory.name, onRemove: () => navigateWithParams((p) => p.delete('category')) });
+  }
+  if (initialAudience) {
+    activeChips.push({ key: 'audience', label: translatedAudience ?? initialAudience, onRemove: () => navigateWithParams((p) => p.delete('audience')) });
+  }
+  if (initialPopular) {
+    activeChips.push({ key: 'popular', label: t('popular'), onRemove: () => navigateWithParams((p) => p.delete('popular')) });
+  }
+  selectedBrands.forEach((slug) => {
+    const brand = brands.find((b) => b.slug === slug);
+    if (!brand) return;
+    activeChips.push({
+      key: `brand-${slug}`,
+      label: brand.name,
+      onRemove: () => {
+        const remaining = selectedBrands.filter((b) => b !== slug);
+        setSelectedBrands(remaining);
+        navigateWithParams((p) => {
+          if (remaining.length > 0) p.set('brands', remaining.join(','));
+          else p.delete('brands');
+        });
+      },
+    });
+  });
+  const urlQuery = searchParams.get('q');
+  if (urlQuery) {
+    activeChips.push({
+      key: 'q',
+      label: t('searchChip', { query: urlQuery }),
+      onRemove: () => {
+        setSearchQuery('');
+        navigateWithParams((p) => p.delete('q'));
+      },
+    });
+  }
+
+  const clearAllFilters = () => {
+    setSearchQuery('');
+    setSelectedBrands([]);
+    setFilter(null);
+    startTransition(() => {
+      router.push('/shop', { scroll: false });
+    });
+  };
+
+  const sortOptions = [
+    { value: '', label: t('featured') },
+    { value: 'new', label: t('newArrivals') },
+    { value: 'best', label: t('bestSellers') },
+    { value: 'price-asc', label: t('priceLowHigh') },
+    { value: 'price-desc', label: t('priceHighLow') },
+  ];
+
+  const sidebarProps = {
+    categories,
+    brands,
+    selectedCategory: initialCategorySlug || null,
+    selectedAudience: initialAudience || null,
+    selectedPopular: initialPopular || false,
+    selectedBrands,
+    searchQuery,
+    setSearchQuery,
+    productCounts,
+    totalProducts,
+    onNavigate: handleFilterChange,
+    selectedFilter: filter,
+  };
+
   const handleClearSeason = () => {
     const params = new URLSearchParams(searchParams.toString());
     params.delete('season');
@@ -201,20 +323,7 @@ export default function ShopClientWrapper({
       {/* Desktop Sidebar */}
       <aside className="hidden md:block w-64 flex-shrink-0">
         <div className="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto pr-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            <ShopSidebar
-                categories={categories}
-                brands={brands}
-                selectedCategory={initialCategorySlug || null}
-                selectedAudience={initialAudience || null}
-                selectedPopular={initialPopular || false}
-                selectedBrands={selectedBrands}
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              productCounts={productCounts}
-              totalProducts={pagination.totalPages * 12} // approximate
-              onNavigate={handleFilterChange}
-              selectedFilter={filter}
-            />
+            <ShopSidebar {...sidebarProps} />
         </div>
       </aside>
 
@@ -236,56 +345,96 @@ export default function ShopClientWrapper({
             </div>
          )}
 
-         <div className="mb-4 md:mb-8">
-            <h1 className="text-xl md:text-3xl font-heading text-gray-900 mb-1">{selectedCategoryName}</h1>
+         <div className="mb-4 md:mb-6">
+            <h1 className="text-xl md:text-3xl font-heading text-ink mb-1">{selectedCategoryName}</h1>
             {pageIntro && (
-               <p className="text-xs md:text-sm text-gray-500 max-w-2xl mb-2 truncate md:whitespace-normal">{pageIntro}</p>
+               <p className="text-xs md:text-sm text-muted-foreground max-w-2xl mb-3 truncate md:whitespace-normal">{pageIntro}</p>
             )}
-            <div className="flex items-center justify-between gap-3">
-               <p className="text-xs md:text-sm text-gray-400">
-                  {t('showingResults', { count: allProducts.length })}
+            <div ref={headerRowRef} className="flex items-center justify-between gap-3 border-y border-border py-2.5">
+               <p className="text-xs md:text-sm text-muted-foreground">
+                  {t('showingOf', { shown: allProducts.length, total: totalProducts })}
                </p>
-               {/* Filters trigger — mobile only; desktop uses the static sidebar */}
-               <Sheet>
-                  <SheetTrigger asChild>
-                      <Button variant="outline" size="sm" className="gap-2 md:hidden flex-shrink-0">
-                          <SlidersHorizontal className="h-4 w-4" />
-                          {t('filters')}
-                      </Button>
-                  </SheetTrigger>
-                  <SheetContent
-                      side="left"
-                      className="w-[300px] sm:w-[400px]"
-                      onOpenAutoFocus={(e) => e.preventDefault()}
+               <div className="flex items-center gap-2">
+                  {/* Sort — native select so mobile gets the OS picker for free. */}
+                  <label className="relative flex items-center">
+                     <span className="sr-only">{t('sortBy')}</span>
+                     <select
+                        value={filter || ''}
+                        onChange={(e) => handleSortChange(e.target.value)}
+                        className="appearance-none bg-transparent pl-2 pr-7 py-1.5 text-xs md:text-sm font-medium text-ink border border-border rounded-sm cursor-pointer hover:border-ink/40 focus:outline-none focus-visible:ring-1 focus-visible:ring-gold"
+                     >
+                        {sortOptions.map((o) => (
+                           <option key={o.value} value={o.value}>{o.label}</option>
+                        ))}
+                     </select>
+                     <ChevronDown className="pointer-events-none absolute right-2 h-3.5 w-3.5 text-ink/60" />
+                  </label>
+                  {/* Filters trigger — mobile only; desktop uses the static sidebar */}
+                  <Button
+                     variant="outline"
+                     size="sm"
+                     className="gap-2 md:hidden flex-shrink-0"
+                     onClick={() => setFiltersOpen(true)}
                   >
-                      <SheetTitle className="sr-only">{t('filters')}</SheetTitle>
-                      <div className="py-6 h-[calc(100vh-100px)] overflow-y-auto">
-                          <ShopSidebar
-                              categories={categories}
-                              brands={brands}
-                              selectedCategory={initialCategorySlug || null}
-                              selectedAudience={initialAudience || null}
-                              selectedPopular={initialPopular || false}
-                              selectedBrands={selectedBrands}
-                              searchQuery={searchQuery}
-                              setSearchQuery={setSearchQuery}
-                              productCounts={productCounts}
-                              totalProducts={pagination.totalPages * 12} // Approximate or pass total count if needed
-                              onNavigate={handleFilterChange}
-                              selectedFilter={filter}
-                          />
-                      </div>
-                  </SheetContent>
-               </Sheet>
+                     <SlidersHorizontal className="h-4 w-4" />
+                     {t('filters')}
+                  </Button>
+               </div>
             </div>
+
+            {activeChips.length > 0 && (
+               <div className="mt-3 flex flex-wrap items-center gap-2" aria-label={t('activeFilters')}>
+                  {activeChips.map((chip) => (
+                     <button
+                        key={chip.key}
+                        type="button"
+                        onClick={chip.onRemove}
+                        aria-label={t('removeFilter', { label: chip.label })}
+                        className="group inline-flex items-center gap-1.5 rounded-full border border-ink/15 bg-secondary/60 pl-3 pr-2 py-1 text-xs font-medium text-ink hover:border-ink/40 transition-colors"
+                     >
+                        {chip.label}
+                        <X className="h-3 w-3 text-ink/50 group-hover:text-ink" />
+                     </button>
+                  ))}
+                  {activeChips.length > 1 && (
+                     <button
+                        type="button"
+                        onClick={clearAllFilters}
+                        className="text-xs font-medium text-muted-foreground underline underline-offset-2 hover:text-ink"
+                     >
+                        {t('resetAll')}
+                     </button>
+                  )}
+               </div>
+            )}
+
+            <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
+               <SheetContent
+                  side="left"
+                  className="w-[300px] sm:w-[400px]"
+                  onOpenAutoFocus={(e) => e.preventDefault()}
+               >
+                  <SheetTitle className="sr-only">{t('filters')}</SheetTitle>
+                  <div className="py-6 h-[calc(100vh-100px)] overflow-y-auto">
+                     <ShopSidebar {...sidebarProps} />
+                  </div>
+               </SheetContent>
+            </Sheet>
          </div>
 
          <div className={`transition-opacity duration-300 ${isPending && !isLoadingMore ? 'opacity-50' : 'opacity-100'}`}>
              {allProducts.length > 0 ? (
                 <>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-3 gap-y-6 md:gap-6 px-3 md:px-0">
-                    {allProducts.map((product) => (
-                        <ProductCard key={product.id} product={product} />
+                    {allProducts.map((product, index) => (
+                        <motion.div
+                            key={product.id}
+                            initial={firstPaintIds.has(product.id) ? false : { opacity: 0, y: 14 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.45, delay: (index % limitPerPage) * 0.04, ease: [0.22, 1, 0.36, 1] }}
+                        >
+                            <ProductCard product={product} priority={index < 4} />
+                        </motion.div>
                     ))}
                     </div>
 
@@ -306,30 +455,65 @@ export default function ShopClientWrapper({
                     )}
 
                     {/* Loading Indicator for Infinite Scroll */}
+                    {/* Skeleton cards for the incoming page, in the same grid
+                        rhythm, instead of a lone spinner. */}
                     {isLoadingMore && (
-                        <div className="mt-12 flex justify-center">
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                        <div className="mt-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-3 gap-y-6 md:gap-6 px-3 md:px-0">
+                            {Array.from({ length: 4 }).map((_, i) => (
+                                <div key={i} className="space-y-2">
+                                    <Skeleton className="aspect-[4/5] md:aspect-[3/4] w-full rounded-sm" />
+                                    <Skeleton className="h-3.5 w-3/4 md:mx-auto" />
+                                    <Skeleton className="h-3.5 w-1/3 md:mx-auto" />
+                                </div>
+                            ))}
                         </div>
                     )}
                 </>
              ) : (
-                <div className="text-center py-20 bg-gray-50 border border-dashed rounded-lg">
-                <p className="text-muted-foreground mb-4">
-                    {t('noProductsFound')}
-                </p>
-                <Button
-                    variant="outline"
-                    onClick={() => {
-                        setSearchQuery('');
-                        router.push('/shop');
-                    }}
-                >
-                    {t('clearFilters')}
-                </Button>
+                <div className="flex flex-col items-center text-center py-16 md:py-20 px-6 bg-secondary/40 border border-dashed border-border rounded-sm">
+                    <SearchX className="h-8 w-8 text-gold-deep mb-4" strokeWidth={1.5} />
+                    <h2 className="font-heading text-lg md:text-xl text-ink mb-1">{t('emptyTitle')}</h2>
+                    <p className="text-sm text-muted-foreground max-w-sm mb-6">{t('emptyHint')}</p>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                        <Button
+                            variant="outline"
+                            className="rounded-none uppercase tracking-wider text-xs"
+                            onClick={clearAllFilters}
+                        >
+                            {t('clearFilters')}
+                        </Button>
+                        <Button asChild className="rounded-none uppercase tracking-wider text-xs bg-ink text-ivory hover:bg-gold-deep">
+                            <Link href="/shop?popular=true">{t('popularPicks')}</Link>
+                        </Button>
+                    </div>
                 </div>
              )}
          </div>
       </div>
+
+      <AnimatePresence>
+        {showFloatingFilters && !filtersOpen && (
+          <motion.button
+            type="button"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
+            transition={{ duration: 0.25 }}
+            onClick={() => setFiltersOpen(true)}
+            // Sits above the h-16 BottomNav, centered so it clears the
+            // right-aligned mobile scroll-to-top button.
+            className="md:hidden fixed bottom-20 inset-x-0 mx-auto w-fit z-40 flex items-center gap-2 rounded-full bg-ink text-ivory px-5 py-2.5 text-xs font-semibold uppercase tracking-widest shadow-lg active:bg-gold-deep"
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+            {t('filters')}
+            {activeChips.length > 0 && (
+              <span className="ml-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-gold px-1 text-[10px] text-ink">
+                {activeChips.length}
+              </span>
+            )}
+          </motion.button>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

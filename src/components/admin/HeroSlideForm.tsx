@@ -38,12 +38,9 @@ import {
   updateHeroSlide,
   HeroSlideInput,
 } from '@/app/admin/marketing/hero-slides/actions';
+// Shared with the storefront <Hero> so the crop drawn here is the exact frame shown live.
+import { HERO_DESKTOP_ASPECT, HERO_MOBILE_ASPECT } from '@/lib/hero-aspect';
 
-// Approximate — the live hero section is fluid-height (clamped vh, not a
-// fixed box), so these are representative guides for the crop editor rather
-// than an exact match to every viewport size.
-const HERO_DESKTOP_ASPECT = 2.6;
-const HERO_MOBILE_ASPECT = 1;
 
 function buildHeroSlideSchema(t: (key: string) => string) {
   return z.object({

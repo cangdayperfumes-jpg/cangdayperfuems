@@ -129,7 +129,17 @@
     "metaCategoryDescription": "Explore our {category} collection at Cangday — designer and niche fragrances for everyday elegance.",
     "metaAudienceDescription": "Shop our {audience} fragrance collection at Cangday — a curated selection of designer and niche perfumes.",
     "metaSearchTitle": "Search Results for \"{query}\"",
-    "metaSearchDescription": "Search results for \"{query}\" at Cangday. Find the perfect fragrance, body care product, or gift set to match your style."
+    "metaSearchDescription": "Search results for \"{query}\" at Cangday. Find the perfect fragrance, body care product, or gift set to match your style.",
+    "priceLowHigh": "Price: Low to High",
+    "priceHighLow": "Price: High to Low",
+    "showingOf": "Showing {shown} of {total} products",
+    "searchChip": "“{query}”",
+    "activeFilters": "Active filters",
+    "removeFilter": "Remove {label}",
+    "emptyTitle": "Nothing matches just yet",
+    "emptyHint": "Try removing a filter or searching for a different scent or brand.",
+    "browseAll": "Browse all perfumes",
+    "popularPicks": "Popular picks"
   },
   "checkout": {
     "backToShop": "Back to Shop",

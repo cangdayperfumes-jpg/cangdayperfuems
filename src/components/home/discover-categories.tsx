@@ -129,7 +129,7 @@ export default async function DiscoverCategories({ tiles }: { tiles: CategoryTil
                     enough behind the text to guarantee contrast. */}
                 <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-ink/85 via-ink/25 to-transparent" />
 
-                <div className={`relative mt-auto w-full ${isPrimary ? 'p-5 md:p-8' : 'p-4 md:p-5'}`}>
+                <div className={`relative mt-auto w-full transition-transform duration-500 ease-out md:group-hover:-translate-y-1 ${isPrimary ? 'p-5 md:p-8' : 'p-4 md:p-5'}`}>
                   <h3
                     className={`font-heading font-medium text-ivory leading-[1.1] uppercase tracking-wide ${
                       isPrimary ? 'text-xl md:text-4xl' : 'text-base md:text-xl'
@@ -137,7 +137,13 @@ export default async function DiscoverCategories({ tiles }: { tiles: CategoryTil
                   >
                     {title}
                   </h3>
-                  <span className="mt-2 md:mt-3 inline-flex items-center gap-2 text-[11px] md:text-xs uppercase tracking-widest font-semibold text-gold group-hover:text-gold-soft transition-colors">
+                  {/* Hairline that draws in from the left on hover — echoes the
+                      gold rule used elsewhere as the brand's accent line. */}
+                  <span
+                    aria-hidden="true"
+                    className="mt-2 block h-px w-12 origin-left scale-x-0 bg-gold transition-transform duration-500 ease-out group-hover:scale-x-100"
+                  />
+                  <span className="mt-2 inline-flex items-center gap-2 text-[11px] md:text-xs uppercase tracking-widest font-semibold text-gold group-hover:text-gold-soft transition-colors">
                     {cta}
                     <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
                   </span>

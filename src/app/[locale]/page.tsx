@@ -30,6 +30,7 @@ import PromoBanners from '@/components/home/promo-banners';
 import TrustBadges from '@/components/home/trust-badges';
 import Testimonials from '@/components/home/testimonials';
 import { getActiveTestimonials } from '@/lib/testimonials-data';
+import Reveal from '@/components/shared/Reveal';
 
 export const revalidate = 60;
 
@@ -134,7 +135,7 @@ export default async function Home() {
     description: "An edited collection of designer and niche perfumes for everyday wear.",
     potentialAction: {
       "@type": "SearchAction",
-      target: `${siteUrl}/shop?search={search_term_string}`,
+      target: `${siteUrl}/shop?q={search_term_string}`,
       "query-input": "required name=search_term_string",
     },
   };
@@ -152,7 +153,9 @@ export default async function Home() {
       {/* ── 1a. Trust Badges — static icon grid restating the same facts as
              the top marquee, but prominent and unmissable right under the
              hero's emotional pitch, before any product content. ── */}
-      <TrustBadges />
+      <Reveal>
+        <TrustBadges />
+      </Reveal>
 
       {/* ── 2. Brand Ticker (Infinite Loop) ── */}
       <BrandTicker brands={brands || []} />
@@ -166,11 +169,15 @@ export default async function Home() {
              print" bento — kept as one section rather than two, since both
              were the same audience-driven category story at different
              sizes. ── */}
-      <DiscoverCategories tiles={collections} />
+      <Reveal>
+        <DiscoverCategories tiles={collections} />
+      </Reveal>
       {seasonalPosition === 'after_gender_collection' && seasonalSection}
 
       {/* ── 3a. Quick Nav — icon shortcuts straight to real shop filters. ── */}
-      <QuickNav />
+      <Reveal>
+        <QuickNav />
+      </Reveal>
 
       {/* ── 3b. Best Sellers — ranked by sales_count, the same carousel
              component as "Just Arrived" below (it's generic over any product
@@ -178,7 +185,7 @@ export default async function Home() {
              product rail. ── */}
       <section className="py-4 md:py-5 w-full bg-ivory">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-end justify-between mb-3 md:mb-4">
+          <Reveal className="flex items-end justify-between mb-3 md:mb-4">
             <div className="space-y-1">
               <p className="text-xs uppercase tracking-[0.35em] text-gold-deep font-semibold">
                 {t('mostLoved')}
@@ -193,7 +200,7 @@ export default async function Home() {
             >
               {t('viewAll')} <ArrowRight className="h-4 w-4" />
             </Link>
-          </div>
+          </Reveal>
 
           <Link
             href="/shop?filter=best"
@@ -203,7 +210,7 @@ export default async function Home() {
           </Link>
         </div>
 
-        <div className="max-w-[1400px] mx-auto">
+        <Reveal delay={0.1} className="max-w-[1400px] mx-auto">
           {bestSellers && bestSellers.length > 0 ? (
             <BestSellersCarousel products={bestSellers} />
           ) : (
@@ -211,7 +218,7 @@ export default async function Home() {
               {t('noProductsYet')}
             </div>
           )}
-        </div>
+        </Reveal>
       </section>
 
       {/* ── 4. Browse by Type (Carousel) — deliberately distinct from
@@ -221,20 +228,22 @@ export default async function Home() {
              Mists, Gift Sets…), so the two sections don't read as repeats. ── */}
       <section className="py-4 md:py-5 w-full bg-secondary/50">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mb-3 md:mb-4">
-          <div className="text-center space-y-1">
+          <Reveal className="text-center space-y-1">
             <p className="text-xs uppercase tracking-[0.35em] text-gold-deep font-semibold">
               {t('everyFormat')}
             </p>
             <h2 className="text-lg md:text-2xl font-heading font-medium">
               {t('browseByType')}
             </h2>
-          </div>
+          </Reveal>
         </div>
 
         {/* Full-bleed — intentionally outside the max-width container so the
             cards run edge to edge instead of being boxed in by page padding. */}
         {categories && categories.length > 0 ? (
-          <CategoryCarousel categories={categories} />
+          <Reveal delay={0.1}>
+            <CategoryCarousel categories={categories} />
+          </Reveal>
         ) : (
           <div className="text-center text-muted-foreground py-10">
             {t('noCategoriesFound')}
@@ -253,7 +262,7 @@ export default async function Home() {
              scroll card-by-card. ── */}
       <section className="py-4 md:py-5 w-full bg-secondary/50">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-end justify-between mb-3 md:mb-4">
+          <Reveal className="flex items-end justify-between mb-3 md:mb-4">
             <div className="space-y-1">
               <p className="text-xs uppercase tracking-[0.35em] text-gold-deep font-semibold">
                 {t('freshIn')}
@@ -268,7 +277,7 @@ export default async function Home() {
             >
               {t('viewAll')} <ArrowRight className="h-4 w-4" />
             </Link>
-          </div>
+          </Reveal>
 
           <Link
             href="/shop?filter=new"
@@ -282,7 +291,7 @@ export default async function Home() {
             to match — only the cards bleed to the container's own edges,
             not past it, so this doesn't run wider than the page above it on
             large screens. */}
-        <div className="max-w-[1400px] mx-auto">
+        <Reveal delay={0.1} className="max-w-[1400px] mx-auto">
           {newArrivals && newArrivals.length > 0 ? (
             <NewArrivalsCarousel products={newArrivals} />
           ) : (
@@ -290,17 +299,21 @@ export default async function Home() {
               {t('noProductsYet')}
             </div>
           )}
-        </div>
+        </Reveal>
       </section>
       {seasonalPosition === 'after_new_arrivals' && seasonalSection}
 
       {/* ── 6. Promo Banners — discount/bundle/gift-threshold cards. ── */}
-      <PromoBanners />
+      <Reveal>
+        <PromoBanners />
+      </Reveal>
 
       {/* ── 7. Testimonials — swipeable customer feedback photos, each
              opening a fullscreen lightbox on click. Replaces the previous
              static quote "brand breaker" section in this slot. ── */}
-      <Testimonials testimonials={testimonials} />
+      <Reveal>
+        <Testimonials testimonials={testimonials} />
+      </Reveal>
       {seasonalPosition === 'before_footer' && seasonalSection}
     </div>
   );

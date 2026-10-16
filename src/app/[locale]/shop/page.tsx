@@ -278,7 +278,23 @@ export default async function ShopPage(props: {
   }
 
   if (searchQuery) {
-      query = query.or(`name_en.ilike.%${searchQuery}%,description_en.ilike.%${searchQuery}%`);
+      // PostgREST's or() takes a comma/parenthesis-delimited filter string, so
+      // raw user input containing , ( ) or the ilike wildcards * % could break
+      // the query or change what it matches — strip those before interpolating.
+      const term = searchQuery.replace(/[,()*%\\:"']/g, ' ').trim().slice(0, 80);
+      if (term) {
+          const orFilters = [`name_en.ilike.%${term}%`, `description_en.ilike.%${term}%`];
+          // Also match by brand name (e.g. "dior"), resolved against the
+          // already-cached brand list instead of a second join query.
+          const lowerTerm = term.toLowerCase();
+          const matchingBrandIds = brands
+              .filter((b) => b.name.toLowerCase().includes(lowerTerm))
+              .map((b) => b.id);
+          if (matchingBrandIds.length > 0) {
+              orFilters.push(`brand_id.in.(${matchingBrandIds.join(',')})`);
+          }
+          query = query.or(orFilters.join(','));
+      }
   }
 
   // 4. Pagination & Sorting
@@ -288,6 +304,10 @@ export default async function ShopPage(props: {
       query = query.order('created_at', { ascending: false });
   } else if (filter === 'best') {
       query = query.order('sales_count', { ascending: false });
+  } else if (filter === 'price-asc') {
+      query = query.order('price', { ascending: true });
+  } else if (filter === 'price-desc') {
+      query = query.order('price', { ascending: false });
   } else {
       query = query.order('created_at', { ascending: false }); // Default sorting
   }
@@ -317,6 +337,8 @@ export default async function ShopPage(props: {
         initialFilter={filter}
         initialSeason={seasonSlug}
         seasonTitle={seasonTitle}
+        initialSearchQuery={searchQuery}
+        totalProducts={totalProducts}
         pagination={{
             page,
             totalPages,

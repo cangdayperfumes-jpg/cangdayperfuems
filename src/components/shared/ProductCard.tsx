@@ -2,6 +2,7 @@
 
 import { Link, useRouter } from '@/i18n/navigation';
 import ResponsiveCroppedImage from '@/components/shared/ResponsiveCroppedImage';
+import ImageWithFallback from '@/components/shared/ImageWithFallback';
 import { Product } from '@/types';
 import { formatCurrency } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -23,8 +24,16 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
   const tCommon = useTranslations('common');
   const router = useRouter();
   const addItem = useCartStore((state) => state.addItem);
+  // Hooks must run unconditionally on every render — these used to be called
+  // inside the quick-add branch below, which only exists for in-stock,
+  // non-variant products, so a stock/variant change between renders changed
+  // the hook count and crashed the card.
+  const cartItem = useCartStore((state) => state.items.find(i => i.id === product.id && !i.variantId));
+  const updateQuantity = useCartStore((state) => state.updateQuantity);
+  const removeItem = useCartStore((state) => state.removeItem);
   const { hidePrices } = useSettings();
   const mainImage = product.images?.[0] || '/placeholder.svg'; // Fallback image
+  const hoverImage = product.images?.[1];
   const variants = (product as any).product_variants || [];
 
   // Logic: Discount in DB is AMOUNT.
@@ -112,6 +121,23 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
             />
 
+            {/* Second product photo cross-fades in on hover. Desktop only —
+                the wrapper is display:none below md, so with lazy loading
+                the browser never downloads it on touch devices that can't
+                hover anyway. */}
+            {hoverImage && (
+              <div className="absolute inset-0 hidden md:block opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                <ImageWithFallback
+                  src={hoverImage}
+                  alt=""
+                  fill
+                  loading="lazy"
+                  className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                  sizes="(max-width: 1200px) 33vw, 25vw"
+                />
+              </div>
+            )}
+
         </Link>
         {/* --- Action Buttons / Sold Out Badge --- */}
         {(() => {
@@ -163,10 +189,6 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
                     /* Quick Add Button or Quantity Selector (No Variants) */
                     <div className="absolute bottom-2 right-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 z-20">
                         {(() => {
-                            const cartItem = useCartStore((state) => state.items.find(i => i.id === product.id && !i.variantId));
-                            const updateQuantity = useCartStore((state) => state.updateQuantity);
-                            const removeItem = useCartStore((state) => state.removeItem);
-
                             if (cartItem) {
                                 return (
                                     <div className="flex items-center gap-2 bg-ink text-ivory shadow-lg rounded-full px-2 py-1 h-8 md:h-9">

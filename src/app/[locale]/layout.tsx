@@ -20,6 +20,7 @@ import { Toaster } from "@/components/ui/sonner";
 import NextTopLoader from "nextjs-toploader";
 import { createClient } from "@supabase/supabase-js";
 import { SettingsProvider } from "@/components/providers/SettingsProvider";
+import MotionProvider from "@/components/providers/MotionProvider";
 import { unstable_cache } from "next/cache";
 import StorefrontLayoutWrapper from "@/components/shared/StorefrontLayoutWrapper";
 import { getSiteTheme, hexToRgbTriplet } from "@/lib/theme-data";
@@ -245,6 +246,7 @@ export default async function LocaleLayout({
         <AuthRecoveryRedirect />
         <NextIntlClientProvider>
           <SettingsProvider hidePrices={hidePrices} popupSettings={popupSettings}>
+          <MotionProvider>
             <Suspense fallback={null}>
               <StorefrontLayoutWrapper>
                 <div className="sticky top-0 z-50 w-full">
@@ -265,6 +267,7 @@ export default async function LocaleLayout({
             </StorefrontLayoutWrapper>
             <SitePopup />
             <CookieBanner />
+          </MotionProvider>
           </SettingsProvider>
         </NextIntlClientProvider>
         <Toaster

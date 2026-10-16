@@ -94,8 +94,14 @@ const config = {
         "marquee-slow": "marquee 55s linear infinite",
         "marquee-banner": "marquee 90s linear infinite",
         "nudge-x": "nudge-x 1.3s ease-in-out infinite",
+        // Must match AUTOPLAY_DELAY_MS in Hero.tsx.
+        "slide-progress": "slide-progress 6s linear forwards",
       },
       keyframes: {
+        "slide-progress": {
+          from: { transform: "scaleX(0)" },
+          to: { transform: "scaleX(1)" },
+        },
         "nudge-x": {
           "0%, 100%": { transform: "translateX(0)" },
           "50%": { transform: "translateX(6px)" },

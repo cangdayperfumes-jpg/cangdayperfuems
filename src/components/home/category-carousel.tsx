@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
 import { Category } from '@/types';
 import { Link } from '@/i18n/navigation';
 import ImageWithFallback from '@/components/shared/ImageWithFallback';
+import { useAutoScrollLoop } from '@/hooks/use-auto-scroll-loop';
 
 interface CategoryCarouselProps {
   categories: Category[];
@@ -38,94 +38,43 @@ function CategoryCard({ category }: { category: Category }) {
   );
 }
 
-const RESUME_DELAY_MS = 1200;
-const PIXELS_PER_FRAME = 0.6;
-
 /**
- * Continuous scrollLeft-driven auto-scroll on a natively-scrollable element,
- * instead of an embla+Autoplay carousel — the previous version fought with
- * real touch scrolling on mobile (embla's own drag handling competing with
- * the browser's native swipe), which is exactly the kind of thing that only
+ * Continuously drifting, draggable strip (see useAutoScrollLoop) instead of
+ * an embla+Autoplay carousel — the previous version fought with real touch
+ * scrolling on mobile (embla's own drag handling competing with the
+ * browser's native swipe), which is exactly the kind of thing that only
  * shows up on an actual phone, not in a desktop browser.
  */
+const MIN_CARDS_PER_COPY = 24;
+
 export default function CategoryCarousel({ categories }: CategoryCarouselProps) {
-  const scrollerRef = useRef<HTMLDivElement>(null);
-  const pausedRef = useRef(false);
-  const resumeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { viewportRef, trackRef, handlers } = useAutoScrollLoop(categories.length);
 
-  useEffect(() => {
-    const el = scrollerRef.current;
-    if (!el || categories.length === 0) return;
-
-    let rafId: number;
-    // Tracked in plain JS, not read back from `el.scrollLeft` each frame —
-    // some WebKit/Safari builds round scrollLeft to a whole pixel on every
-    // write, which silently eats sub-pixel increments read-modify-write
-    // style and can leave the loop stuck at 0 on an iPhone even though it
-    // animates fine in Chromium.
-    let position = el.scrollLeft;
-    const step = () => {
-      if (pausedRef.current) {
-        // Stay in sync with manual dragging while paused, so resuming
-        // continues from wherever the user left it instead of snapping back.
-        position = el.scrollLeft;
-      } else {
-        const halfWidth = el.scrollWidth / 2;
-        position += PIXELS_PER_FRAME;
-        if (position >= halfWidth) {
-          position -= halfWidth;
-        }
-        el.scrollLeft = position;
-      }
-      rafId = requestAnimationFrame(step);
-    };
-    rafId = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(rafId);
-  }, [categories.length]);
-
-  const pause = () => {
-    pausedRef.current = true;
-    if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current);
-  };
-  const scheduleResume = () => {
-    if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current);
-    resumeTimeoutRef.current = setTimeout(() => {
-      pausedRef.current = false;
-    }, RESUME_DELAY_MS);
-  };
-
-  useEffect(() => {
-    return () => {
-      if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current);
-    };
-  }, []);
-
-  // Duplicated once so the scrollLeft reset at the halfway point is
-  // seamless — both copies are real links since a user dragging by hand can
-  // land on either one before the loop resets it back under them.
-  const items = [...categories, ...categories];
+  // One "copy" of the strip must be wider than the viewport, or the
+  // halfway-point loop reset has nothing to scroll through and the strip
+  // stops short of the right edge on wide screens — so short category lists
+  // are repeated up to MIN_CARDS_PER_COPY (24 × 224px ≈ 5400px, enough for
+  // ultra-wide/zoomed-out screens), then doubled for the seamless reset.
+  // Every copy is a real link, since a user dragging by hand can land on any
+  // of them before the loop resets it back under them.
+  const repeat = categories.length > 0 ? Math.ceil(MIN_CARDS_PER_COPY / categories.length) : 0;
+  const oneCopy = Array.from({ length: repeat }, () => categories).flat();
+  const items = [...oneCopy, ...oneCopy];
 
   return (
-    <div
-      ref={scrollerRef}
-      className="flex w-full overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      onPointerDown={pause}
-      onPointerUp={scheduleResume}
-      onPointerLeave={scheduleResume}
-      onTouchStart={pause}
-      onTouchEnd={scheduleResume}
-      onMouseEnter={pause}
-      onMouseLeave={scheduleResume}
-    >
-      {items.map((category, index) => (
-        <Link
-          key={`${category.id}-${index}`}
-          href={`/shop?category=${category.slug}`}
-          className="group/card block w-36 md:w-56 shrink-0"
-        >
-          <CategoryCard category={category} />
-        </Link>
-      ))}
+    <div ref={viewportRef} className="w-full overflow-hidden cursor-grab active:cursor-grabbing select-none" {...handlers}>
+      <div ref={trackRef} className="flex w-max will-change-transform">
+        {items.map((category, index) => (
+          <Link
+            key={`${category.id}-${index}`}
+            href={`/shop?category=${category.slug}`}
+            draggable={false}
+            className="group/card block w-36 md:w-56 shrink-0"
+          >
+            <CategoryCard category={category} />
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }

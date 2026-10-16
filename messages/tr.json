@@ -129,7 +129,17 @@
     "metaCategoryDescription": "Cangday'de {category} koleksiyonumuzu keşfedin — her güne şıklık katan tasarımcı ve niş kokular.",
     "metaAudienceDescription": "Cangday'de {audience} parfüm koleksiyonumuza göz atın — seçilmiş tasarımcı ve niş parfümler.",
     "metaSearchTitle": "\"{query}\" için Arama Sonuçları",
-    "metaSearchDescription": "Cangday'de \"{query}\" için arama sonuçları. Tarzınıza uygun mükemmel parfümü, vücut bakım ürününü veya hediye setini bulun."
+    "metaSearchDescription": "Cangday'de \"{query}\" için arama sonuçları. Tarzınıza uygun mükemmel parfümü, vücut bakım ürününü veya hediye setini bulun.",
+    "priceLowHigh": "Fiyat: Düşükten Yükseğe",
+    "priceHighLow": "Fiyat: Yüksekten Düşüğe",
+    "showingOf": "{total} üründen {shown} tanesi gösteriliyor",
+    "searchChip": "“{query}”",
+    "activeFilters": "Aktif filtreler",
+    "removeFilter": "{label} filtresini kaldır",
+    "emptyTitle": "Henüz eşleşen ürün yok",
+    "emptyHint": "Bir filtreyi kaldırmayı veya farklı bir koku ya da marka aramayı deneyin.",
+    "browseAll": "Tüm parfümlere göz at",
+    "popularPicks": "Popüler seçimler"
   },
   "checkout": {
     "backToShop": "Mağazaya Dön",

@@ -216,6 +216,8 @@ export default function ShopSidebar({
                   { id: null, label: t('featured') },
                   { id: 'new', label: t('newArrivals') },
                   { id: 'best', label: t('bestSellers') },
+                  { id: 'price-asc', label: t('priceLowHigh') },
+                  { id: 'price-desc', label: t('priceHighLow') },
                 ].map((item) => {
                     const isSelected = optimisticFilter === item.id;
                     return (
