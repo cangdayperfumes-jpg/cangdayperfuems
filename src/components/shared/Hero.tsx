@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Link } from '@/i18n/navigation';
+import { useLocale } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { motion, type Variants } from 'framer-motion';
 import { HeroSlide } from '@/types';
@@ -42,11 +43,37 @@ const FALLBACK_SLIDE: HeroSlide = {
   button_link: '/shop',
   secondary_button_text: 'Our Story',
   secondary_button_link: '/about',
+  eyebrow_tr: 'Modern Parfümeri',
+  headline_tr: 'İz bırakan',
+  headline_accent_tr: 'kokuyu taşıyın.',
+  subheading_tr:
+    'Fark etmeyi bıraktıktan saatler sonra bile hissettirdikleri için seçilmiş tasarımcı ve niş parfümlerden oluşan özel bir koleksiyon.',
+  button_text_tr: 'Koleksiyonu Keşfet',
+  secondary_button_text_tr: 'Hikayemiz',
   display_order: 0,
   is_active: true,
   created_at: '',
   updated_at: '',
 };
+
+/**
+ * Swaps in a slide's Turkish copy on the /tr storefront. Each field falls
+ * back to its English column independently, so a partially translated
+ * slide still renders complete instead of showing blanks.
+ */
+function localizeSlide(slide: HeroSlide, locale: string): HeroSlide {
+  if (locale !== 'tr') return slide;
+  const pick = (tr: string | null | undefined, en: string | null | undefined) => (tr?.trim() ? tr : en);
+  return {
+    ...slide,
+    eyebrow: pick(slide.eyebrow_tr, slide.eyebrow) ?? '',
+    headline: pick(slide.headline_tr, slide.headline) ?? '',
+    headline_accent: pick(slide.headline_accent_tr, slide.headline_accent),
+    subheading: pick(slide.subheading_tr, slide.subheading),
+    button_text: pick(slide.button_text_tr, slide.button_text) ?? '',
+    secondary_button_text: pick(slide.secondary_button_text_tr, slide.secondary_button_text),
+  };
+}
 
 interface HeroProps {
   slides?: HeroSlide[];
@@ -115,8 +142,15 @@ function Slide({ slide, priority, active }: { slide: HeroSlide; priority: boolea
         {/* Light ivory scrim, strongest where the text sits (left) and clear
             over the product photo (right) — same role the dark ink gradient
             used to play, inverted for a white ground instead of a black one. */}
-        <div className="absolute inset-0 bg-gradient-to-r from-ivory via-ivory/85 to-ivory/5" />
-        <div className="absolute inset-0 bg-gradient-to-t from-ivory/50 via-transparent to-transparent" />
+        {/* Mobile: the copy spans almost the full square frame, so it keeps a
+            broad scrim. Desktop: the copy only occupies the left ~40% of the
+            frame, so the scrim stays dense behind it and then clears fully by
+            ~60% — the photo's subject on the right shows at full color
+            instead of under a milky wash. */}
+        <div className="absolute inset-0 bg-gradient-to-r from-ivory via-ivory/80 to-ivory/10 md:bg-[linear-gradient(to_right,rgb(var(--brand-ivory)/0.94)_0%,rgb(var(--brand-ivory)/0.82)_26%,rgb(var(--brand-ivory)/0.45)_44%,rgb(var(--brand-ivory)/0)_62%)]" />
+        {/* Short, light fade at the very bottom only — just enough to seat the
+            progress dots and blend into the trust bar below. */}
+        <div className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-ivory/40 to-transparent" />
       </div>
 
       {/* Same max-w-[1400px] + gutters as every section below, so the hero
@@ -177,7 +211,10 @@ function Slide({ slide, priority, active }: { slide: HeroSlide; priority: boolea
 }
 
 export default function Hero({ slides }: HeroProps) {
-  const activeSlides = slides && slides.length > 0 ? slides : [FALLBACK_SLIDE];
+  const locale = useLocale();
+  const activeSlides = (slides && slides.length > 0 ? slides : [FALLBACK_SLIDE]).map((slide) =>
+    localizeSlide(slide, locale)
+  );
   const isMulti = activeSlides.length > 1;
 
   const [selected, setSelected] = useState(0);

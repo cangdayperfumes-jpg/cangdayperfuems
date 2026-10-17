@@ -169,6 +169,11 @@ export function resizeUnsplashUrl(src: string, width: number, quality?: number):
     const { width: w, quality: q } = clampTransformParams(width, quality);
     url.searchParams.set('w', String(w));
     url.searchParams.set('q', String(q));
+    // Let Unsplash's imgix CDN negotiate AVIF/WebP from the Accept header
+    // (typically ~30% smaller than JPEG). An explicit `fm` would override
+    // `auto=format`, so drop it.
+    url.searchParams.delete('fm');
+    url.searchParams.set('auto', 'format');
     return url.toString();
   } catch {
     return src;

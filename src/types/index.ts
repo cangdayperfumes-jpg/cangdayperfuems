@@ -140,6 +140,13 @@ export interface HeroSlide {
   button_link: string;
   secondary_button_text?: string | null;
   secondary_button_link?: string | null;
+  /** Turkish copy shown on /tr — each falls back to its English column when null/blank. */
+  eyebrow_tr?: string | null;
+  headline_tr?: string | null;
+  headline_accent_tr?: string | null;
+  subheading_tr?: string | null;
+  button_text_tr?: string | null;
+  secondary_button_text_tr?: string | null;
   display_order: number;
   is_active: boolean;
   created_at: string;

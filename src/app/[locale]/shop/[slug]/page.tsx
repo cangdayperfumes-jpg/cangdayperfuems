@@ -164,6 +164,7 @@ const getCachedShippingCountries = unstable_cache(
     const { data } = await supabase
       .from('shipping_zones')
       .select('country_code')
+      .eq('is_enabled', true)
       .not('country_code', 'is', null);
     const codes = Array.from(new Set((data || []).map((z: any) => z.country_code).filter(Boolean)));
     return codes as string[];
@@ -279,7 +280,8 @@ export default async function ProductPage({ params }: PageProps) {
   };
 
   if (!hidePrices) {
-    offers.priceCurrency = 'USD';
+    // Storefront prices are in Turkish lira (see formatCurrency).
+    offers.priceCurrency = 'TRY';
     offers.price = finalPrice;
     offers.availability = product.stock
       ? 'https://schema.org/InStock'

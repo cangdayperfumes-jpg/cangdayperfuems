@@ -19,7 +19,7 @@
   },
   "trustBar": {
     "freeShipping": "Free shipping on every order",
-    "freeGift": "Free mini gift over $75",
+    "freeGift": "Free mini gift over ₺750",
     "original": "100% original, guaranteed",
     "easyReturns": "14-day easy returns"
   },
@@ -61,16 +61,25 @@
     "cookieMessage": "We use cookies to enhance your browsing experience, serve personalized ads or content, and analyze our traffic. By clicking \"Accept All\", you consent to our use of cookies."
   },
   "cart": {
-    "title": "Your Royal Collection",
-    "emptyTitle": "Your Royal Collection is empty",
-    "emptySubtitle": "Add some luxurious perfumes to get started",
+    "title": "Your Bag",
+    "emptyTitle": "Your bag is empty",
+    "emptySubtitle": "Discover a scent that's unmistakably yours.",
     "browseCollection": "Browse Collection",
     "total": "Total",
     "checkout": "Proceed to Checkout",
     "addedToCart": "Added {name} to cart",
     "addedVariantToCart": "Added {name} - {variant}",
     "selectASize": "Select a size",
-    "outOfStock": "Out of Stock"
+    "outOfStock": "Out of Stock",
+    "giftUnlocked": "You've unlocked a free mini gift!",
+    "giftProgress": "You're <b>{amount}</b> away from a free mini gift",
+    "each": "{price} each",
+    "decrease": "Decrease quantity",
+    "increase": "Increase quantity",
+    "remove": "Remove",
+    "subtotal": "Subtotal",
+    "shippingAtCheckout": "Shipping is calculated at checkout",
+    "continueShopping": "Continue shopping"
   },
   "product": {
     "breadcrumbHome": "Home",
@@ -186,7 +195,33 @@
     "step1": "Step 1",
     "downloadInvoice": "Download your invoice.",
     "step2": "Step 2",
-    "confirmShippingSoon": "We've received your order and will confirm shipping details by email shortly."
+    "confirmShippingSoon": "We've received your order and will confirm shipping details by email shortly.",
+    "contactSection": "Contact",
+    "deliverySection": "Delivery",
+    "province": "Province",
+    "selectProvince": "Select province",
+    "provinceRequired": "Please select your province",
+    "district": "District",
+    "districtPlaceholder": "e.g. Kadıköy",
+    "optional": "optional",
+    "loadingDestinations": "Loading destinations…",
+    "internationalDestinations": "International",
+    "noDestinations": "We're not taking orders right now — please contact us.",
+    "shippingNotAvailable": "We don't ship to this destination yet. Please contact us for options.",
+    "placingOrder": "Placing order…",
+    "stepBag": "Bag",
+    "stepDetails": "Details",
+    "stepConfirmation": "Confirmation",
+    "selectDestination": "Select destination",
+    "notAvailable": "Not available",
+    "free": "Free",
+    "secureCheckout": "Secure checkout",
+    "originalGuaranteed": "100% original",
+    "easyReturns": "14-day returns",
+    "showSummary": "Show order summary ({count})",
+    "hideSummary": "Hide order summary",
+    "searchProvince": "Search province…",
+    "noMatches": "No matches found"
   },
   "home": {
     "shopByCategory": "Shop by Category",
@@ -235,7 +270,7 @@
     "promo2Cta": "See Eligible Scents",
     "promo3Eyebrow": "On Us",
     "promo3Title": "Free Mini Gift",
-    "promo3Body": "Automatically added to orders over $75.",
+    "promo3Body": "Automatically added to orders over ₺750.",
     "promo3Cta": "Start Shopping"
   },
   "contact": {
@@ -329,7 +364,8 @@
     "viewShipmentDetails": "View Shipment Details",
     "noCountriesMatch": "No countries match \"{query}\".",
     "loadingRates": "Loading latest rates...",
-    "notListedNote": "* If your country is not listed, please calculate your order at checkout or contact us for a quote."
+    "notListedNote": "* If your country is not listed, please calculate your order at checkout or contact us for a quote.",
+    "free": "Free"
   },
   "privacy": {
     "metaTitle": "Privacy Policy",

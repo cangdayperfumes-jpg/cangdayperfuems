@@ -4,7 +4,7 @@
 }
 
 .phone-input-container .phone-input-field {
-  @apply w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background !important;
+  @apply w-full h-11 rounded-md border border-input bg-white pl-12 pr-3 py-2 text-sm ring-offset-background !important;
   @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 !important;
   @apply placeholder:text-muted-foreground !important;
   @apply disabled:cursor-not-allowed disabled:opacity-50 !important;

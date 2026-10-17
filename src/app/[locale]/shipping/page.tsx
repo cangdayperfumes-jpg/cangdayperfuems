@@ -37,6 +37,9 @@ export default async function ShippingPage() {
   const { data: zones } = await supabase
     .from('shipping_zones')
     .select('*')
+    // Only switched-on countries; Turkish province overrides aren't listed separately.
+    .eq('is_enabled', true)
+    .is('city', null)
     .order('continent', { ascending: true })
     .order('country', { ascending: true });
 

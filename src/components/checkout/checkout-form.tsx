@@ -1,78 +1,106 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
+import Image from 'next/image';
+import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
+import { toast } from 'sonner';
+import { Loader2, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import SearchableSelect, { type SearchableOption } from '@/components/checkout/SearchableSelect';
 import { useCartStore } from '@/hooks/use-cart';
-import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
 import { useCheckout } from '@/contexts/checkout-context';
 import { useSettings } from '@/components/providers/SettingsProvider';
-import { useTranslations } from 'next-intl';
+import { TURKEY_PROVINCES } from '@/lib/turkey-provinces';
+import {
+  DOMESTIC_COUNTRY_CODE,
+  countryDisplayName,
+  flagUrl,
+  getEnabledCountryZones,
+  quoteShipping,
+  type ShippingZone,
+} from '@/lib/shipping';
 
-type FormValues = {
-  name: string;
-  email: string;
-  phone: string;
-  country: string;
-  city: string;
-  address: string;
-  postal_code: string;
-};
+export const CHECKOUT_FORM_ID = 'checkout-form';
+
+function SectionHeading({ step, title }: { step: number; title: string }) {
+  return (
+    <div className="flex items-center gap-3 mb-5">
+      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-ink text-ivory text-xs font-semibold">
+        {step}
+      </span>
+      <h2 className="font-heading text-xl md:text-2xl font-medium text-ink">{title}</h2>
+    </div>
+  );
+}
 
 export default function CheckoutForm() {
   const t = useTranslations('checkout');
-  const formSchema = z.object({
-    name: z.string().min(2, t('nameMin')),
-    email: z.string().email(t('emailInvalid')),
-    phone: z.string().min(10, t('phoneInvalid')),
-    country: z.string().min(2, t('countryRequired')),
-    city: z.string().min(2, t('cityRequired')),
-    address: z.string().min(10, t('addressMin')),
-    postal_code: z.string().min(3, t('postalCodeRequired')),
-  });
+  const locale = useLocale();
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [shippingZones, setShippingZones] = useState<any[]>([]);
-  const [shippingFee, setShippingFee] = useState(0);
-  const { setShippingFee: setContextShippingFee } = useCheckout();
+  const { setShipping, shipping, isSubmitting, setIsSubmitting } = useCheckout();
   const items = useCartStore((state) => state.items);
-  const getTotalPrice = useCartStore((state) => state.getTotalPrice());
-  const clearCart = useCartStore((state) => state.clearCart);
+  const subtotal = useCartStore((state) => state.getTotalPrice());
   const { hidePrices } = useSettings();
 
-  // Fetch shipping zones on mount
+  const [zones, setZones] = useState<ShippingZone[]>([]);
+  const [zonesLoaded, setZonesLoaded] = useState(false);
+
   useEffect(() => {
-    const fetchShippingZones = async () => {
+    (async () => {
       const { createClient } = await import('@/utils/supabase/client');
       const supabase = createClient();
-      const { data } = await supabase.from('shipping_zones').select('*').order('country');
-      if (data) setShippingZones(data);
-    };
-    fetchShippingZones();
+      const { data } = await supabase
+        .from('shipping_zones')
+        .select('id, country, country_code, city, price, continent, shipping_details, is_enabled')
+        .eq('is_enabled', true);
+      setZones((data ?? []) as ShippingZone[]);
+      setZonesLoaded(true);
+    })();
   }, []);
+
+  // Turkey first, then every other enabled country by its localized name.
+  const countries = useMemo(() => {
+    const list = getEnabledCountryZones(zones).map((z) => ({
+      code: z.country_code as string,
+      englishName: z.country,
+      label: countryDisplayName(z.country_code as string, locale, z.country),
+    }));
+    const domestic = list.find((c) => c.code === DOMESTIC_COUNTRY_CODE);
+    const rest = list
+      .filter((c) => c.code !== DOMESTIC_COUNTRY_CODE)
+      .sort((a, b) => a.label.localeCompare(b.label, locale));
+    return { domestic, rest };
+  }, [zones, locale]);
+
+  const formSchema = z
+    .object({
+      name: z.string().trim().min(2, t('nameMin')),
+      email: z.string().trim().email(t('emailInvalid')),
+      phone: z.string().min(10, t('phoneInvalid')),
+      country_code: z.string().min(2, t('countryRequired')),
+      province: z.string().optional(),
+      district: z.string().optional(),
+      city: z.string().optional(),
+      address: z.string().trim().min(10, t('addressMin')),
+      postal_code: z.string().trim().optional(),
+    })
+    .superRefine((v, ctx) => {
+      if (v.country_code === DOMESTIC_COUNTRY_CODE) {
+        if (!v.province) ctx.addIssue({ code: 'custom', path: ['province'], message: t('provinceRequired') });
+      } else if (!v.city || v.city.trim().length < 2) {
+        ctx.addIssue({ code: 'custom', path: ['city'], message: t('cityRequired') });
+      }
+    });
+  type FormValues = z.infer<typeof formSchema>;
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -80,85 +108,74 @@ export default function CheckoutForm() {
       name: '',
       email: '',
       phone: '',
-      country: '',
+      country_code: '',
+      province: '',
+      district: '',
       city: '',
       address: '',
       postal_code: '',
     },
   });
 
-  // Watch country changes to update shipping fee
-  const selectedCountry = form.watch('country');
+  const countryCode = form.watch('country_code');
+  const province = form.watch('province');
+  const isDomestic = countryCode === DOMESTIC_COUNTRY_CODE;
+
+  // Default the destination to Turkey once zones load (most orders are domestic).
+  useEffect(() => {
+    if (zonesLoaded && !form.getValues('country_code') && countries.domestic) {
+      form.setValue('country_code', DOMESTIC_COUNTRY_CODE);
+    }
+  }, [zonesLoaded, countries.domestic, form]);
 
   useEffect(() => {
-    if (selectedCountry && shippingZones.length > 0) {
-      const zone = shippingZones.find(z => z.country === selectedCountry);
-      const baseRate = zone?.price || 0;
-      
-      // Calculate Total Quantity
-      const totalQuantity = items.reduce((acc, item) => acc + item.quantity, 0);
-      
-      // Wholesale Threshold Logic (500+ Items)
-      if (totalQuantity >= 500) {
-          setShippingFee(0); // Custom Quote for wholesale
-          setContextShippingFee(0);
-      } else {
-          // Per-Item Calculation
-          const calculatedFee = baseRate * totalQuantity;
-          setShippingFee(calculatedFee);
-          setContextShippingFee(calculatedFee);
-      }
-    }
-  }, [selectedCountry, shippingZones, items, getTotalPrice, setContextShippingFee]);
+    setShipping(countryCode ? quoteShipping(zones, countryCode, isDomestic ? province : null) : null);
+  }, [zones, countryCode, province, isDomestic, setShipping]);
 
   const onSubmit = async (values: FormValues) => {
+    const quote = quoteShipping(zones, values.country_code, values.country_code === DOMESTIC_COUNTRY_CODE ? values.province : null);
+    if (!quote.available) {
+      toast.error(t('shippingNotAvailable'));
+      return;
+    }
+
     try {
       setIsSubmitting(true);
+      const shippingCost = hidePrices ? 0 : quote.price;
+      const total = hidePrices ? 0 : subtotal + shippingCost;
+      const countryZone = zones.find((z) => z.country_code === values.country_code && !z.city);
+      const domestic = values.country_code === DOMESTIC_COUNTRY_CODE;
 
-      const subtotal = getTotalPrice;
-      const totalQuantity = items.reduce((acc, item) => acc + item.quantity, 0);
-      const isWholesale = totalQuantity >= 500;
-      
-      // Final calculation check
-      const finalShippingFee = isWholesale || hidePrices ? 0 : shippingFee;
-      const total = hidePrices ? 0 : (subtotal + finalShippingFee);
-
-      // Generate order number
-      const orderNumber = `RP${Date.now()}`;
-
-      // Prepare order data for database
       const orderData = {
-        customer_name: values.name,
-        customer_email: values.email,
+        customer_name: values.name.trim(),
+        customer_email: values.email.trim(),
         customer_phone: values.phone,
         customer_address: {
-          line1: values.address,
-          country: values.country,
-          city: values.city,
-          postal_code: values.postal_code,
+          line1: values.address.trim(),
+          // English country name, matching what admin/invoices already display.
+          country: countryZone?.country ?? values.country_code,
+          country_code: values.country_code,
+          // For Turkey `city` holds the province (il), so existing order
+          // views/invoices that read address.city keep working.
+          city: domestic ? values.province : values.city?.trim(),
+          district: domestic ? values.district?.trim() || null : null,
+          postal_code: values.postal_code?.trim() || '',
         },
         total_amount: total,
-        shipping_cost: finalShippingFee,
+        shipping_cost: shippingCost,
         status: 'pending',
       };
 
-      // Save order to database
       const { createClient } = await import('@/utils/supabase/client');
       const supabase = createClient();
-      
-      const { data: order, error: orderError } = await supabase
-        .from('orders')
-        .insert(orderData)
-        .select()
-        .single();
 
+      const { data: order, error: orderError } = await supabase.from('orders').insert(orderData).select().single();
       if (orderError) {
         console.error('Error saving order:', JSON.stringify(orderError, null, 2));
         toast.error(orderError.message || t('orderFailed'));
         return;
       }
 
-      // Save order items
       const orderItems = items.map((item) => ({
         order_id: order.id,
         product_id: item.id,
@@ -166,10 +183,7 @@ export default function CheckoutForm() {
         unit_price: item.price,
       }));
 
-      const { error: itemsError } = await supabase
-        .from('order_items')
-        .insert(orderItems);
-
+      const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
       if (itemsError) {
         console.error('Error saving order items:', itemsError);
       } else {
@@ -177,32 +191,21 @@ export default function CheckoutForm() {
         const { error: salesCountError } = await supabase.rpc('increment_sales_counts', {
           items: items.map((item) => ({ id: item.id, qty: item.quantity })),
         });
-        if (salesCountError) {
-          console.error('Error incrementing sales counts:', salesCountError);
-        }
+        if (salesCountError) console.error('Error incrementing sales counts:', salesCountError);
       }
 
-      // Send Order Confirmation Email Natively
       try {
         await fetch('/api/emails', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            type: 'confirmation',
-            email: values.email,
-            orderId: order.id,
-            customerName: values.name,
-          }),
+          body: JSON.stringify({ type: 'confirmation', email: values.email, orderId: order.id, customerName: values.name }),
         });
       } catch (emailError) {
         console.error('Non-fatal error: Failed to send confirmation email', emailError);
       }
 
       toast.success(t('orderPlaced'));
-
-      // Redirect to the success page to handle UI updates
       router.push(`/checkout/success?orderId=${order.id}`);
-
     } catch (error) {
       console.error('Error placing order:', error);
       toast.error(t('orderFailed'));
@@ -211,160 +214,230 @@ export default function CheckoutForm() {
     }
   };
 
+  const toCountryOption = (c: { code: string; label: string }): SearchableOption => ({
+    value: c.code,
+    label: c.label,
+    icon: <Image src={flagUrl(c.code)} width={20} height={15} alt="" className="rounded-[2px] shadow-sm" unoptimized />,
+  });
+  const provinceOptions: SearchableOption[] = TURKEY_PROVINCES.map((p) => ({ value: p, label: p }));
+
+  const noDestinations = zonesLoaded && !countries.domestic && countries.rest.length === 0;
+  const blocked = shipping !== null && !shipping.available;
+
   return (
-    <div className="border rounded-lg p-6">
-      <h2 className="text-2xl font-heading font-medium mb-6">{t('deliveryInformation')}</h2>
-      
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Name */}
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('fullName')}</FormLabel>
-                <FormControl>
-                  <Input placeholder="John Doe" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Email */}
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('email')}</FormLabel>
-                <FormControl>
-                  <Input type="email" placeholder="john@example.com" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Phone */}
-          <FormField
-            control={form.control}
-            name="phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('phoneNumber')}</FormLabel>
-                <FormControl>
-                  <PhoneInput
-                    country={'tr'}
-                    value={field.value}
-                    onChange={(phone) => field.onChange(phone)}
-                    inputClass="phone-input-field"
-                    containerClass="phone-input-container"
-                    buttonClass="phone-input-button"
-                    enableSearch
-                    searchPlaceholder={t('searchCountry')}
-                    countryCodeEditable={false}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Country */}
-          <FormField
-            control={form.control}
-            name="country"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('country')}</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+    <Form {...form}>
+      <form id={CHECKOUT_FORM_ID} onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
+        {/* ── 1. Contact ── */}
+        <section>
+          <SectionHeading step={1} title={t('contactSection')} />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem className="sm:col-span-2">
+                  <FormLabel>{t('fullName')}</FormLabel>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder={t('selectCountryPlaceholder')} />
-                    </SelectTrigger>
+                    <Input autoComplete="name" className="h-11 bg-white" {...field} />
                   </FormControl>
-                  <SelectContent>
-                    {shippingZones.map((zone) => (
-                      <SelectItem key={zone.id} value={zone.country}>
-                        {zone.country} {zone.city ? `- ${zone.city}` : ''} {hidePrices ? '' : `(${zone.price.toFixed(2)} / item)`}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('email')}</FormLabel>
+                  <FormControl>
+                    <Input type="email" autoComplete="email" inputMode="email" className="h-11 bg-white" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('phoneNumber')}</FormLabel>
+                  <FormControl>
+                    <PhoneInput
+                      country="tr"
+                      preferredCountries={['tr']}
+                      excludeCountries={['il']}
+                      value={field.value}
+                      onChange={(phone) => field.onChange(phone)}
+                      inputClass="phone-input-field"
+                      containerClass="phone-input-container"
+                      buttonClass="phone-input-button"
+                      enableSearch
+                      searchPlaceholder={t('searchCountry')}
+                      countryCodeEditable={false}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </section>
 
-          {/* City */}
-          <FormField
-            control={form.control}
-            name="city"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('city')}</FormLabel>
-                <FormControl>
-                  <Input placeholder="Istanbul" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        {/* ── 2. Delivery ── */}
+        <section>
+          <SectionHeading step={2} title={t('deliverySection')} />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField
+              control={form.control}
+              name="country_code"
+              render={({ field }) => (
+                <FormItem className="sm:col-span-2">
+                  <FormLabel>{t('country')}</FormLabel>
+                  <FormControl>
+                    <SearchableSelect
+                      value={field.value}
+                      onChange={(v) => {
+                        field.onChange(v);
+                        form.setValue('province', '');
+                        form.setValue('city', '');
+                      }}
+                      pinned={countries.domestic ? [toCountryOption(countries.domestic)] : []}
+                      options={countries.rest.map(toCountryOption)}
+                      restLabel={countries.domestic ? t('internationalDestinations') : undefined}
+                      placeholder={zonesLoaded ? t('selectCountryPlaceholder') : t('loadingDestinations')}
+                      searchPlaceholder={t('searchCountry')}
+                      emptyText={t('noMatches')}
+                      disabled={!zonesLoaded || noDestinations}
+                      invalid={!!form.formState.errors.country_code}
+                    />
+                  </FormControl>
+                  {noDestinations && <p className="text-xs text-destructive">{t('noDestinations')}</p>}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          {/* Address */}
-          <FormField
-            control={form.control}
-            name="address"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('fullAddress')}</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder={t('addressPlaceholder')}
-                    className="min-h-[100px]"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Postal Code */}
-          <FormField
-            control={form.control}
-            name="postal_code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('postalCode')}</FormLabel>
-                <FormControl>
-                  <Input placeholder="34000" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Submit Button */}
-          <Button
-            type="submit"
-            className="w-full"
-            size="lg"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
+            {isDomestic ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {t('generatingInvoice')}
+                <FormField
+                  control={form.control}
+                  name="province"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('province')}</FormLabel>
+                      <FormControl>
+                        <SearchableSelect
+                          value={field.value ?? ''}
+                          onChange={field.onChange}
+                          options={provinceOptions}
+                          placeholder={t('selectProvince')}
+                          searchPlaceholder={t('searchProvince')}
+                          emptyText={t('noMatches')}
+                          invalid={!!form.formState.errors.province}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="district"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('district')}</FormLabel>
+                      <FormControl>
+                        <Input autoComplete="address-level2" placeholder={t('districtPlaceholder')} className="h-11 bg-white" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </>
             ) : (
-              t('placeOrder')
+              <FormField
+                control={form.control}
+                name="city"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('city')}</FormLabel>
+                    <FormControl>
+                      <Input autoComplete="address-level2" className="h-11 bg-white" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             )}
-          </Button>
-        </form>
-      </Form>
-    </div>
+
+            <FormField
+              control={form.control}
+              name="address"
+              render={({ field }) => (
+                <FormItem className="sm:col-span-2">
+                  <FormLabel>{t('fullAddress')}</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      autoComplete="street-address"
+                      placeholder={t('addressPlaceholder')}
+                      className="min-h-[96px] bg-white"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="postal_code"
+              render={({ field }) => (
+                <FormItem className={isDomestic ? 'sm:col-span-2' : ''}>
+                  <FormLabel>
+                    {t('postalCode')} <span className="text-muted-foreground font-normal">({t('optional')})</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input autoComplete="postal-code" inputMode="numeric" className="h-11 bg-white sm:max-w-[200px]" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {shipping?.available && shipping.details && (
+            <p className="mt-4 rounded-sm border border-border bg-secondary/40 px-3 py-2 text-xs text-ink/70">{shipping.details}</p>
+          )}
+          {blocked && (
+            <p className="mt-4 rounded-sm border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive">
+              {t('shippingNotAvailable')}
+            </p>
+          )}
+        </section>
+
+        {/* Desktop submit — mobile uses the sticky bar in the checkout page, which submits this form via form="checkout-form". */}
+        <Button
+          type="submit"
+          size="lg"
+          disabled={isSubmitting || blocked || noDestinations}
+          className="hidden lg:flex w-full h-14 notch-corners rounded-none bg-ink text-ivory hover:bg-gold-deep uppercase tracking-widest text-sm font-semibold"
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {t('placingOrder')}
+            </>
+          ) : (
+            <>
+              <Lock className="mr-2 h-4 w-4" />
+              {t('placeOrder')}
+            </>
+          )}
+        </Button>
+      </form>
+    </Form>
   );
 }

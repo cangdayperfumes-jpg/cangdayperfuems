@@ -7,6 +7,14 @@ import OrderAcceptedEmail from '@/components/emails/OrderAcceptedEmail';
 // Note: No Next.js Edge runtime declarations are used here to guarantee Netlify compatibility.
 
 export async function POST(req: Request) {
+  // Without a key the Resend constructor throws. Skip cleanly instead, so a
+  // missing env var shows up as one clear log line (the order itself is
+  // already saved — checkout treats email as non-fatal).
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('[emails] RESEND_API_KEY is not set — skipping order email.');
+    return NextResponse.json({ skipped: true, reason: 'Email service not configured' }, { status: 503 });
+  }
+
   try {
     const resend = new Resend(process.env.RESEND_API_KEY);
     const body = await req.json();

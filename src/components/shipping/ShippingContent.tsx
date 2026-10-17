@@ -13,6 +13,7 @@ import Image from "next/image";
 import { useTranslations } from 'next-intl';
 import { useSettings } from '@/components/providers/SettingsProvider';
 import ShippingMap from './ShippingMap';
+import { formatCurrency } from '@/lib/utils';
 
 interface ShippingContentProps {
   groupedZones: Record<string, any[]>;
@@ -97,7 +98,7 @@ export default function ShippingContent({ groupedZones, allZones }: ShippingCont
                                             </div>
                                             {!hidePrices && (
                                                 <span className="text-black font-semibold text-sm whitespace-nowrap">
-                                                    ${zone.price.toFixed(2)}
+                                                    {Number(zone.price) === 0 ? t('free') : formatCurrency(Number(zone.price))}
                                                 </span>
                                             )}
                                         </div>

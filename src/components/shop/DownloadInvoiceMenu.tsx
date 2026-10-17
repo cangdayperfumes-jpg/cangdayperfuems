@@ -14,7 +14,6 @@ import CustomizePDFModal from './CustomizePDFModal';
 import ShippingCostDialog from './ShippingCostDialog';
 import { Order, OrderItem } from '@/types';
 import { EditableInvoiceItem } from '@/types/invoice';
-import { createClient } from '@/utils/supabase/client';
 
 interface DownloadInvoiceMenuProps {
   order: Order;
@@ -60,11 +59,10 @@ export default function DownloadInvoiceMenu({
   const [pendingAction, setPendingAction] = useState<'default' | 'noprices' | null>(null);
 
   const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
-  // Derived from the order's own saved total as a sane fallback until (or
-  // if) a matching Shipping Zone rate is found for the destination country.
-  const [perProductShippingRate, setPerProductShippingRate] = useState(
-    totalQuantity > 0 ? (order.shipping_cost || 0) / totalQuantity : order.shipping_cost || 0
-  );
+  // Spread the order's recorded shipping_cost across its units as the
+  // default per-line rate, so the invoice reproduces what was charged.
+  const perProductShippingRate =
+    totalQuantity > 0 ? (order.shipping_cost || 0) / totalQuantity : order.shipping_cost || 0;
 
   useEffect(() => {
     // Avoid SSR "document is not defined" issues from @react-pdf/renderer.
@@ -72,22 +70,6 @@ export default function DownloadInvoiceMenu({
     return () => clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
-    // Only admin call sites offer shipping editing, so skip the lookup
-    // entirely for customer-facing downloads.
-    if (!isAdmin) return;
-    const country = order.customer_address?.country;
-    if (!country) return;
-    const supabase = createClient();
-    supabase
-      .from('shipping_zones')
-      .select('price')
-      .eq('country', country)
-      .limit(1)
-      .then(({ data }) => {
-        if (data && data[0]) setPerProductShippingRate(data[0].price);
-      });
-  }, [isAdmin, order.customer_address?.country]);
 
   const filename = `invoice-${order.id.slice(0, 8)}.pdf`;
 

@@ -53,6 +53,13 @@ function buildHeroSlideSchema(t: (key: string) => string) {
     button_link: z.string().min(1, t('validation.buttonLinkRequired')),
     secondary_button_text: z.string().optional(),
     secondary_button_link: z.string().optional(),
+    // Turkish copy — all optional; blank falls back to the English field.
+    eyebrow_tr: z.string().optional(),
+    headline_tr: z.string().optional(),
+    headline_accent_tr: z.string().optional(),
+    subheading_tr: z.string().optional(),
+    button_text_tr: z.string().optional(),
+    secondary_button_text_tr: z.string().optional(),
     display_order: z.coerce.number().default(0),
     is_active: z.boolean().default(true),
   });
@@ -88,6 +95,12 @@ export default function HeroSlideForm({ initialData }: HeroSlideFormProps) {
       button_link: initialData?.button_link || '/shop',
       secondary_button_text: initialData?.secondary_button_text || '',
       secondary_button_link: initialData?.secondary_button_link || '',
+      eyebrow_tr: initialData?.eyebrow_tr || '',
+      headline_tr: initialData?.headline_tr || '',
+      headline_accent_tr: initialData?.headline_accent_tr || '',
+      subheading_tr: initialData?.subheading_tr || '',
+      button_text_tr: initialData?.button_text_tr || '',
+      secondary_button_text_tr: initialData?.secondary_button_text_tr || '',
       display_order: initialData?.display_order ?? 0,
       is_active: initialData?.is_active ?? true,
     },
@@ -114,6 +127,12 @@ export default function HeroSlideForm({ initialData }: HeroSlideFormProps) {
         button_link: values.button_link,
         secondary_button_text: values.secondary_button_text || null,
         secondary_button_link: values.secondary_button_link || null,
+        eyebrow_tr: values.eyebrow_tr?.trim() || null,
+        headline_tr: values.headline_tr?.trim() || null,
+        headline_accent_tr: values.headline_accent_tr?.trim() || null,
+        subheading_tr: values.subheading_tr?.trim() || null,
+        button_text_tr: values.button_text_tr?.trim() || null,
+        secondary_button_text_tr: values.secondary_button_text_tr?.trim() || null,
         display_order: values.display_order,
         is_active: values.is_active,
       };
@@ -318,6 +337,47 @@ export default function HeroSlideForm({ initialData }: HeroSlideFormProps) {
               )}
             />
           </div>
+        </section>
+
+        {/* Turkish content — shown on the /tr storefront. Placeholders mirror
+            the English values above, which is exactly what renders for any
+            field left blank. */}
+        <section className="space-y-4 rounded-lg border bg-white p-6">
+          <div>
+            <h2 className="font-heading text-lg">{t('sectionTurkish')}</h2>
+            <p className="text-xs text-muted-foreground mt-1">{t('turkishHint')}</p>
+          </div>
+
+          {(
+            [
+              { name: 'eyebrow_tr', label: t('eyebrowLabel'), en: 'eyebrow' },
+              { name: 'headline_tr', label: t('headlineLabel'), en: 'headline' },
+              { name: 'headline_accent_tr', label: t('headlineAccentLabel'), en: 'headline_accent' },
+              { name: 'subheading_tr', label: t('subheadingLabel'), en: 'subheading', multiline: true },
+              { name: 'button_text_tr', label: t('primaryButtonTextLabel'), en: 'button_text' },
+              { name: 'secondary_button_text_tr', label: t('secondaryButtonTextLabel'), en: 'secondary_button_text' },
+            ] as const
+          ).map((f) => (
+            <FormField
+              key={f.name}
+              control={form.control}
+              name={f.name}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {f.label} <span className="text-xs font-normal text-muted-foreground">(TR)</span>
+                  </FormLabel>
+                  <FormControl>
+                    {'multiline' in f ? (
+                      <Textarea placeholder={form.watch(f.en) || ''} {...field} />
+                    ) : (
+                      <Input placeholder={form.watch(f.en) || ''} {...field} />
+                    )}
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          ))}
         </section>
 
         {/* Activation */}

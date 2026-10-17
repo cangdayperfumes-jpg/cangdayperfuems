@@ -14,17 +14,28 @@ const ITEMS = [
  * `trustBar` copy), but as a prominent icon grid right under the hero,
  * where it's far more likely to actually be read than a thin strip above
  * the header.
+ *
+ * Mobile stacks each badge (icon above a centered label) in a 2×2 grid —
+ * side-by-side icon + text in a half-width cell forced every label to wrap
+ * awkwardly. Hairline dividers come from `gap-px` over a border-colored
+ * background, so the lines are always exactly between cells at any
+ * column count.
  */
 export default async function TrustBadges() {
   const t = await getTranslations('trustBar');
   return (
     <section className="w-full bg-ivory border-b border-border">
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-border">
+      <div className="max-w-[1400px] mx-auto md:px-6 lg:px-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border">
           {ITEMS.map(({ icon: Icon, key }) => (
-            <div key={key} className="flex items-center gap-3 px-4 py-5 md:py-6">
-              <Icon className="h-6 w-6 md:h-7 md:w-7 text-gold-deep shrink-0" strokeWidth={1.5} />
-              <span className="text-xs md:text-sm font-medium text-ink/80 leading-tight">
+            <div
+              key={key}
+              className="bg-ivory flex flex-col md:flex-row items-center justify-center gap-2 md:gap-3 px-3 py-4 md:py-6 text-center md:text-left"
+            >
+              <span className="flex h-10 w-10 md:h-11 md:w-11 shrink-0 items-center justify-center rounded-full border border-gold/40 bg-gold/5">
+                <Icon className="h-[18px] w-[18px] md:h-5 md:w-5 text-gold-deep" strokeWidth={1.5} />
+              </span>
+              <span className="text-[11px] md:text-sm font-medium text-ink/80 leading-snug max-w-[14ch] md:max-w-none">
                 {t(key)}
               </span>
             </div>

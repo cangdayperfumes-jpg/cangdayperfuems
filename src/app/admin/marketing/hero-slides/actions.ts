@@ -18,6 +18,12 @@ export interface HeroSlideInput {
   button_link: string;
   secondary_button_text?: string | null;
   secondary_button_link?: string | null;
+  eyebrow_tr?: string | null;
+  headline_tr?: string | null;
+  headline_accent_tr?: string | null;
+  subheading_tr?: string | null;
+  button_text_tr?: string | null;
+  secondary_button_text_tr?: string | null;
   display_order: number;
   is_active: boolean;
 }
@@ -25,6 +31,9 @@ export interface HeroSlideInput {
 function revalidateHeroPaths() {
   revalidatePath('/admin/marketing/hero-slides');
   revalidatePath('/');
+  // The storefront home lives at /en and /tr (app/[locale]/page.tsx), which
+  // revalidatePath('/') alone doesn't reach.
+  revalidatePath('/[locale]', 'page');
 }
 
 export async function getHeroSlides() {

@@ -5,8 +5,9 @@ function Skeleton({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
+    // Warm ink tint (not cool gray) so placeholders sit naturally on the ivory storefront.
     <div
-      className={cn("animate-pulse rounded-md bg-muted/20 dark:bg-muted/10 bg-gray-200 dark:bg-gray-800", className)}
+      className={cn("animate-pulse rounded-md bg-ink/[0.07]", className)}
       {...props}
     />
   )
