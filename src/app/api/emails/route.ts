@@ -45,13 +45,28 @@ export async function POST(req: Request) {
     // Render email to HTML string first
     const emailHtml = await render(reactEmailTemplate);
 
-    // Send the email
-    const data = await resend.emails.send({
-      from: 'Cangday <onboarding@resend.dev>', // If unverified domain; otherwise update to actual domain
+    // Sender comes from EMAIL_FROM (e.g. "Cangday <orders@cangdayperfume.com>")
+    // once the domain is verified in Resend. Until then Resend's shared test
+    // sender is the only allowed one — and it only delivers to the Resend
+    // account owner's own inbox, not to customers.
+    const from = process.env.EMAIL_FROM || 'Cangday <onboarding@resend.dev>';
+    const replyTo = process.env.EMAIL_REPLY_TO;
+
+    // The Resend SDK reports failures (unverified domain, recipient not
+    // allowed, bad key…) in `error` instead of throwing — check it, or a
+    // rejected email would be reported back as a success.
+    const { data, error } = await resend.emails.send({
+      from,
       to: [email],
       subject: subjectLine,
       html: emailHtml,
+      ...(replyTo ? { replyTo } : {}),
     });
+
+    if (error) {
+      console.error('Resend rejected email:', error);
+      return NextResponse.json({ error: error.message }, { status: 502 });
+    }
 
     return NextResponse.json({ success: true, data });
   } catch (error: any) {

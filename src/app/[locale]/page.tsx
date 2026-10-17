@@ -1,6 +1,5 @@
 
 
-import type { Metadata } from 'next';
 import { createClient } from '@supabase/supabase-js';
 import { PLACEHOLDER_SUPABASE_URL } from '@/utils/supabase/placeholder';
 import Hero from "@/components/shared/Hero";
@@ -34,9 +33,9 @@ import Reveal from '@/components/shared/Reveal';
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-  alternates: { canonical: '/' },
-};
+// No page-level canonical: the [locale] layout already sets it to
+// `${siteUrl}/${locale}` — a fixed '/' here made /en point at the bare
+// domain, which redirects to /tr.
 
 export default async function Home() {
   const t = await getTranslations('home');
