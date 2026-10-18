@@ -69,6 +69,16 @@ export default function ShopClientWrapper({
   // any search arriving via a link (or Google's sitelinks search box).
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery || '');
   const [debouncedQuery] = useDebounce(searchQuery, 500);
+
+  // Re-seed when `q` changes from OUTSIDE this component (e.g. the header
+  // search navigating here while /shop is already mounted) — useState's
+  // initial value only applies on first mount, so without this the local
+  // box stays stale and the debounced-search effect below sees it as a
+  // mismatch with the new URL and deletes `q` again, wiping the search that
+  // just landed. Scoped to `initialSearchQuery` so it never fires mid-typing.
+  useEffect(() => {
+    setSearchQuery(initialSearchQuery || '');
+  }, [initialSearchQuery]);
   const [filter, setFilter] = useState<string | null>(initialFilter || null);
 
   // Infinite scroll state
@@ -127,7 +137,14 @@ export default function ShopClientWrapper({
     return () => observer.disconnect();
   }, [isLoadingMore, isPending, pagination.hasMore, pagination.page, router, searchParams]);
 
-  // Debounced Search Update
+  // Debounced Search Update — deliberately triggered only by `debouncedQuery`
+  // (the user's own typing settling), not by `searchParams`. Reacting to
+  // `searchParams` too meant ANY navigation while mounted (e.g. the header
+  // search landing here with a new `q`) re-ran this before the local box had
+  // caught up via the resync effect above, saw a stale mismatch, and deleted
+  // the just-arrived `q` — bouncing the user back to the unfiltered grid.
+  // searchParams is still read fresh inside (closures capture the latest
+  // render), it just no longer re-triggers the effect on its own.
   useEffect(() => {
     const currentQ = searchParams.get('q') || '';
     if (debouncedQuery !== currentQ) {
@@ -138,12 +155,13 @@ export default function ShopClientWrapper({
         params.delete('q');
       }
       params.set('page', '1'); // Reset to page 1 on search
-      
+
       startTransition(() => {
         router.push(`/shop?${params.toString()}`);
       });
     }
-  }, [debouncedQuery, router, searchParams]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedQuery, router]);
 
 
   const selectedCategory = initialCategorySlug
