@@ -14,6 +14,11 @@
     "goTo": "{label} sayfasına git",
     "search": "Ara",
     "searchPlaceholder": "Parfüm, marka veya koku ara...",
+    "searching": "Aranıyor...",
+    "noSearchResults": "\"{query}\" için sonuç bulunamadı",
+    "viewAllResults": "\"{query}\" için tüm sonuçları gör",
+    "shopByCategory": "Kategoriye Göre",
+    "viewAll": "Tümü",
     "cart": "Sepet",
     "tagline": "Modern Parfümeri"
   },

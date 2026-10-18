@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { ShoppingBag, Search, Menu, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { ShoppingBag, Search, Menu, X, ChevronRight, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from '@/components/ui/sheet';
@@ -11,15 +11,20 @@ import { useCartStore } from '@/hooks/use-cart';
 import { useStore } from '@/hooks/use-store';
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Link, useRouter } from '@/i18n/navigation';
+import { Link, useRouter, usePathname } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { Category } from '@/types';
 import { cn } from '@/lib/utils';
-import OptionWheel from '@/components/OptionWheel';
+import SearchSuggestions from '@/components/shared/SearchSuggestions';
 
-// Experimental — trying react-bits' OptionWheel as the mobile menu's primary
-// nav picker in place of the flat link list, to see if it reads well here.
-const WHEEL_NAV_HREFS = ['/', '/shop', '/categories', '/shipping', '/blog', '/about'] as const;
+const MOBILE_NAV_LINKS = [
+  { href: '/', key: 'home' },
+  { href: '/shop', key: 'shop' },
+  { href: '/categories', key: 'collections' },
+  { href: '/shipping', key: 'shipping' },
+  { href: '/blog', key: 'journal' },
+  { href: '/about', key: 'about' },
+] as const;
 
 interface NavbarProps {
   categories?: Category[];
@@ -34,18 +39,14 @@ interface NavbarProps {
  */
 export default function Navbar({ categories = [] }: NavbarProps) {
   const t = useTranslations('nav');
-  const wheelLabels = [t('home'), t('shop'), t('collections'), t('shipping'), t('journal'), t('about')];
   const [isOpen, setIsOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isCollectionsOpen, setIsCollectionsOpen] = useState(true);
   const itemCount = useStore(useCartStore, (state) => state.getItemCount());
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const activeCategory = searchParams.get('category');
   const [isScrolled, setIsScrolled] = useState(false);
-  const [wheelIndex, setWheelIndex] = useState(2);
-  const wheelRef = useRef<HTMLDivElement>(null);
-  const wheelDragStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -89,6 +90,13 @@ export default function Navbar({ categories = [] }: NavbarProps) {
     setIsOpen(false);
   };
 
+  const closeMobileMenu = () => {
+    setIsOpen(false);
+    setMobileSearchQuery('');
+  };
+  // Matches SearchSuggestions' own 2-character threshold for showing results.
+  const isMobileSearching = mobileSearchQuery.trim().length >= 2;
+
   return (
     <nav
       className={cn(
@@ -113,134 +121,157 @@ export default function Navbar({ categories = [] }: NavbarProps) {
               </Button>
             </SheetTrigger>
 
-            <SheetContent side="left" showCloseButton={false} className="w-full max-w-none sm:max-w-none h-full border-none p-0 bg-ivory text-ink flex flex-col">
+            <SheetContent side="left" showCloseButton={false} className="w-full max-w-none sm:max-w-sm h-full border-none p-0 bg-ivory text-ink flex flex-col">
               <SheetTitle className="sr-only">{t('mobileMenu')}</SheetTitle>
 
-              <div className="flex justify-end p-6">
+              {/* Header — logo + close, same height as the main nav bar so
+                  opening the menu doesn't make the top of the screen jump. */}
+              <div className="flex items-center justify-between h-16 px-5 border-b border-border shrink-0">
+                <Link href="/" onClick={closeMobileMenu} className="flex items-center">
+                  <Image
+                    src="/images/cangday-logo.png"
+                    alt="Cangday — Modern Perfumery"
+                    width={2172}
+                    height={724}
+                    className="h-10 w-auto"
+                  />
+                </Link>
                 <SheetClose asChild>
-                  <Button variant="ghost" size="icon" className="hover:bg-ink/5 text-ink">
-                    <X className="h-8 w-8" />
+                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full hover:bg-ink/5 text-ink">
+                    <X className="h-5 w-5" />
                     <span className="sr-only">{t('close')}</span>
                   </Button>
                 </SheetClose>
               </div>
 
-              <div className="flex-1 overflow-y-auto px-8 py-4">
-                <nav className="flex flex-col space-y-6">
+              <div className="px-5 pt-4 pb-2 shrink-0">
+                <div className="rounded-sm border border-border bg-white/70 overflow-hidden focus-within:border-gold/60 transition-colors">
                   <form
                     onSubmit={(e) => {
                       e.preventDefault();
                       submitSearch(mobileSearchQuery);
                     }}
-                    className="flex items-center gap-2 border border-border rounded-sm px-3 h-12 bg-background"
+                    className="flex items-center gap-2 px-3 h-12"
                   >
                     <Search className="h-4 w-4 text-ink/40 shrink-0" />
                     <Input
                       value={mobileSearchQuery}
                       onChange={(e) => setMobileSearchQuery(e.target.value)}
                       placeholder={t('searchPlaceholder')}
-                      className="border-0 bg-transparent shadow-none focus-visible:ring-0 px-0 h-auto"
+                      className="border-0 bg-transparent shadow-none focus-visible:ring-0 px-0 h-auto text-sm"
                     />
-                  </form>
-
-                  <div className="border-b border-border pb-4">
-                    <div
-                      ref={wheelRef}
-                      className="h-[230px]"
-                      onPointerDownCapture={(e) => {
-                        wheelDragStartRef.current = { x: e.clientX, y: e.clientY };
-                      }}
-                      onClick={(e) => {
-                        // Ignore drag-releases (scroll/spin gestures) — only a
-                        // near-stationary tap should navigate.
-                        const start = wheelDragStartRef.current;
-                        if (start && Math.hypot(e.clientX - start.x, e.clientY - start.y) > 6) return;
-
-                        // The component only re-centers a clicked item; it
-                        // doesn't navigate. Walk the DOM to find which item
-                        // (by fixed render order, unaffected by the curve
-                        // animation) was tapped and route straight there.
-                        const target = (e.target as HTMLElement).closest('.option-wheel__item');
-                        if (!target || !wheelRef.current) return;
-                        const els = Array.from(wheelRef.current.querySelectorAll('.option-wheel__item'));
-                        const idx = els.indexOf(target);
-                        if (idx === -1) return;
-                        router.push(WHEEL_NAV_HREFS[idx]);
-                        setIsOpen(false);
-                      }}
-                    >
-                      <OptionWheel
-                        items={wheelLabels}
-                        defaultSelected={2}
-                        onChange={(idx: number) => setWheelIndex(idx)}
-                        textColor="rgba(13, 13, 12, 0.35)"
-                        activeColor="rgb(var(--brand-gold-deep))"
-                        fontSize={1.4}
-                        spacing={1.3}
-                        tilt={4}
-                        blur={1}
-                        fade={0.18}
-                        minOpacity={0.15}
-                        inset={0}
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        router.push(WHEEL_NAV_HREFS[wheelIndex]);
-                        setIsOpen(false);
-                      }}
-                      className="mt-4 w-full border border-gold/40 text-gold py-3 text-sm uppercase tracking-widest hover:bg-gold hover:text-ink transition-colors"
-                    >
-                      {t('goTo', { label: wheelLabels[wheelIndex] })}
-                    </button>
-                  </div>
-
-                  <div className="border-b border-border pb-4">
-                    <div className="flex items-center justify-between">
-                      <Link href="/categories" onClick={() => setIsOpen(false)} className="text-4xl font-light font-heading text-ink hover:text-ink/70 transition-colors">
-                        {t('collections')}
-                      </Link>
+                    {mobileSearchQuery && (
                       <button
-                        onClick={() => setIsCollectionsOpen(!isCollectionsOpen)}
-                        className="p-2 hover:bg-ink/5 rounded-full transition-colors"
+                        type="button"
+                        aria-label={t('close')}
+                        onClick={() => setMobileSearchQuery('')}
+                        className="h-6 w-6 shrink-0 flex items-center justify-center rounded-full text-ink/40 hover:bg-ink/5 hover:text-ink"
                       >
-                        {isCollectionsOpen ? <ChevronUp className="h-6 w-6 text-ink/40" /> : <ChevronDown className="h-6 w-6 text-ink/40" />}
+                        <X className="h-3.5 w-3.5" />
                       </button>
-                    </div>
-
-                    {isCollectionsOpen && (
-                      <div className="flex flex-col space-y-3 pl-4 mt-4 animate-in slide-in-from-top-2 duration-300">
-                        {categories?.map((cat) => (
-                          <Link
-                            key={cat.id}
-                            href={`/shop?category=${cat.slug}`}
-                            onClick={() => setIsOpen(false)}
-                            className={cn(
-                              'text-lg font-body text-ink/60 hover:text-ink transition-colors',
-                              activeCategory === cat.slug && 'text-gold-deep font-medium'
-                            )}
-                          >
-                            {cat.name}
-                          </Link>
-                        ))}
-                      </div>
                     )}
-                  </div>
-                </nav>
+                  </form>
+                  <SearchSuggestions query={mobileSearchQuery} onNavigate={closeMobileMenu} />
+                </div>
               </div>
 
-              <div className="p-8 mt-auto border-t border-border space-y-5">
-                <div className="flex items-center justify-center gap-8">
-                  <Link
-                    href="/contact"
-                    onClick={() => setIsOpen(false)}
-                    className="text-sm font-body uppercase tracking-widest text-ink/60 hover:text-ink transition-colors"
-                  >
-                    {t('contactUs')}
-                  </Link>
+              {/* While searching, results take over — the rest of the menu
+                  is hidden so the list isn't squeezed between nav sections. */}
+              {!isMobileSearching && (
+                <div className="flex-1 overflow-y-auto px-5 pb-6 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  <nav className="mt-2">
+                    {MOBILE_NAV_LINKS.map(({ href, key }) => {
+                      const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href);
+                      return (
+                        <Link
+                          key={href}
+                          href={href}
+                          onClick={closeMobileMenu}
+                          className="group flex items-center justify-between py-3.5 border-b border-border"
+                        >
+                          <span
+                            className={cn(
+                              'font-heading text-xl transition-colors',
+                              isActive ? 'text-gold-deep' : 'text-ink group-hover:text-gold-deep'
+                            )}
+                          >
+                            {t(key)}
+                          </span>
+                          <ChevronRight
+                            className={cn(
+                              'h-4 w-4 transition-all',
+                              isActive ? 'text-gold-deep' : 'text-ink/30 group-hover:text-gold-deep group-hover:translate-x-0.5'
+                            )}
+                          />
+                        </Link>
+                      );
+                    })}
+                  </nav>
+
+                  {categories.length > 0 && (
+                    <section className="mt-7">
+                      <div className="flex items-center justify-between mb-3">
+                        <p className="text-[11px] uppercase tracking-[0.3em] font-semibold text-gold-deep">
+                          {t('shopByCategory')}
+                        </p>
+                        <Link
+                          href="/categories"
+                          onClick={closeMobileMenu}
+                          className="flex items-center gap-1 text-xs font-medium text-ink/60 hover:text-ink"
+                        >
+                          {t('viewAll')}
+                          <ArrowRight className="h-3 w-3" />
+                        </Link>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {categories.map((cat, index) => {
+                          const isActive = activeCategory === cat.slug;
+                          // An odd count would otherwise leave the last tile
+                          // alone next to an empty gap — let it span both columns.
+                          const isLastOdd = categories.length % 2 === 1 && index === categories.length - 1;
+                          return (
+                            <Link
+                              key={cat.id}
+                              href={`/shop?category=${cat.slug}`}
+                              onClick={closeMobileMenu}
+                              className={cn(
+                                // Fixed height + centered text: tiles stay uniform
+                                // even when a long name wraps to two lines.
+                                'group flex h-14 items-center justify-between gap-2 rounded-sm border px-3 transition-colors',
+                                isLastOdd && 'col-span-2',
+                                isActive
+                                  ? 'border-gold-deep bg-gold/10 text-gold-deep'
+                                  : 'border-border bg-white/60 text-ink/80 hover:border-gold/50 hover:text-ink'
+                              )}
+                            >
+                              <span className={cn('text-[13px] leading-tight line-clamp-2', isActive && 'font-medium')}>
+                                {cat.name}
+                              </span>
+                              <ChevronRight
+                                className={cn(
+                                  'h-3.5 w-3.5 shrink-0 transition-colors',
+                                  isActive ? 'text-gold-deep' : 'text-ink/25 group-hover:text-gold-deep'
+                                )}
+                              />
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </section>
+                  )}
                 </div>
-                <LanguageSwitcher className="justify-center" />
+              )}
+              {isMobileSearching && <div className="flex-1" />}
+
+              <div className="shrink-0 border-t border-border px-5 py-4 flex items-center justify-between">
+                <Link
+                  href="/contact"
+                  onClick={closeMobileMenu}
+                  className="text-xs font-semibold uppercase tracking-widest text-ink/70 hover:text-ink transition-colors"
+                >
+                  {t('contactUs')}
+                </Link>
+                <LanguageSwitcher />
               </div>
             </SheetContent>
           </Sheet>
@@ -353,6 +384,11 @@ export default function Navbar({ categories = [] }: NavbarProps) {
               <X className="h-5 w-5" />
             </Button>
           </form>
+          <div className="container">
+            <div className="max-w-4xl mx-auto">
+              <SearchSuggestions query={searchQuery} onNavigate={() => setIsSearchOpen(false)} />
+            </div>
+          </div>
         </div>
       )}
     </nav>
