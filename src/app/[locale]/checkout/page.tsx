@@ -166,7 +166,7 @@ function CheckoutContent() {
   const blocked = shipping !== null && !shipping.available;
 
   return (
-    <div className="min-h-screen bg-background pb-28 lg:pb-16">
+    <div className="min-h-screen bg-background pb-[calc(13rem+env(safe-area-inset-bottom))] lg:pb-16 [&_input]:scroll-mb-48 [&_textarea]:scroll-mb-48 [&_button]:scroll-mb-48 lg:[&_input]:scroll-mb-0 lg:[&_textarea]:scroll-mb-0 lg:[&_button]:scroll-mb-0">
       <div className="mx-auto max-w-6xl px-4 pt-6 md:pt-10">
         <div className="mb-6 md:mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="space-y-2">
