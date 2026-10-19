@@ -51,9 +51,9 @@ export default async function TermsOfServicePage() {
       <Section title={t('s3Title')}>
         <p>
           {t.rich('s3Body', {
-            link: () => (
+            link: (chunks) => (
               <Link href="/shipping" className={linkClass}>
-                {t('s3LinkText')}
+                {chunks}
               </Link>
             ),
           })}
@@ -63,9 +63,9 @@ export default async function TermsOfServicePage() {
       <Section title={t('s4Title')}>
         <p>
           {t.rich('s4Body', {
-            link: () => (
+            link: (chunks) => (
               <Link href="/contact" className={linkClass}>
-                {t('s4LinkText')}
+                {chunks}
               </Link>
             ),
           })}
@@ -75,9 +75,9 @@ export default async function TermsOfServicePage() {
       <Section title={t('s5Title')}>
         <p>
           {t.rich('s5Body', {
-            link: () => (
+            link: (chunks) => (
               <Link href="/contact" className={linkClass}>
-                {t('s5LinkText')}
+                {chunks}
               </Link>
             ),
           })}
@@ -103,14 +103,14 @@ export default async function TermsOfServicePage() {
       <Section title={t('s10Title')}>
         <p>
           {t.rich('s10Body', {
-            contactLink: () => (
+            contactLink: (chunks) => (
               <Link href="/contact" className={linkClass}>
-                {t('s10ContactLinkText')}
+                {chunks}
               </Link>
             ),
-            privacyLink: () => (
+            privacyLink: (chunks) => (
               <Link href="/privacy-policy" className={linkClass}>
-                {t('s10PrivacyLinkText')}
+                {chunks}
               </Link>
             ),
           })}

@@ -72,11 +72,12 @@ export default function AdminOrderActions({ order, items }: AdminOrderActionsPro
 
     startTransition(async () => {
       try {
-        await cancelOrder(order.id);
-        toast.success(t('cancelSuccess'));
-      } catch (error: any) {
+        const res = await cancelOrder(order.id);
+        if (res.success) toast.success(t('cancelSuccess'));
+        else toast.error(res.error || t('cancelFailed'));
+      } catch (error) {
         console.error('Cancel Order Error:', error);
-        toast.error(error.message || t('cancelFailed'));
+        toast.error(t('cancelFailed'));
       }
     });
   };
@@ -86,11 +87,12 @@ export default function AdminOrderActions({ order, items }: AdminOrderActionsPro
 
     startTransition(async () => {
       try {
-        await deleteOrder(order.id);
-        toast.success(t('deleteSuccess'));
-      } catch (error: any) {
+        const res = await deleteOrder(order.id);
+        if (res.success) toast.success(t('deleteSuccess'));
+        else toast.error(res.error || t('deleteFailed'));
+      } catch (error) {
         console.error('Delete Order Error:', error);
-        toast.error(error.message || t('deleteFailed'));
+        toast.error(t('deleteFailed'));
       }
     });
   };
