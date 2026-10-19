@@ -1,7 +1,9 @@
 'use client';
 
 import Image from 'next/image';
-import { ShoppingBag, Search, Menu, X, ChevronRight, ArrowRight } from 'lucide-react';
+import { ShoppingBag, Search, Menu, X, ChevronRight, ArrowRight, Heart } from 'lucide-react';
+import WishlistSheet from '@/components/cart/WishlistSheet';
+import { useWishlistStore } from '@/store/useWishlistStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from '@/components/ui/sheet';
@@ -42,6 +44,8 @@ export default function Navbar({ categories = [] }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const itemCount = useStore(useCartStore, (state) => state.getItemCount());
+  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
+  const wishlistCount = useStore(useWishlistStore, (state) => state.items.length);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -329,6 +333,23 @@ export default function Navbar({ categories = [] }: NavbarProps) {
             >
               <Search className="h-5 w-5" />
             </Button>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={t('favorites')}
+              className="relative hidden md:inline-flex text-ink hover:bg-ink/5 hover:text-ink"
+              onClick={() => setIsWishlistOpen(true)}
+            >
+              <Heart className="h-5 w-5" />
+              {wishlistCount !== undefined && wishlistCount > 0 && (
+                <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-burgundy text-ivory text-xs flex items-center justify-center font-medium">
+                  {wishlistCount}
+                </span>
+              )}
+            </Button>
+
+            <WishlistSheet open={isWishlistOpen} onOpenChange={setIsWishlistOpen} />
 
             <Button
               variant="ghost"

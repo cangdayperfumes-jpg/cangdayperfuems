@@ -4,30 +4,37 @@ import { useState, useEffect } from 'react';
 import { usePathname, Link } from '@/i18n/navigation';
 import ImageWithFallback from '@/components/shared/ImageWithFallback';
 import { X } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useSettings } from '@/components/providers/SettingsProvider';
+import { useCountdown } from '@/hooks/use-countdown';
+import { CountdownBoxes } from '@/components/shared/CountdownDisplay';
+import { isOfferExpired, localizeOffer, offerSignature } from '@/lib/offer';
+
+const DISMISS_KEY = 'popup_dismissed_v3';
 
 export default function SitePopup() {
   const t = useTranslations('common');
+  const tOffer = useTranslations('offer');
+  const locale = useLocale();
   const { popupSettings: settings } = useSettings();
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const countdown = useCountdown(settings?.popup_ends_at);
 
   useEffect(() => {
     // Don't show on admin pages, or if popup config isn't enabled
-    if (pathname?.startsWith('/admin')) return;
-    if (!settings || !settings.popup_enabled) return;
+    if (pathname?.startsWith('/admin') || pathname?.startsWith('/checkout')) return;
+    if (!settings || !settings.popup_enabled || isOfferExpired(settings)) return;
 
-    // Check if popup was already dismissed in the last 24 hours
-    const dismissedData = localStorage.getItem('popup_dismissed_v2');
-    if (dismissedData) {
-      try {
-        const { timestamp } = JSON.parse(dismissedData);
-        const hoursSinceDismissed = (Date.now() - timestamp) / (1000 * 60 * 60);
-        if (hoursSinceDismissed < 24) return; // 24-hour cooldown
-      } catch (e) {
-        // Fallback if parsing fails
+    // Dismissed within the last 24 hours — unless it's a different offer since.
+    try {
+      const dismissed = JSON.parse(localStorage.getItem(DISMISS_KEY) || 'null');
+      if (dismissed && dismissed.offer === offerSignature(settings)) {
+        const hoursSinceDismissed = (Date.now() - dismissed.timestamp) / (1000 * 60 * 60);
+        if (hoursSinceDismissed < 24) return;
       }
+    } catch {
+      // Storage unavailable or unparsable — just show it.
     }
 
     const showOn = settings.popup_show_on || 'all';
@@ -45,10 +52,17 @@ export default function SitePopup() {
 
   const handleClose = () => {
     setIsOpen(false);
-    localStorage.setItem('popup_dismissed_v2', JSON.stringify({ timestamp: Date.now() }));
+    if (!settings) return;
+    try {
+      localStorage.setItem(DISMISS_KEY, JSON.stringify({ timestamp: Date.now(), offer: offerSignature(settings) }));
+    } catch {
+      // Ignore — it will simply show again next visit.
+    }
   };
 
-  if (!isOpen || !settings) return null;
+  // A timed offer disappears by itself the moment it runs out.
+  if (!isOpen || !settings || countdown?.done) return null;
+  const offer = localizeOffer(settings, locale);
 
   return (
     <>
@@ -60,11 +74,16 @@ export default function SitePopup() {
 
       {/* Popup */}
       <div className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none">
-        <div className="relative bg-white w-full max-w-md pointer-events-auto shadow-2xl animate-in zoom-in-95 fade-in duration-300">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={offer.title || tOffer('limitedOffer')}
+          className="relative bg-white w-full max-w-md pointer-events-auto shadow-2xl animate-in zoom-in-95 fade-in duration-300"
+        >
           {/* Close Button */}
           <button
             onClick={handleClose}
-            className="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-black transition-colors"
+            className="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-white/80 text-gray-500 hover:text-black transition-colors"
             aria-label={t('closePopup')}
           >
             <X className="h-5 w-5" />
@@ -75,7 +94,7 @@ export default function SitePopup() {
             <div className="relative w-full aspect-[16/9] bg-gray-100">
               <ImageWithFallback
                 src={settings.popup_image_url}
-                alt={settings.popup_title || 'Promotion'}
+                alt={offer.title || 'Promotion'}
                 fill
                 className="object-cover"
                 sizes="(max-width: 448px) 100vw, 448px"
@@ -85,25 +104,38 @@ export default function SitePopup() {
 
           {/* Content */}
           <div className="p-6 md:p-8 text-center">
-            {settings.popup_title && (
-              <h2 className="text-2xl md:text-3xl font-heading font-medium mb-3">
-                {settings.popup_title}
-              </h2>
-            )}
-
-            {settings.popup_message && (
-              <p className="text-sm md:text-base text-gray-500 font-body font-light leading-relaxed mb-6">
-                {settings.popup_message}
+            {countdown && !countdown.done && (
+              <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.25em] text-gold-deep">
+                {tOffer('limitedOffer')}
               </p>
             )}
 
-            {settings.popup_button_text && (
+            {offer.title && (
+              <h2 className="text-2xl md:text-3xl font-heading font-medium mb-3">
+                {offer.title}
+              </h2>
+            )}
+
+            {offer.message && (
+              <p className="text-sm md:text-base text-gray-500 font-body font-light leading-relaxed mb-6">
+                {offer.message}
+              </p>
+            )}
+
+            {countdown && !countdown.done && (
+              <div className="mb-6">
+                <p className="mb-2 text-xs text-ink/60">{tOffer('endsIn')}</p>
+                <CountdownBoxes parts={countdown} />
+              </div>
+            )}
+
+            {offer.buttonText && (
               <Link
-                href={settings.popup_button_link || '/shop'}
+                href={offer.buttonLink}
                 onClick={handleClose}
                 className="inline-flex items-center justify-center bg-black text-white px-8 py-3.5 text-xs uppercase tracking-[0.2em] font-body font-medium hover:bg-gray-800 transition-colors w-full"
               >
-                {settings.popup_button_text}
+                {offer.buttonText}
               </Link>
             )}
 

@@ -8,7 +8,9 @@ export async function getOrders({
   query,
   page = 1,
   limit = 20,
-}: { status?: string; query?: string; page?: number; limit?: number } = {}) {
+  fromIso,
+  toIso,
+}: { status?: string; query?: string; page?: number; limit?: number; fromIso?: string | null; toIso?: string | null } = {}) {
   const supabase = await createClient();
   const from = (page - 1) * limit;
   const to = from + limit - 1;
@@ -22,8 +24,19 @@ export async function getOrders({
     dbQuery = dbQuery.eq('status', status);
   }
 
+  if (fromIso) dbQuery = dbQuery.gte('created_at', fromIso);
+  if (toIso) dbQuery = dbQuery.lt('created_at', toIso);
+
   if (query) {
-    dbQuery = dbQuery.or(`id.ilike.%${query}%,customer_name.ilike.%${query}%,customer_email.ilike.%${query}%`);
+    // Characters that would break PostgREST's or() syntax are stripped.
+    const q = query.replace(/[,()*%\\:"']/g, ' ').trim().slice(0, 80);
+    // id is a uuid column, which ilike can't search — match it exactly
+    // when a full order id is pasted, otherwise search the customer fields.
+    if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(q)) {
+      dbQuery = dbQuery.eq('id', q);
+    } else if (q) {
+      dbQuery = dbQuery.or(`customer_name.ilike.%${q}%,customer_email.ilike.%${q}%,customer_phone.ilike.%${q}%`);
+    }
   }
 
   const { data, count, error } = await dbQuery.range(from, to);

@@ -44,9 +44,14 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // getClaims() verifies the session JWT locally against the project's
+  // (cached) ES256 signing keys — no network call. getUser() asked Supabase
+  // Auth on every admin request, including each sidebar link prefetch, which
+  // queued up into multi-second (once 44s) stalls before a page could render.
+  // It still refreshes an expired token over the network when needed, and
+  // the data itself stays protected by RLS on every query.
+  const { data } = await supabase.auth.getClaims()
+  const user = data?.claims?.sub ? data.claims : null
 
   // Protected Routes Logic
   if (request.nextUrl.pathname.startsWith('/admin')) {

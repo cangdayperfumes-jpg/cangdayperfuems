@@ -29,6 +29,12 @@ const settingsSchema = z.object({
   popupButtonLink: z.string().default('/shop'),
   popupImageUrl: z.string().default(''),
   popupShowOn: z.string().default('all'),
+  popupEndsAt: z.string().default(''),
+  popupShowBar: z.boolean().default(true),
+  popupTitleTr: z.string().default(''),
+  popupMessageTr: z.string().default(''),
+  popupButtonTextTr: z.string().default(''),
+  newBadgeDays: z.coerce.number().int().min(0).max(365).default(30),
   seasonalCollectionsMultiActive: z.boolean().default(false),
   seasonalSectionPosition: z.string().default('after_gender_collection'),
 });
@@ -44,12 +50,27 @@ export interface SettingsInitialData {
   popup_button_link: string | null;
   popup_image_url: string | null;
   popup_show_on: string | null;
+  popup_ends_at?: string | null;
+  popup_show_bar?: boolean | null;
+  popup_title_tr?: string | null;
+  popup_message_tr?: string | null;
+  popup_button_text_tr?: string | null;
+  new_badge_days?: number | null;
   seasonal_collections_multi_active: boolean | null;
   seasonal_section_position: string | null;
   theme_gold: string | null;
   theme_gold_deep: string | null;
   theme_ink: string | null;
   theme_ivory: string | null;
+}
+
+/** timestamptz (ISO) → value for <input type="datetime-local"> in the admin's own timezone. */
+function toLocalInput(iso: string | null | undefined) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+  return local.toISOString().slice(0, 16);
 }
 
 export default function SettingsForm({ initialData }: { initialData: SettingsInitialData | null }) {
@@ -73,12 +94,20 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
       popupButtonLink: initialData?.popup_button_link ?? '/shop',
       popupImageUrl: initialData?.popup_image_url ?? '',
       popupShowOn: initialData?.popup_show_on ?? 'all',
+      popupEndsAt: toLocalInput(initialData?.popup_ends_at),
+      popupShowBar: initialData?.popup_show_bar ?? true,
+      popupTitleTr: initialData?.popup_title_tr ?? '',
+      popupMessageTr: initialData?.popup_message_tr ?? '',
+      popupButtonTextTr: initialData?.popup_button_text_tr ?? '',
+      newBadgeDays: initialData?.new_badge_days ?? 30,
       seasonalCollectionsMultiActive: initialData?.seasonal_collections_multi_active ?? false,
       seasonalSectionPosition: initialData?.seasonal_section_position ?? 'after_gender_collection',
     },
   });
 
   const popupEnabled = form.watch('popupEnabled');
+  const popupEndsAt = form.watch('popupEndsAt');
+  const offerExpired = !!popupEndsAt && new Date(popupEndsAt).getTime() <= Date.now();
 
   const onSubmit = async (data: SettingsFormValues) => {
     try {
@@ -98,6 +127,13 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
           popup_button_link: data.popupButtonLink,
           popup_image_url: data.popupImageUrl,
           popup_show_on: data.popupShowOn,
+          // datetime-local is the admin's local time; store it as an absolute instant.
+          popup_ends_at: data.popupEndsAt ? new Date(data.popupEndsAt).toISOString() : null,
+          popup_show_bar: data.popupShowBar,
+          popup_title_tr: data.popupTitleTr,
+          popup_message_tr: data.popupMessageTr,
+          popup_button_text_tr: data.popupButtonTextTr,
+          new_badge_days: data.newBadgeDays,
           seasonal_collections_multi_active: data.seasonalCollectionsMultiActive,
           seasonal_section_position: data.seasonalSectionPosition,
         })
@@ -195,6 +231,19 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
                     onCheckedChange={field.onChange}
                   />
                 </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="newBadgeDays"
+            render={({ field }) => (
+              <FormItem className="mt-4">
+                <FormLabel>{t('newBadgeDaysLabel')}</FormLabel>
+                <FormControl>
+                  <Input type="number" min={0} max={365} className="max-w-[140px]" {...field} />
+                </FormControl>
+                <FormDescription>{t('newBadgeDaysDesc')}</FormDescription>
               </FormItem>
             )}
           />
@@ -304,6 +353,95 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
                         <FormLabel>{t('buttonLink')}</FormLabel>
                         <FormControl>
                           <Input placeholder={t('buttonLinkPlaceholder')} {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* ── Countdown offer ── */}
+                <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-4 space-y-4">
+                  <div>
+                    <h3 className="font-medium">{t('countdownTitle')}</h3>
+                    <p className="text-sm text-muted-foreground">{t('countdownDesc')}</p>
+                  </div>
+                  <FormField
+                    control={form.control}
+                    name="popupEndsAt"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('offerEndsAt')}</FormLabel>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <FormControl>
+                            <Input type="datetime-local" className="max-w-[260px] bg-white" {...field} />
+                          </FormControl>
+                          {field.value && (
+                            <Button type="button" variant="outline" size="sm" onClick={() => field.onChange('')}>
+                              {t('removeCountdown')}
+                            </Button>
+                          )}
+                        </div>
+                        <FormDescription>
+                          {offerExpired ? <span className="text-destructive">{t('offerExpiredNote')}</span> : t('offerEndsAtDesc')}
+                        </FormDescription>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="popupShowBar"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border bg-white p-3">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-sm text-black">{t('showOfferBar')}</FormLabel>
+                          <FormDescription>{t('showOfferBarDesc')}</FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch checked={field.value} onCheckedChange={field.onChange} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* ── Turkish copy ── */}
+                <div className="rounded-lg border p-4 space-y-4">
+                  <div>
+                    <h3 className="font-medium">{t('popupTurkishTitle')}</h3>
+                    <p className="text-sm text-muted-foreground">{t('popupTurkishDesc')}</p>
+                  </div>
+                  <FormField
+                    control={form.control}
+                    name="popupTitleTr"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('popupTitleLabel')} (TR)</FormLabel>
+                        <FormControl>
+                          <Input placeholder={form.watch('popupTitle')} {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="popupMessageTr"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('popupMessageLabel')} (TR)</FormLabel>
+                        <FormControl>
+                          <Textarea rows={3} placeholder={form.watch('popupMessage')} {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="popupButtonTextTr"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('buttonText')} (TR)</FormLabel>
+                        <FormControl>
+                          <Input placeholder={form.watch('popupButtonText')} {...field} />
                         </FormControl>
                       </FormItem>
                     )}

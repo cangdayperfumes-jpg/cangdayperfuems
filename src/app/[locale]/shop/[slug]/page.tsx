@@ -10,6 +10,8 @@ import ProductActions from '@/components/shop/ProductActions';
 import ProductDescription from '@/components/shop/ProductDescription';
 import ProductCard from '@/components/shared/ProductCard';
 import { Badge } from '@/components/ui/badge';
+import FavoriteButton from '@/components/shared/FavoriteButton';
+import NewBadge from '@/components/shop/NewBadge';
 import type { Metadata } from 'next';
 import { unstable_cache } from 'next/cache';
 import { getTranslations } from 'next-intl/server';
@@ -111,7 +113,7 @@ async function getRelatedProducts(
   if (categoryId) {
     const { data } = await supabase
       .from('products')
-      .select('id, name_en, slug, price, discount, images, mobile_image_url, image_crop_desktop, image_crop_mobile, stock, has_variants, is_popular, product_variants(*)')
+      .select('id, name_en, slug, price, discount, images, mobile_image_url, image_crop_desktop, image_crop_mobile, stock, has_variants, is_popular, is_new, created_at, product_variants(*)')
       .eq('category_id', categoryId)
       .eq('is_active', true)
       .neq('id', productId)
@@ -128,7 +130,7 @@ async function getRelatedProducts(
   if (results.length < limit && brandId) {
     const { data } = await supabase
       .from('products')
-      .select('id, name_en, slug, price, discount, images, mobile_image_url, image_crop_desktop, image_crop_mobile, stock, has_variants, is_popular, product_variants(*)')
+      .select('id, name_en, slug, price, discount, images, mobile_image_url, image_crop_desktop, image_crop_mobile, stock, has_variants, is_popular, is_new, created_at, product_variants(*)')
       .eq('brand_id', brandId)
       .eq('is_active', true)
       .neq('id', productId)
@@ -370,6 +372,7 @@ export default async function ProductPage({ params }: PageProps) {
           <div className="space-y-5 md:space-y-6">
             <div>
               <div className="flex items-center gap-2 mb-2 md:mb-3">
+                <NewBadge product={product} />
                 {hasDiscount && <Badge variant="destructive">{t('sale')}</Badge>}
                 {!product.stock && <Badge variant="secondary">{t('outOfStock')}</Badge>}
                 {/* Only shown for simple (non-variant) products — a variant's
@@ -383,9 +386,26 @@ export default async function ProductPage({ params }: PageProps) {
                 )}
               </div>
 
-              <h1 className="text-2xl md:text-4xl font-heading font-medium text-foreground mb-1.5">
-                {product.name_en}
-              </h1>
+              <div className="flex items-start justify-between gap-4 mb-1.5">
+                <h1 className="text-2xl md:text-4xl font-heading font-medium text-foreground">
+                  {product.name_en}
+                </h1>
+                <FavoriteButton
+                  variant="inline"
+                  item={{
+                    id: product.id,
+                    slug: product.slug,
+                    name: product.name_en,
+                    price: product.price,
+                    discount: product.discount || 0,
+                    image: product.images?.[0] || '',
+                    hasVariants: !!product.has_variants,
+                    inStock: product.has_variants
+                      ? (product.product_variants || []).some((v: any) => v.stock)
+                      : !!product.stock,
+                  }}
+                />
+              </div>
 
               {(product.categories || product.target_audience) && (
                 <div className="mb-3 flex flex-wrap items-center gap-x-2 gap-y-1">

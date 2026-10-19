@@ -20,7 +20,8 @@
     "shopByCategory": "Kategoriye Göre",
     "viewAll": "Tümü",
     "cart": "Sepet",
-    "tagline": "Modern Parfümeri"
+    "tagline": "Modern Parfümeri",
+    "favorites": "Favoriler"
   },
   "trustBar": {
     "freeShipping": "Her siparişte ücretsiz kargo",
@@ -104,7 +105,8 @@
     "readMore": "Devamını oku",
     "showLess": "Daha az göster",
     "from": "{price}'den başlayan fiyatlarla",
-    "addToCartLabel": "Sepete ekle"
+    "addToCartLabel": "Sepete ekle",
+    "new": "Yeni"
   },
   "shop": {
     "filters": "Filtreler",
@@ -226,7 +228,21 @@
     "showSummary": "Sipariş özetini göster ({count})",
     "hideSummary": "Sipariş özetini gizle",
     "searchProvince": "İl ara…",
-    "noMatches": "Sonuç bulunamadı"
+    "noMatches": "Sonuç bulunamadı",
+    "couponPrompt": "Kupon kodunuz var mı?",
+    "couponPlaceholder": "Kupon kodu",
+    "couponApply": "Uygula",
+    "couponRemove": "Kuponu kaldır",
+    "couponSaved": "{amount} tasarruf ediyorsunuz",
+    "couponDiscount": "Kupon ({code})",
+    "couponMinOrder": "Bu kupon için en az {amount} tutarında sipariş gerekir.",
+    "couponCheckFailed": "Kod kontrol edilemedi. Lütfen tekrar deneyin.",
+    "coupon_invalid": "Bu kupon kodu geçerli değil.",
+    "coupon_expired": "Bu kuponun süresi dolmuş.",
+    "coupon_used_up": "Bu kuponun kullanım hakkı dolmuş.",
+    "coupon_min_order": "Siparişiniz bu kuponun alt limitine ulaşmıyor.",
+    "coupon_already_used": "Bu kuponu daha önce kullandınız.",
+    "couponRemovedRetry": "Kupon kaldırıldı — siparişi yeniden verebilirsiniz."
   },
   "home": {
     "shopByCategory": "Kategoriye Göre Alışveriş",
@@ -442,5 +458,28 @@
     "body": "Aradığınız sayfa mevcut değil veya taşınmış olabilir.",
     "shopCollection": "Koleksiyona Göz At",
     "backToHome": "Ana Sayfaya Dön"
+  },
+  "offer": {
+    "limitedOffer": "Sınırlı süreli fırsat",
+    "endsIn": "Bitmesine kalan",
+    "days": "Gün",
+    "hours": "Saat",
+    "minutes": "Dk",
+    "seconds": "Sn",
+    "daysShort": "g",
+    "closeBar": "Fırsat çubuğunu gizle"
+  },
+  "wishlist": {
+    "title": "Favoriler",
+    "emptyTitle": "Henüz favoriniz yok",
+    "emptySubtitle": "Beğendiğiniz kokuyu kaydetmek için kalbe dokunun.",
+    "added": "{name} favorilere eklendi",
+    "removed": "{name} favorilerden çıkarıldı",
+    "addLabel": "Favorilere ekle",
+    "removeLabel": "Favorilerden çıkar",
+    "moveToBag": "Sepete ekle",
+    "chooseSize": "Boyut seç",
+    "soldOut": "Tükendi",
+    "fromPrice": "{price} başlayan fiyatlarla"
   }
 }

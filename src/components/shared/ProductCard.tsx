@@ -12,6 +12,8 @@ import { useCartStore } from '@/hooks/use-cart';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { useSettings } from '@/components/providers/SettingsProvider';
+import FavoriteButton from '@/components/shared/FavoriteButton';
+import { isProductNew } from '@/lib/product-badges';
 
 interface ProductCardProps {
   product: Product;
@@ -31,7 +33,8 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
   const cartItem = useCartStore((state) => state.items.find(i => i.id === product.id && !i.variantId));
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const removeItem = useCartStore((state) => state.removeItem);
-  const { hidePrices } = useSettings();
+  const { hidePrices, newBadgeDays } = useSettings();
+  const isNew = isProductNew(product, newBadgeDays);
   const mainImage = product.images?.[0] || '/placeholder.svg'; // Fallback image
   const hoverImage = product.images?.[1];
   const variants = (product as any).product_variants || [];
@@ -87,25 +90,30 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
       <div className="relative aspect-[4/5] md:aspect-[3/4] overflow-hidden bg-secondary mb-2 rounded-sm ring-1 ring-border group-hover:ring-ink/20 transition-colors">
 
         <Link href={`/shop/${product.slug || product.id}`} className="block relative w-full h-full">
-            {/* Discount Badge — the one deliberate use of burgundy in the
-                interface, reserved for sale/discount signaling only. */}
-            {product.discount > 0 && (
-            <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
+            {/* Badges stack top-left (the top-right corner holds the
+                favourite heart). */}
+            {(product.discount > 0 || isNew || product.is_popular) && (
+            <div className="absolute top-2 left-2 z-10 flex flex-col items-start gap-1">
+                {/* Discount — the one deliberate use of burgundy in the
+                    interface, reserved for sale/discount signaling only. */}
+                {product.discount > 0 && (
                 <Badge className="bg-burgundy text-ivory border-0 rounded-sm px-2 py-1 text-[10px] md:text-xs uppercase font-bold tracking-wider">
                     -{discountPercentage}% OFF
                 </Badge>
-            </div>
-            )}
-
-            {/* Popular Badge — sage, not gold: gold stays reserved for price/
-                CTA-adjacent accents, so this reads as a distinct "editorial
-                pick" signal instead of competing with the discount badge. */}
-            {product.is_popular && (
-            <div className="absolute top-2 right-2 z-10 flex flex-col gap-1">
+                )}
+                {isNew && (
+                <span className="bg-ink text-ivory rounded-sm px-2 py-1 text-[10px] md:text-xs uppercase font-bold tracking-wider">
+                    {tProduct('new')}
+                </span>
+                )}
+                {/* Popular — sage, not gold: gold stays reserved for price/
+                    CTA-adjacent accents. */}
+                {product.is_popular && (
                 <div className="flex items-center gap-1 bg-sage text-ivory rounded-sm px-1.5 py-1">
                     <Sparkle className="h-3 w-3 md:h-3.5 md:w-3.5" fill="currentColor" strokeWidth={0} />
                     <span className="text-[10px] md:text-xs uppercase font-bold tracking-wider">{tProduct('popular')}</span>
                 </div>
+                )}
             </div>
             )}
 
@@ -139,6 +147,21 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
             )}
 
         </Link>
+        <FavoriteButton
+          className="absolute top-2 right-2 z-20"
+          item={{
+            id: product.id,
+            slug: product.slug,
+            name: product.name_en,
+            price: product.price,
+            discount: product.discount || 0,
+            image: mainImage,
+            hasVariants: !!product.has_variants,
+            inStock: product.has_variants
+              ? variants.length === 0 || variants.some((v: any) => v.stock)
+              : !!product.stock,
+          }}
+        />
         {/* --- Action Buttons / Sold Out Badge --- */}
         {(() => {
             const isOutOfStock = product.has_variants

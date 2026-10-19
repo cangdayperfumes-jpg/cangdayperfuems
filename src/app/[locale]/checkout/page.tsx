@@ -8,6 +8,8 @@ import { useCartStore } from '@/hooks/use-cart';
 import { useStore } from '@/hooks/use-store';
 import CheckoutForm, { CHECKOUT_FORM_ID } from '@/components/checkout/checkout-form';
 import GiftProgress from '@/components/cart/GiftProgress';
+import CouponField from '@/components/checkout/CouponField';
+import { couponDiscount } from '@/lib/coupons';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
 import ImageWithFallback from '@/components/shared/ImageWithFallback';
@@ -44,9 +46,10 @@ function Steps() {
 function useTotals() {
   const items = useStore(useCartStore, (state) => state.items);
   const subtotal = useStore(useCartStore, (state) => state.getTotalPrice()) ?? 0;
-  const { shipping } = useCheckout();
+  const { shipping, coupon } = useCheckout();
   const shippingCost = shipping?.available ? shipping.price : 0;
-  return { items, subtotal, shipping, total: subtotal + shippingCost };
+  const discount = couponDiscount(coupon, subtotal);
+  return { items, subtotal, shipping, discount, total: subtotal - discount + shippingCost };
 }
 
 function ShippingValue() {
@@ -64,7 +67,8 @@ function OrderSummary() {
   const t = useTranslations('checkout');
   const tCommon = useTranslations('common');
   const { hidePrices } = useSettings();
-  const { items, subtotal, total } = useTotals();
+  const { items, subtotal, discount, total } = useTotals();
+  const { coupon } = useCheckout();
 
   return (
     <div className="space-y-5">
@@ -96,11 +100,19 @@ function OrderSummary() {
 
       {!hidePrices && <GiftProgress subtotal={subtotal} />}
 
+      {!hidePrices && <CouponField subtotal={subtotal} />}
+
       <dl className="space-y-2.5 border-t border-border pt-4 text-sm">
         <div className="flex justify-between">
           <dt className="text-muted-foreground">{t('subtotal')}</dt>
           <dd className="tabular-nums">{hidePrices ? tCommon('contactForPrice') : formatCurrency(subtotal)}</dd>
         </div>
+        {!hidePrices && coupon && discount > 0 && (
+          <div className="flex justify-between text-sage-deep">
+            <dt>{t('couponDiscount', { code: coupon.code })}</dt>
+            <dd className="tabular-nums">−{formatCurrency(discount)}</dd>
+          </div>
+        )}
         <div className="flex justify-between">
           <dt className="text-muted-foreground">{t('shippingFee')}</dt>
           <dd className="tabular-nums"><ShippingValue /></dd>

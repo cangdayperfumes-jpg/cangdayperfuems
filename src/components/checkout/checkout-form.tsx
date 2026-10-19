@@ -20,6 +20,7 @@ import { useCartStore } from '@/hooks/use-cart';
 import { useCheckout } from '@/contexts/checkout-context';
 import { useSettings } from '@/components/providers/SettingsProvider';
 import { TURKEY_PROVINCES } from '@/lib/turkey-provinces';
+import { couponDiscount, couponProblemFromError } from '@/lib/coupons';
 import {
   DOMESTIC_COUNTRY_CODE,
   countryDisplayName,
@@ -46,7 +47,7 @@ export default function CheckoutForm() {
   const t = useTranslations('checkout');
   const locale = useLocale();
   const router = useRouter();
-  const { setShipping, shipping, isSubmitting, setIsSubmitting } = useCheckout();
+  const { setShipping, shipping, coupon, setCoupon, isSubmitting, setIsSubmitting } = useCheckout();
   const items = useCartStore((state) => state.items);
   const subtotal = useCartStore((state) => state.getTotalPrice());
   const { hidePrices } = useSettings();
@@ -142,7 +143,11 @@ export default function CheckoutForm() {
     try {
       setIsSubmitting(true);
       const shippingCost = hidePrices ? 0 : quote.price;
-      const total = hidePrices ? 0 : subtotal + shippingCost;
+      // The database re-validates the coupon and recomputes this discount
+      // (and the total) when the order row is inserted.
+      const activeCoupon = !hidePrices && coupon && subtotal >= coupon.min_order ? coupon : null;
+      const discount = couponDiscount(activeCoupon, subtotal);
+      const total = hidePrices ? 0 : subtotal - discount + shippingCost;
       const countryZone = zones.find((z) => z.country_code === values.country_code && !z.city);
       const domestic = values.country_code === DOMESTIC_COUNTRY_CODE;
 
@@ -163,6 +168,8 @@ export default function CheckoutForm() {
         },
         total_amount: total,
         shipping_cost: shippingCost,
+        coupon_code: activeCoupon?.code ?? null,
+        discount_amount: discount,
         status: 'pending',
       };
 
@@ -172,6 +179,13 @@ export default function CheckoutForm() {
       const { data: order, error: orderError } = await supabase.from('orders').insert(orderData).select().single();
       if (orderError) {
         console.error('Error saving order:', JSON.stringify(orderError, null, 2));
+        const couponProblem = couponProblemFromError(orderError.message);
+        if (couponProblem) {
+          // e.g. this customer already used it, or the last use was just taken.
+          setCoupon(null);
+          toast.error(t(`coupon_${couponProblem}`) + ' ' + t('couponRemovedRetry'));
+          return;
+        }
         toast.error(orderError.message || t('orderFailed'));
         return;
       }

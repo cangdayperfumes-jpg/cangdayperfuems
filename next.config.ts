@@ -26,6 +26,12 @@ const cspHeader = `
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // The orders PDF report reads these fonts from disk at runtime (Helvetica
+  // can't draw ş/ğ/ı/İ). Nothing imports them, so tracing must be told to
+  // ship them with that route — in the standalone build and on Vercel.
+  outputFileTracingIncludes: {
+    '/admin/orders/export': ['./node_modules/@fontsource/noto-sans/files/noto-sans-latin*-{400,700}-normal.woff'],
+  },
   // Pins the workspace root to this project — otherwise Turbopack walks up
   // and can latch onto an unrelated lockfile in a parent directory (e.g. a
   // stray package-lock.json in the user's home folder) and infer the wrong root.

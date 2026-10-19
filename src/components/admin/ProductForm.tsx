@@ -68,6 +68,7 @@ const buildProductSchema = (t: (key: string) => string) => z.object({
   has_variants: z.boolean().default(false),
   images: z.array(z.string()).optional(),
   is_popular: z.boolean().default(false),
+  is_new: z.boolean().default(false),
   variants: z.array(z.object({
       id: z.string().optional(),
       name: z.string().min(1, t('validation.variantNameRequired')),
@@ -126,6 +127,7 @@ export default function ProductForm({ initialData, categories: initialCategories
       has_variants: initialData.has_variants || false,
       images: initialData.images || [],
       is_popular: initialData.is_popular || false,
+      is_new: initialData.is_new || false,
       variants: [], // Will be populated in useEffect
     } : {
       name_en: '',
@@ -136,6 +138,7 @@ export default function ProductForm({ initialData, categories: initialCategories
       brand_id: '',
       target_audience: 'Unisex',
       is_popular: false,
+      is_new: false,
       stock: true,
       is_active: true,
       has_variants: false,
@@ -206,6 +209,7 @@ export default function ProductForm({ initialData, categories: initialCategories
           discount: data.has_variants ? 0 : data.discount,
           stock: derivedStock,
           is_popular: data.is_popular,
+          is_new: data.is_new,
       };
 
       productData.slug = await resolveUniqueProductSlug(supabase, data.name_en, initialData?.id);
@@ -740,6 +744,27 @@ export default function ProductForm({ initialData, categories: initialCategories
                   <FormLabel className="text-base">{t('popularItem')}</FormLabel>
                   <FormDescription>
                     {t('popularItemDescription')}
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="is_new"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">{t('newItem')}</FormLabel>
+                  <FormDescription>
+                    {t('newItemDescription')}
                   </FormDescription>
                 </div>
                 <FormControl>

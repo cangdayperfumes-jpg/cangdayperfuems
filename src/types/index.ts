@@ -19,6 +19,8 @@ export interface Product {
   is_active: boolean;
   target_audience: string; // 'Men', 'Women', 'Unisex'
   is_popular: boolean;
+  /** Manual "New" badge override (the badge also shows automatically for recently added products). */
+  is_new?: boolean;
   created_at: string;
   has_variants: boolean;
   sales_count: number;

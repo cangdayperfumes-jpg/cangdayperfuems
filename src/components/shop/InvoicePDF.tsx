@@ -208,8 +208,10 @@ interface InvoicePDFProps {
   shippingOverride?: number;
 }
 
+// Store prices are Turkish lira. "TL" rather than "₺": the built-in PDF
+// font (Helvetica) has no glyph for the lira sign.
 const formatPrice = (amount: number) => {
-  return `$${Number(amount).toFixed(2)}`;
+  return `${Number(amount).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} TL`;
 };
 
 // Checkout stores the phone as the country calling code immediately
@@ -267,9 +269,10 @@ export default function InvoicePDF({ order, items, hidePrices = false, customIte
   // grand total is always recomputed from subtotal + shippingFee.
   const subtotal = visibleCustomItems
     ? rows.reduce((sum, row) => sum + row.total, 0)
-    : order.total_amount - order.shipping_cost;
+    : order.total_amount - order.shipping_cost + (order.discount_amount || 0);
+  const couponDiscount = Number(order.discount_amount || 0);
   const shippingFee = shippingOverride ?? order.shipping_cost ?? 0;
-  const grandTotal = subtotal + shippingFee;
+  const grandTotal = Math.max(subtotal - couponDiscount, 0) + shippingFee;
   const totalQuantity = rows.reduce((sum, row) => sum + row.quantity, 0);
 
   return (
@@ -374,6 +377,12 @@ export default function InvoicePDF({ order, items, hidePrices = false, customIte
                 <Text style={styles.totalLabel}>Subtotal</Text>
                 <Text style={styles.totalValue}>{formatPrice(subtotal)}</Text>
               </View>
+              {couponDiscount > 0 && (
+              <View style={styles.totalRow}>
+                <Text style={styles.totalLabel}>Discount{order.coupon_code ? ` (${order.coupon_code})` : ''}</Text>
+                <Text style={styles.totalValue}>-{formatPrice(couponDiscount)}</Text>
+              </View>
+              )}
               <View style={styles.totalRow}>
                 <Text style={styles.totalLabel}>Shipping Fee</Text>
                 <Text style={styles.totalValue}>{formatPrice(shippingFee)}</Text>
@@ -381,7 +390,7 @@ export default function InvoicePDF({ order, items, hidePrices = false, customIte
 
               <View style={styles.grandTotalDivider}>
                 <Text style={styles.grandTotalLabel}>Grand Total</Text>
-                <Text style={styles.grandTotalValue}>{formatPrice(grandTotal)} USD</Text>
+                <Text style={styles.grandTotalValue}>{formatPrice(grandTotal)}</Text>
               </View>
            </View>
         </View>

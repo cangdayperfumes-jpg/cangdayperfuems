@@ -20,7 +20,8 @@
     "shopByCategory": "Shop by Category",
     "viewAll": "View all",
     "cart": "Cart",
-    "tagline": "Modern Perfumery"
+    "tagline": "Modern Perfumery",
+    "favorites": "Favourites"
   },
   "trustBar": {
     "freeShipping": "Free shipping on every order",
@@ -104,7 +105,8 @@
     "readMore": "Read more",
     "showLess": "Show less",
     "from": "From {price}",
-    "addToCartLabel": "Add to cart"
+    "addToCartLabel": "Add to cart",
+    "new": "New"
   },
   "shop": {
     "filters": "Filters",
@@ -226,7 +228,21 @@
     "showSummary": "Show order summary ({count})",
     "hideSummary": "Hide order summary",
     "searchProvince": "Search province…",
-    "noMatches": "No matches found"
+    "noMatches": "No matches found",
+    "couponPrompt": "Have a coupon code?",
+    "couponPlaceholder": "Coupon code",
+    "couponApply": "Apply",
+    "couponRemove": "Remove coupon",
+    "couponSaved": "You save {amount}",
+    "couponDiscount": "Coupon ({code})",
+    "couponMinOrder": "This coupon needs an order of at least {amount}.",
+    "couponCheckFailed": "We couldn't check this code. Please try again.",
+    "coupon_invalid": "This coupon code isn't valid.",
+    "coupon_expired": "This coupon has expired.",
+    "coupon_used_up": "This coupon has been fully used.",
+    "coupon_min_order": "Your order doesn't reach this coupon's minimum.",
+    "coupon_already_used": "You've already used this coupon.",
+    "couponRemovedRetry": "The coupon was removed — you can place the order again."
   },
   "home": {
     "shopByCategory": "Shop by Category",
@@ -442,5 +458,28 @@
     "body": "The page you're looking for doesn't exist or may have been moved.",
     "shopCollection": "Shop Collection",
     "backToHome": "Back to Home"
+  },
+  "offer": {
+    "limitedOffer": "Limited-time offer",
+    "endsIn": "Ends in",
+    "days": "Days",
+    "hours": "Hours",
+    "minutes": "Min",
+    "seconds": "Sec",
+    "daysShort": "d",
+    "closeBar": "Hide offer bar"
+  },
+  "wishlist": {
+    "title": "Favourites",
+    "emptyTitle": "No favourites yet",
+    "emptySubtitle": "Tap the heart on any fragrance to save it here.",
+    "added": "{name} saved to favourites",
+    "removed": "{name} removed from favourites",
+    "addLabel": "Add to favourites",
+    "removeLabel": "Remove from favourites",
+    "moveToBag": "Add to bag",
+    "chooseSize": "Choose size",
+    "soldOut": "Sold out",
+    "fromPrice": "From {price}"
   }
 }

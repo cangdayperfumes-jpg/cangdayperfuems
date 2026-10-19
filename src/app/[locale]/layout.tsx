@@ -14,6 +14,7 @@ import Footer from "@/components/shared/Footer";
 import BottomNav from "@/components/shared/BottomNav";
 import ScrollToTop from "@/components/shared/ScrollToTop";
 import SitePopup from "@/components/shared/SitePopup";
+import OfferBar from "@/components/shared/OfferBar";
 import CookieBanner from "@/components/shared/CookieBanner";
 import AnnouncementBar from "@/components/shared/AnnouncementBar";
 import AuthRecoveryRedirect from "@/components/shared/AuthRecoveryRedirect";
@@ -185,7 +186,7 @@ export default async function LocaleLayout({
         if (!supabaseConfigured) return null;
         const { data } = await supabase
           .from('system_settings')
-          .select('hide_prices, popup_enabled, popup_title, popup_message, popup_button_text, popup_button_link, popup_image_url, popup_show_on')
+          .select('hide_prices, popup_enabled, popup_title, popup_message, popup_button_text, popup_button_link, popup_image_url, popup_show_on, popup_ends_at, popup_show_bar, popup_title_tr, popup_message_tr, popup_button_text_tr, new_badge_days')
           .eq('id', 'global')
           .single();
         return data;
@@ -212,8 +213,14 @@ export default async function LocaleLayout({
         popup_button_link: settingsData.popup_button_link || '',
         popup_image_url: settingsData.popup_image_url || '',
         popup_show_on: settingsData.popup_show_on || 'all',
+        popup_ends_at: settingsData.popup_ends_at || null,
+        popup_show_bar: settingsData.popup_show_bar ?? true,
+        popup_title_tr: settingsData.popup_title_tr || '',
+        popup_message_tr: settingsData.popup_message_tr || '',
+        popup_button_text_tr: settingsData.popup_button_text_tr || '',
       }
     : null;
+  const newBadgeDays: number = settingsData?.new_badge_days ?? 30;
 
   return (
     <html lang={locale}>
@@ -250,11 +257,12 @@ export default async function LocaleLayout({
         />
         <AuthRecoveryRedirect />
         <NextIntlClientProvider>
-          <SettingsProvider hidePrices={hidePrices} popupSettings={popupSettings}>
+          <SettingsProvider hidePrices={hidePrices} popupSettings={popupSettings} newBadgeDays={newBadgeDays}>
           <MotionProvider>
             <Suspense fallback={null}>
               <StorefrontLayoutWrapper>
                 <div className="sticky top-0 z-50 w-full">
+                  <OfferBar />
                   <AnnouncementBar />
                   <Navbar categories={categories || []} />
                 </div>
