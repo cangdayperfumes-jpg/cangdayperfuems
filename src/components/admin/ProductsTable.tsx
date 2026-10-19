@@ -73,12 +73,23 @@ const ProductForm = dynamic(() => import('./ProductForm'), {
 // Extend Product type locally to include category and brand name
 type ProductWithDetails = Product & { category?: string; brand?: string };
 
-export function ProductsTable({ data, categories, brands }: { data: ProductWithDetails[]; categories: Category[]; brands: Brand[] }) {
+export function ProductsTable({
+  data,
+  categories,
+  brands,
+  initialFilters = [],
+}: {
+  data: ProductWithDetails[];
+  categories: Category[];
+  brands: Brand[];
+  /** e.g. from ?stock=false — lets dashboard links open the list pre-filtered. */
+  initialFilters?: ColumnFiltersState;
+}) {
   const router = useRouter();
   const t = useTranslations('products');
   const tc = useTranslations('common');
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(initialFilters);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 

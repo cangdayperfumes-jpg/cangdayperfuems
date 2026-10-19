@@ -9,10 +9,11 @@ import {
 } from '@/components/ui/table';
 import AdminOrderActions from './AdminOrderActions';
 import OrdersChart from './OrdersChart';
+import ExportButtons from './ExportButtons';
 import { fetchReportOrders } from './report-data';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Search, ChevronLeft, ChevronRight, FileSpreadsheet, FileText, Tag } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, Tag } from 'lucide-react';
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -102,18 +103,7 @@ export default async function OrdersPage(props: { searchParams: Promise<{ [key: 
           <h1 className="text-3xl font-bold font-heading">{t('title')}</h1>
           <p className="mt-1 text-sm text-muted-foreground">{rangeLabel}</p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <a href={exportHref('csv')}>
-            <Button variant="outline" size="sm">
-              <FileSpreadsheet className="mr-2 h-4 w-4" /> {t('exportCsv')}
-            </Button>
-          </a>
-          <a href={exportHref('pdf')}>
-            <Button variant="outline" size="sm">
-              <FileText className="mr-2 h-4 w-4" /> {t('exportPdf')}
-            </Button>
-          </a>
-        </div>
+        <ExportButtons csvHref={exportHref('csv')} pdfHref={exportHref('pdf')} />
       </div>
 
       {/* ── Period ── */}

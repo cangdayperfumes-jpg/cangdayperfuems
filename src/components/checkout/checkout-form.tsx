@@ -208,6 +208,15 @@ export default function CheckoutForm() {
         if (salesCountError) console.error('Error incrementing sales counts:', salesCountError);
       }
 
+      // Telegram new-order alert for the shop owner(s). Fire-and-forget with
+      // keepalive so it still goes out while we navigate to the success page.
+      fetch('/api/telegram/new-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: order.id }),
+        keepalive: true,
+      }).catch((e) => console.error('Non-fatal: Telegram notification failed', e));
+
       try {
         await fetch('/api/emails', {
           method: 'POST',

@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Trash } from 'lucide-react';
+import { Loader2, Trash } from 'lucide-react';
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -45,7 +45,7 @@ export default function DeleteButton({ id, onDelete, itemName }: DeleteButtonPro
         onClick={handleDelete}
         disabled={isPending}
     >
-      <Trash className="h-4 w-4" />
+      {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash className="h-4 w-4" />}
       <span className="sr-only">{tc('delete')}</span>
     </Button>
   );

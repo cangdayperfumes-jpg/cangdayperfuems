@@ -11,7 +11,15 @@ import { getAdminLocale, getAdminT } from '@/i18n/admin-locale';
 
 type ProductRow = Product & { categories?: { name: string } | null; brands?: { name: string } | null };
 
-export default async function ProductsPage() {
+export default async function ProductsPage(props: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+    const searchParams = await props.searchParams;
+    // ?stock=false / ?active=false / ?popular=true pre-apply the table filters.
+    const initialFilters = (
+        [['stock', 'stock'], ['active', 'is_active'], ['popular', 'is_popular']] as const
+    ).flatMap(([param, column]) => {
+        const v = searchParams[param];
+        return v === 'true' || v === 'false' ? [{ id: column, value: [v] }] : [];
+    });
     const locale = await getAdminLocale();
     const t = await getAdminT(locale, 'products');
     const supabase = await createClient();
@@ -55,7 +63,7 @@ export default async function ProductsPage() {
                     <BulkImport />
                 </div>
             </div>
-            <ProductsTable data={formattedProducts} categories={categories} brands={brands} />
+            <ProductsTable data={formattedProducts} categories={categories} brands={brands} initialFilters={initialFilters} />
         </div>
     );
 }

@@ -8,6 +8,7 @@ import { createClient } from '@/utils/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 
 const SHOP_LINKS = [
   { href: '/shop', key: 'allPerfumes' },
@@ -107,9 +108,10 @@ export default function Footer() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="shrink-0 h-11 rounded-sm bg-ink text-ivory hover:bg-gold-deep hover:text-ivory text-xs uppercase tracking-widest font-semibold px-5"
+              aria-busy={isSubmitting}
+              className="shrink-0 h-11 min-w-[7rem] rounded-sm bg-ink text-ivory hover:bg-gold-deep hover:text-ivory text-xs uppercase tracking-widest font-semibold px-5"
             >
-              {t('newsletterCta')}
+              {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t('newsletterCta')}
             </Button>
           </form>
         </div>

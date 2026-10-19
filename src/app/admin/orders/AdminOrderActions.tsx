@@ -128,7 +128,7 @@ export default function AdminOrderActions({ order, items }: AdminOrderActionsPro
           onClick={handleCancelOrder}
           title={t('cancelOrderTitle')}
         >
-          <XCircle className="h-4 w-4" />
+          {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
         </Button>
       )}
 

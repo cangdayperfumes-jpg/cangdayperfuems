@@ -1,5 +1,7 @@
 import { createClient } from '@/utils/supabase/server';
 import SettingsForm from '@/components/admin/SettingsForm';
+import TelegramSettings from '@/components/admin/TelegramSettings';
+import { getTelegramStatus } from './telegram-actions';
 import { getAdminLocale, getAdminT } from '@/i18n/admin-locale';
 
 export default async function SettingsPage() {
@@ -8,9 +10,11 @@ export default async function SettingsPage() {
   const t = await getAdminT(locale, 'settings');
   const { data, error } = await supabase
     .from('system_settings')
-    .select('hide_prices, popup_enabled, popup_title, popup_message, popup_button_text, popup_button_link, popup_image_url, popup_show_on, popup_ends_at, popup_show_bar, popup_title_tr, popup_message_tr, popup_button_text_tr, new_badge_days, gift_enabled, gift_threshold, seasonal_collections_multi_active, seasonal_section_position, theme_gold, theme_gold_deep, theme_ink, theme_ivory')
+    .select('hide_prices, popup_enabled, popup_title, popup_message, popup_button_text, popup_button_link, popup_image_url, popup_show_on, popup_ends_at, popup_show_bar, popup_title_tr, popup_message_tr, popup_button_text_tr, new_badge_days, gift_enabled, gift_threshold, seasonal_collections_multi_active, seasonal_section_position')
     .eq('id', 'global')
     .single();
+
+  const telegramStatus = await getTelegramStatus().catch(() => ({ configured: false, botUsername: null, recipients: [] }));
 
   if (error && error.code !== 'PGRST116') {
     console.error('Error fetching settings:', error);
@@ -23,7 +27,10 @@ export default async function SettingsPage() {
         <p className="text-gray-500 mt-2">{t('pageDescription')}</p>
       </div>
 
-      <SettingsForm initialData={data} />
+      <div className="space-y-8">
+        <TelegramSettings status={telegramStatus} />
+        <SettingsForm initialData={data} />
+      </div>
     </div>
   );
 }
