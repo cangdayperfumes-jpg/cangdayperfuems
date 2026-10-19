@@ -1,21 +1,21 @@
 import { StyleSheet } from '@react-pdf/renderer';
+import { PDF_COLORS as C, PDF_FONT_BODY, PDF_FONT_HEADING } from '@/lib/pdf-brand';
 
-// Sticks to react-pdf's standard built-in fonts (Helvetica family), same as
-// InvoicePDF.tsx — a custom webfont would need Font.register() against an
-// external URL, which would need a CSP connect-src change for no strong
-// visual payoff. Deferred, not needed for a solid "premium" look.
+// Site look (see src/lib/pdf-brand.ts): Fraunces headings, Manrope text,
+// ink / ivory / gold palette — shared with the invoice and orders report.
 export const catalogStyles = StyleSheet.create({
   page: {
     padding: 40,
-    fontFamily: 'Helvetica',
+    fontFamily: PDF_FONT_BODY,
     fontSize: 10,
-    color: '#111111',
+    color: C.ink,
   },
 
   // Cover page
   coverPage: {
     padding: 0,
-    fontFamily: 'Helvetica',
+    backgroundColor: C.ivory,
+    fontFamily: PDF_FONT_BODY,
   },
   coverImage: {
     width: '100%',
@@ -27,27 +27,28 @@ export const catalogStyles = StyleSheet.create({
     alignItems: 'center',
   },
   coverLogo: {
-    width: 90,
-    height: 89,
+    width: 220,
+    height: 74,
     marginBottom: 16,
     objectFit: 'contain',
   },
   coverTitle: {
     fontSize: 32,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: PDF_FONT_HEADING,
+    fontWeight: 600,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
     textAlign: 'center',
   },
   coverSubtitle: {
     fontSize: 13,
-    color: '#666666',
+    color: C.muted,
     marginTop: 8,
     textAlign: 'center',
   },
   coverSeason: {
     fontSize: 11,
-    color: '#999999',
+    color: C.muted,
     textTransform: 'uppercase',
     letterSpacing: 2,
     marginTop: 14,
@@ -55,7 +56,7 @@ export const catalogStyles = StyleSheet.create({
   },
   coverDescription: {
     fontSize: 10,
-    color: '#444444',
+    color: '#3B342E',
     marginTop: 20,
     textAlign: 'center',
     lineHeight: 1.6,
@@ -63,7 +64,7 @@ export const catalogStyles = StyleSheet.create({
   },
   coverDivider: {
     borderBottomWidth: 1,
-    borderBottomColor: '#DDDDDD',
+    borderBottomColor: C.gold,
     width: 120,
     marginTop: 24,
     marginBottom: 24,
@@ -73,13 +74,13 @@ export const catalogStyles = StyleSheet.create({
   },
   coverMetaText: {
     fontSize: 9,
-    color: '#666666',
+    color: C.muted,
     marginBottom: 3,
     textAlign: 'center',
   },
   coverDate: {
     fontSize: 8,
-    color: '#AAAAAA',
+    color: C.muted,
     marginTop: 24,
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -88,7 +89,8 @@ export const catalogStyles = StyleSheet.create({
   // Table of contents
   tocTitle: {
     fontSize: 22,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: PDF_FONT_HEADING,
+    fontWeight: 600,
     textTransform: 'uppercase',
     letterSpacing: 1,
     marginBottom: 24,
@@ -98,16 +100,16 @@ export const catalogStyles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: '#EEEEEE',
+    borderBottomColor: C.line,
     paddingVertical: 10,
   },
   tocRowText: {
     fontSize: 12,
-    color: '#111111',
+    color: C.ink,
   },
   tocRowCount: {
     fontSize: 9,
-    color: '#999999',
+    color: C.muted,
   },
 
   // Fixed header / footer
@@ -120,17 +122,17 @@ export const catalogStyles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: '#EEEEEE',
+    borderBottomColor: C.line,
     paddingBottom: 8,
   },
   headerLogo: {
-    width: 30,
-    height: 30,
+    width: 84,
+    height: 28,
     objectFit: 'contain',
   },
   headerText: {
     fontSize: 8,
-    color: '#888888',
+    color: C.muted,
   },
   footerRow: {
     position: 'absolute',
@@ -141,25 +143,26 @@ export const catalogStyles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderTopWidth: 1,
-    borderTopColor: '#EEEEEE',
+    borderTopColor: C.line,
     paddingTop: 8,
   },
   footerText: {
     fontSize: 8,
-    color: '#888888',
+    color: C.muted,
   },
 
   // Group heading
   groupHeading: {
     fontSize: 18,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: PDF_FONT_HEADING,
+    fontWeight: 600,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
     textAlign: 'center',
     marginTop: 20,
     marginBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#111111',
+    borderBottomWidth: 1.5,
+    borderBottomColor: C.gold,
     paddingBottom: 8,
   },
 
@@ -180,7 +183,7 @@ export const catalogStyles = StyleSheet.create({
     marginBottom: 5,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F9F9F9',
+    backgroundColor: C.paper,
   },
   cardImage: {
     width: '100%',
@@ -189,21 +192,22 @@ export const catalogStyles = StyleSheet.create({
   },
   cardName: {
     fontSize: 8.5,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: PDF_FONT_BODY,
+    fontWeight: 700,
     textAlign: 'center',
     textTransform: 'uppercase',
     marginBottom: 3,
   },
   cardTag: {
     fontSize: 7,
-    color: '#999999',
+    color: C.muted,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: 3,
   },
   cardDescription: {
     fontSize: 7.5,
-    color: '#666666',
+    color: C.muted,
     textAlign: 'center',
     marginBottom: 4,
     lineHeight: 1.4,
@@ -215,12 +219,12 @@ export const catalogStyles = StyleSheet.create({
   },
   cardBadgePopular: {
     fontSize: 7,
-    color: '#B8860B',
+    color: C.goldDeep,
     marginRight: 4,
   },
   cardBadgeOutOfStock: {
     fontSize: 7,
-    color: '#C0392B',
+    color: C.burgundy,
   },
   cardPriceRow: {
     flexDirection: 'row',
@@ -229,11 +233,12 @@ export const catalogStyles = StyleSheet.create({
   },
   cardPrice: {
     fontSize: 9,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: PDF_FONT_BODY,
+    fontWeight: 700,
   },
   cardPriceStrike: {
     fontSize: 8,
-    color: '#999999',
+    color: C.muted,
     marginRight: 5,
     textDecoration: 'line-through',
   },
@@ -255,7 +260,8 @@ export const catalogStyles = StyleSheet.create({
   },
   bannerTitle: {
     fontSize: 18,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: PDF_FONT_HEADING,
+    fontWeight: 600,
     textTransform: 'uppercase',
     letterSpacing: 1.5,
     textAlign: 'center',
@@ -279,8 +285,9 @@ export const catalogStyles = StyleSheet.create({
   },
   pageWatermarkText: {
     fontSize: 60,
-    fontFamily: 'Helvetica-Bold',
-    color: '#000000',
+    fontFamily: PDF_FONT_BODY,
+    fontWeight: 700,
+    color: C.ink,
     opacity: 0.05,
     textTransform: 'uppercase',
     letterSpacing: 6,
@@ -296,8 +303,9 @@ export const catalogStyles = StyleSheet.create({
   },
   imageWatermarkText: {
     fontSize: 11,
-    fontFamily: 'Helvetica-Bold',
-    color: '#000000',
+    fontFamily: PDF_FONT_BODY,
+    fontWeight: 700,
+    color: C.ink,
     opacity: 0.14,
     textTransform: 'uppercase',
     letterSpacing: 1,

@@ -25,7 +25,7 @@
   },
   "trustBar": {
     "freeShipping": "Free shipping on every order",
-    "freeGift": "Free mini gift over ₺750",
+    "freeGift": "Free mini gift over {amount}",
     "original": "100% original, guaranteed",
     "easyReturns": "14-day easy returns"
   },
@@ -291,7 +291,7 @@
     "promo2Cta": "See Eligible Scents",
     "promo3Eyebrow": "On Us",
     "promo3Title": "Free Mini Gift",
-    "promo3Body": "Automatically added to orders over ₺750.",
+    "promo3Body": "Automatically added to orders over {amount}.",
     "promo3Cta": "Start Shopping"
   },
   "contact": {

@@ -1,3 +1,5 @@
+import { readFile } from 'fs/promises';
+import path from 'path';
 import { NextResponse, type NextRequest } from 'next/server';
 import { renderToBuffer } from '@react-pdf/renderer';
 import { createClient } from '@/utils/supabase/server';
@@ -5,6 +7,7 @@ import { computeStats, resolveRange, type ReportOrder } from '@/lib/order-report
 import { getAdminLocale, getAdminT } from '@/i18n/admin-locale';
 import { fetchReportOrders } from '../report-data';
 import OrdersReportPDF, { type ReportLabels } from './OrdersReportPDF';
+import { formatPdfMoney } from '@/lib/pdf-brand';
 
 export const dynamic = 'force-dynamic';
 
@@ -84,8 +87,7 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  const money = (n: number) =>
-    `${n.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺`;
+  const money = formatPdfMoney;
   const labels: ReportLabels = {
     title: t('reportTitle'),
     period: t('reportPeriod'),
@@ -111,6 +113,9 @@ export async function GET(request: NextRequest) {
     colStatus: t('csvStatus'),
   };
 
+  // Shipped with this route via next.config.ts → outputFileTracingIncludes.
+  const logo = await readFile(path.join(process.cwd(), 'public/images/cangday-logo-pdf.png')).catch(() => null);
+
   const pdf = await renderToBuffer(
     <OrdersReportPDF
       orders={orders}
@@ -120,6 +125,7 @@ export async function GET(request: NextRequest) {
       locale={dateLocale}
       money={money}
       statusLabel={statusLabel}
+      logo={logo}
     />
   );
 

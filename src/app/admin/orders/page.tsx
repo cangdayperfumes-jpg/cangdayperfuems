@@ -145,7 +145,7 @@ export default async function OrdersPage(props: { searchParams: Promise<{ [key: 
         {statCards.map((c) => (
           <div key={c.label} className="rounded-lg border bg-white p-4 shadow-sm">
             <p className="text-xs font-medium uppercase tracking-wide text-gray-500">{c.label}</p>
-            <p className="mt-1.5 text-2xl font-bold tabular-nums">{c.value}</p>
+            <p className="mt-1.5 break-words text-xl font-bold tabular-nums sm:text-2xl">{c.value}</p>
             {c.hint && <p className="mt-0.5 text-[11px] text-gray-400">{c.hint}</p>}
           </div>
         ))}

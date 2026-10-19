@@ -4,9 +4,8 @@ import { Link, useRouter } from '@/i18n/navigation';
 import ResponsiveCroppedImage from '@/components/shared/ResponsiveCroppedImage';
 import ImageWithFallback from '@/components/shared/ImageWithFallback';
 import { Product } from '@/types';
-import { formatCurrency } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Plus, Sparkle } from 'lucide-react';
 import { useCartStore } from '@/hooks/use-cart';
 import { toast } from 'sonner';
@@ -43,6 +42,16 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
   const discountPercentage = product.discount > 0
     ? Math.round((product.discount / product.price) * 100)
     : 0;
+
+  // At most two small badges, by priority — three stacked full-size badges
+  // covered most of the bottle on a phone-width card.
+  const badges = (
+    [
+      product.discount > 0 && 'sale',
+      isNew && 'new',
+      product.is_popular && 'popular',
+    ].filter(Boolean) as ('sale' | 'new' | 'popular')[]
+  ).slice(0, 2);
 
   const handleQuickAdd = () => {
     if (product.has_variants) {
@@ -92,28 +101,30 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
         <Link href={`/shop/${product.slug || product.id}`} className="block relative w-full h-full">
             {/* Badges stack top-left (the top-right corner holds the
                 favourite heart). */}
-            {(product.discount > 0 || isNew || product.is_popular) && (
-            <div className="absolute top-2 left-2 z-10 flex flex-col items-start gap-1">
-                {/* Discount — the one deliberate use of burgundy in the
-                    interface, reserved for sale/discount signaling only. */}
-                {product.discount > 0 && (
-                <Badge className="bg-burgundy text-ivory border-0 rounded-sm px-2 py-1 text-[10px] md:text-xs uppercase font-bold tracking-wider">
-                    -{discountPercentage}% OFF
-                </Badge>
-                )}
-                {isNew && (
-                <span className="bg-ink text-ivory rounded-sm px-2 py-1 text-[10px] md:text-xs uppercase font-bold tracking-wider">
-                    {tProduct('new')}
+            {badges.length > 0 && (
+            <div className="absolute top-2 left-2 z-10 flex max-w-[calc(100%-3rem)] flex-col items-start gap-1">
+                {badges.map((b) => (
+                <span
+                    key={b}
+                    className={cn(
+                        'inline-flex items-center gap-1 rounded-sm px-1.5 py-0.5 text-[9px] md:text-[10px] font-bold uppercase leading-4 tracking-wider text-ivory shadow-sm',
+                        // Burgundy is reserved for sale signaling; sage (not
+                        // gold) marks editorial picks; ink for New.
+                        b === 'sale' && 'bg-burgundy',
+                        b === 'new' && 'bg-ink',
+                        b === 'popular' && 'bg-sage'
+                    )}
+                >
+                    {b === 'sale' && `-${discountPercentage}%`}
+                    {b === 'new' && tProduct('new')}
+                    {b === 'popular' && (
+                    <>
+                        <Sparkle className="h-2.5 w-2.5" fill="currentColor" strokeWidth={0} />
+                        {tProduct('popular')}
+                    </>
+                    )}
                 </span>
-                )}
-                {/* Popular — sage, not gold: gold stays reserved for price/
-                    CTA-adjacent accents. */}
-                {product.is_popular && (
-                <div className="flex items-center gap-1 bg-sage text-ivory rounded-sm px-1.5 py-1">
-                    <Sparkle className="h-3 w-3 md:h-3.5 md:w-3.5" fill="currentColor" strokeWidth={0} />
-                    <span className="text-[10px] md:text-xs uppercase font-bold tracking-wider">{tProduct('popular')}</span>
-                </div>
-                )}
+                ))}
             </div>
             )}
 

@@ -158,3 +158,15 @@
     animation: none !important;
   }
 }
+
+/* iOS Safari zooms the page in whenever a text field under 16px gets focus
+   (coupon code, search, checkout fields…). Phones get 16px fields instead —
+   the fix Apple expects, and unlike maximum-scale=1 it keeps pinch-zoom.
+   Unlayered + !important so it beats the text-sm/text-xs utilities. */
+@media (max-width: 767px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}

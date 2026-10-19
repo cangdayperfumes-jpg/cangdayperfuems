@@ -321,7 +321,12 @@
     "showOfferBar": "Show countdown bar at the top of the site",
     "showOfferBarDesc": "A thin bar above the header keeps the deadline visible after the pop-up is closed.",
     "popupTurkishTitle": "Turkish text",
-    "popupTurkishDesc": "Shown to visitors browsing in Turkish. Empty fields fall back to the English text."
+    "popupTurkishDesc": "Shown to visitors browsing in Turkish. Empty fields fall back to the English text.",
+    "giftTitle": "Free mini gift",
+    "giftEnabledLabel": "Offer a free mini gift",
+    "giftEnabledDesc": "Shows the gift in the top strip, trust badges, the promo card and the cart progress bar. Turn off to hide it everywhere.",
+    "giftThresholdLabel": "Minimum order for the gift (₺)",
+    "giftThresholdDesc": "Orders at or above this amount get the gift."
   },
   "login": {
     "title": "Admin Access",

@@ -3,6 +3,8 @@
 import { Truck, Gift, ShieldCheck, RotateCcw, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Fragment, useState } from 'react';
+import { useSettings } from '@/components/providers/SettingsProvider';
+import { formatPromoAmount } from '@/lib/promotions';
 
 const ITEMS = [
   { icon: Truck, key: 'freeShipping' },
@@ -16,16 +18,18 @@ const ITEMS = [
 // narrower than the screen, which leaves a visible gap of empty space once
 // it scrolls past and the loop has nothing left to show before restarting.
 const REPEATS = 6;
-const REPEATED_ITEMS = Array.from({ length: REPEATS }, () => ITEMS).flat();
 
-function Row({ t, hidden }: { t: (key: (typeof ITEMS)[number]['key']) => string; hidden?: boolean }) {
+type Item = (typeof ITEMS)[number];
+
+function Row({ items, label, hidden }: { items: readonly Item[]; label: (key: Item['key']) => string; hidden?: boolean }) {
+  const repeated = Array.from({ length: REPEATS }, () => items).flat();
   return (
     <div aria-hidden={hidden} className="flex items-center gap-10 md:gap-14 px-5 shrink-0 animate-marquee-banner">
-      {REPEATED_ITEMS.map(({ icon: Icon, key }, index) => (
+      {repeated.map(({ icon: Icon, key }, index) => (
         <Fragment key={`${key}-${index}`}>
           <div className="flex items-center gap-2 whitespace-nowrap">
             <Icon className="h-3.5 w-3.5 text-gold shrink-0" strokeWidth={1.75} />
-            <span className="text-[11px] font-medium tracking-wide text-ivory/90">{t(key)}</span>
+            <span className="text-[11px] font-medium tracking-wide text-ivory/90">{label(key)}</span>
           </div>
           <span aria-hidden="true" className="inline-block h-1 w-1 rotate-45 border border-gold/60 shrink-0" />
         </Fragment>
@@ -45,6 +49,11 @@ export default function AnnouncementBar() {
   const t = useTranslations('trustBar');
   const tNav = useTranslations('nav');
   const [isVisible, setIsVisible] = useState(true);
+  const { gift } = useSettings();
+  // The mini-gift item follows Settings → Free mini gift (hidden when off).
+  const items = ITEMS.filter((i) => i.key !== 'freeGift' || gift.enabled);
+  const label = (key: Item['key']) =>
+    key === 'freeGift' ? t('freeGift', { amount: formatPromoAmount(gift.threshold) }) : t(key);
 
   if (!isVisible) return null;
 
@@ -54,8 +63,8 @@ export default function AnnouncementBar() {
         className="flex whitespace-nowrap h-8 items-center"
         style={{ maskImage: 'linear-gradient(to right, transparent, black 14%, black 86%, transparent)' }}
       >
-        <Row t={t} />
-        <Row t={t} hidden />
+        <Row items={items} label={label} />
+        <Row items={items} label={label} hidden />
       </div>
       <button
         type="button"

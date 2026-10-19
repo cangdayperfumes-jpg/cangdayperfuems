@@ -3,13 +3,16 @@
 import { Gift } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { formatCurrency } from '@/lib/utils';
-import { FREE_GIFT_THRESHOLD_TRY } from '@/lib/promotions';
+import { useSettings } from '@/components/providers/SettingsProvider';
 
-/** "₺X away from your free mini gift" bar — shared by the cart sheet and checkout summary. */
+/** "₺X away from your free mini gift" bar — shared by the cart sheet and checkout summary. Hidden when the promotion is off. */
 export default function GiftProgress({ subtotal }: { subtotal: number }) {
   const t = useTranslations('cart');
-  const remaining = Math.max(0, FREE_GIFT_THRESHOLD_TRY - subtotal);
-  const pct = Math.min(100, (subtotal / FREE_GIFT_THRESHOLD_TRY) * 100);
+  const { gift } = useSettings();
+  if (!gift.enabled || !(gift.threshold > 0)) return null;
+
+  const remaining = Math.max(0, gift.threshold - subtotal);
+  const pct = Math.min(100, (subtotal / gift.threshold) * 100);
   const unlocked = remaining === 0;
 
   return (

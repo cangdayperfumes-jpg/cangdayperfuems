@@ -1,5 +1,6 @@
 import { Page, View, Text, Image } from '@react-pdf/renderer';
 import { catalogStyles as styles } from './catalogStyles';
+import { PDF_LOGO_SRC } from '@/lib/pdf-brand';
 import { CatalogCoverConfig, CatalogWatermarkLine } from './types';
 import CatalogPageWatermark from './CatalogWatermark';
 
@@ -26,7 +27,7 @@ export default function CatalogCoverPage({ cover, totalProductCount, groupCount,
 
       <View style={styles.coverBody}>
         {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image is not an HTML img, no alt prop exists */}
-        {cover.logoUrl ? <Image src={cover.logoUrl} style={styles.coverLogo} /> : null}
+        <Image src={cover.logoUrl || PDF_LOGO_SRC} style={styles.coverLogo} />
 
         <Text style={styles.coverTitle}>{cover.title || 'Product Catalog'}</Text>
         {cover.subtitle ? <Text style={styles.coverSubtitle}>{cover.subtitle}</Text> : null}

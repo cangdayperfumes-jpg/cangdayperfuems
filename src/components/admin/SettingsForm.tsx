@@ -35,6 +35,8 @@ const settingsSchema = z.object({
   popupMessageTr: z.string().default(''),
   popupButtonTextTr: z.string().default(''),
   newBadgeDays: z.coerce.number().int().min(0).max(365).default(30),
+  giftEnabled: z.boolean().default(true),
+  giftThreshold: z.coerce.number().positive().default(750),
   seasonalCollectionsMultiActive: z.boolean().default(false),
   seasonalSectionPosition: z.string().default('after_gender_collection'),
 });
@@ -56,6 +58,8 @@ export interface SettingsInitialData {
   popup_message_tr?: string | null;
   popup_button_text_tr?: string | null;
   new_badge_days?: number | null;
+  gift_enabled?: boolean | null;
+  gift_threshold?: number | null;
   seasonal_collections_multi_active: boolean | null;
   seasonal_section_position: string | null;
   theme_gold: string | null;
@@ -100,6 +104,8 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
       popupMessageTr: initialData?.popup_message_tr ?? '',
       popupButtonTextTr: initialData?.popup_button_text_tr ?? '',
       newBadgeDays: initialData?.new_badge_days ?? 30,
+      giftEnabled: initialData?.gift_enabled ?? true,
+      giftThreshold: Number(initialData?.gift_threshold ?? 750),
       seasonalCollectionsMultiActive: initialData?.seasonal_collections_multi_active ?? false,
       seasonalSectionPosition: initialData?.seasonal_section_position ?? 'after_gender_collection',
     },
@@ -107,6 +113,7 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
 
   const popupEnabled = form.watch('popupEnabled');
   const popupEndsAt = form.watch('popupEndsAt');
+  const giftEnabled = form.watch('giftEnabled');
   const offerExpired = !!popupEndsAt && new Date(popupEndsAt).getTime() <= Date.now();
 
   const onSubmit = async (data: SettingsFormValues) => {
@@ -134,6 +141,8 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
           popup_message_tr: data.popupMessageTr,
           popup_button_text_tr: data.popupButtonTextTr,
           new_badge_days: data.newBadgeDays,
+          gift_enabled: data.giftEnabled,
+          gift_threshold: data.giftThreshold,
           seasonal_collections_multi_active: data.seasonalCollectionsMultiActive,
           seasonal_section_position: data.seasonalSectionPosition,
         })
@@ -247,6 +256,41 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
               </FormItem>
             )}
           />
+        </div>
+
+        {/* ── Free mini gift ───────────────────────────────── */}
+        <div className="bg-white p-6 rounded-lg border shadow-sm max-w-2xl">
+          <h2 className="text-lg font-semibold mb-4">{t('giftTitle')}</h2>
+          <FormField
+            control={form.control}
+            name="giftEnabled"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between gap-4 rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base text-black">{t('giftEnabledLabel')}</FormLabel>
+                  <FormDescription>{t('giftEnabledDesc')}</FormDescription>
+                </div>
+                <FormControl>
+                  <Switch checked={field.value} onCheckedChange={field.onChange} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          {giftEnabled && (
+            <FormField
+              control={form.control}
+              name="giftThreshold"
+              render={({ field }) => (
+                <FormItem className="mt-4">
+                  <FormLabel>{t('giftThresholdLabel')}</FormLabel>
+                  <FormControl>
+                    <Input type="number" min={1} step="1" className="max-w-[180px]" {...field} />
+                  </FormControl>
+                  <FormDescription>{t('giftThresholdDesc')}</FormDescription>
+                </FormItem>
+              )}
+            />
+          )}
         </div>
 
         {/* ── Popup Settings ───────────────────────────────── */}

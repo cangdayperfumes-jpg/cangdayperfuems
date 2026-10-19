@@ -321,7 +321,12 @@
     "showOfferBar": "Sitenin üstünde geri sayım çubuğu göster",
     "showOfferBarDesc": "Başlığın üstündeki ince çubuk, pop-up kapatıldıktan sonra da son tarihi görünür tutar.",
     "popupTurkishTitle": "Türkçe metin",
-    "popupTurkishDesc": "Siteyi Türkçe gezen ziyaretçilere gösterilir. Boş alanlarda İngilizce metin kullanılır."
+    "popupTurkishDesc": "Siteyi Türkçe gezen ziyaretçilere gösterilir. Boş alanlarda İngilizce metin kullanılır.",
+    "giftTitle": "Ücretsiz mini hediye",
+    "giftEnabledLabel": "Ücretsiz mini hediye sun",
+    "giftEnabledDesc": "Hediye üst şeritte, güven rozetlerinde, kampanya kartında ve sepetteki ilerleme çubuğunda görünür. Her yerde gizlemek için kapatın.",
+    "giftThresholdLabel": "Hediye için minimum sipariş (₺)",
+    "giftThresholdDesc": "Bu tutar ve üzerindeki siparişler hediyeyi alır."
   },
   "login": {
     "title": "Yönetici Girişi",

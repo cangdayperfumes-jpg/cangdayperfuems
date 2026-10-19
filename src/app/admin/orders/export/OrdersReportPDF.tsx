@@ -1,53 +1,41 @@
-import path from 'path';
-import { Document, Font, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Document, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import type { OrderStats, ReportOrder } from '@/lib/order-report';
+import {
+  PDF_COLORS as C,
+  PDF_FONT_BODY,
+  PDF_FONT_HEADING,
+  PDF_LOGO_RATIO,
+  registerPdfFonts,
+} from '@/lib/pdf-brand';
 
-// Helvetica (the PDF default) has no ş/ğ/ı/İ, so Turkish names would come out
-// garbled. Noto Sans ships as two subsets — basic Latin and Latin Extended —
-// and react-pdf falls back glyph by glyph across the fontFamily array.
-// next.config.ts → outputFileTracingIncludes ships these files with the route.
-const FONT_DIR = path.join(process.cwd(), 'node_modules/@fontsource/noto-sans/files');
-let fontsRegistered = false;
-function registerFonts() {
-  if (fontsRegistered) return;
-  for (const [family, subset] of [['NotoLatin', 'latin'], ['NotoLatinExt', 'latin-ext']] as const) {
-    Font.register({
-      family,
-      fonts: [
-        { src: path.join(FONT_DIR, `noto-sans-${subset}-400-normal.woff`), fontWeight: 400 },
-        { src: path.join(FONT_DIR, `noto-sans-${subset}-700-normal.woff`), fontWeight: 700 },
-      ],
-    });
-  }
-  Font.registerHyphenationCallback((word) => [word]);
-  fontsRegistered = true;
-}
-
-const FONT = ['NotoLatin', 'NotoLatinExt'];
+const LOGO_W = 120;
 
 const s = StyleSheet.create({
-  page: { padding: 32, fontFamily: FONT as unknown as string, fontSize: 9, color: '#111' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 6 },
-  brand: { fontSize: 18, fontWeight: 700, letterSpacing: 3 },
-  muted: { color: '#666' },
-  divider: { borderBottomWidth: 2, borderBottomColor: '#111', marginBottom: 14 },
-  cards: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 14 },
-  card: { width: '25%', paddingRight: 8, marginBottom: 8 },
-  cardInner: { borderWidth: 1, borderColor: '#ddd', padding: 8 },
-  cardLabel: { fontSize: 7, color: '#666', textTransform: 'uppercase', marginBottom: 3 },
-  cardValue: { fontSize: 12, fontWeight: 700 },
-  sectionTitle: { fontSize: 10, fontWeight: 700, marginBottom: 6, marginTop: 4 },
-  row: { flexDirection: 'row', borderBottomWidth: 0.5, borderBottomColor: '#ddd', paddingVertical: 4 },
-  head: { flexDirection: 'row', backgroundColor: '#f2f2f2', paddingVertical: 5, fontWeight: 700 },
-  footer: { position: 'absolute', bottom: 18, left: 32, right: 32, flexDirection: 'row', justifyContent: 'space-between', fontSize: 7, color: '#999' },
+  page: { paddingTop: 36, paddingBottom: 52, paddingHorizontal: 36, fontFamily: PDF_FONT_BODY, fontSize: 8.5, color: C.ink, backgroundColor: C.white },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  logo: { width: LOGO_W, height: LOGO_W / PDF_LOGO_RATIO },
+  docTitle: { fontFamily: PDF_FONT_HEADING, fontSize: 18, fontWeight: 600, textAlign: 'right' },
+  meta: { fontSize: 8, color: C.muted, textAlign: 'right', marginTop: 2 },
+  rule: { marginTop: 14, marginBottom: 16, height: 1.5, backgroundColor: C.gold },
+  cards: { flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -4, marginBottom: 12 },
+  card: { width: '25%', paddingHorizontal: 4, marginBottom: 8 },
+  cardInner: { backgroundColor: C.ivory, borderRadius: 3, paddingVertical: 9, paddingHorizontal: 10, borderLeftWidth: 2, borderLeftColor: C.gold },
+  cardLabel: { fontSize: 6.5, color: C.muted, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4, fontWeight: 600 },
+  cardValue: { fontFamily: PDF_FONT_HEADING, fontSize: 13, fontWeight: 600 },
+  sectionTitle: { fontFamily: PDF_FONT_HEADING, fontSize: 11, fontWeight: 600, marginBottom: 6, marginTop: 6, color: C.ink },
+  row: { flexDirection: 'row', borderBottomWidth: 0.5, borderBottomColor: C.line, paddingVertical: 5 },
+  rowAlt: { backgroundColor: C.paper },
+  head: { flexDirection: 'row', backgroundColor: C.ink, color: C.ivory, paddingVertical: 6, fontWeight: 700, fontSize: 7, textTransform: 'uppercase', letterSpacing: 0.6 },
+  rank: { color: C.goldDeep, fontWeight: 700 },
+  footer: { position: 'absolute', bottom: 22, left: 36, right: 36, flexDirection: 'row', justifyContent: 'space-between', fontSize: 7, color: C.muted, borderTopWidth: 0.5, borderTopColor: C.line, paddingTop: 6 },
 });
 
 const COLS = [
   { key: 'date', width: '15%' },
   { key: 'customer', width: '22%' },
   { key: 'destination', width: '17%' },
-  { key: 'items', width: '8%', align: 'right' },
-  { key: 'coupon', width: '13%' },
+  { key: 'items', width: '7%', align: 'right' },
+  { key: 'coupon', width: '14%' },
   { key: 'total', width: '13%', align: 'right' },
   { key: 'status', width: '12%', align: 'right' },
 ] as const;
@@ -59,6 +47,13 @@ export type ReportLabels = Record<
   string
 >;
 
+const STATUS_COLOR: Record<string, string> = {
+  pending: C.goldDeep,
+  shipped: '#3F6B4E',
+  delivered: '#3F6B4E',
+  cancelled: C.burgundy,
+};
+
 export default function OrdersReportPDF({
   orders,
   stats,
@@ -67,6 +62,7 @@ export default function OrdersReportPDF({
   locale,
   money,
   statusLabel,
+  logo,
 }: {
   orders: ReportOrder[];
   stats: OrderStats;
@@ -75,8 +71,10 @@ export default function OrdersReportPDF({
   locale: string;
   money: (n: number) => string;
   statusLabel: (status: string) => string;
+  /** PNG bytes — react-pdf on the server treats a path string as a URL to fetch. */
+  logo?: Buffer | null;
 }) {
-  registerFonts();
+  registerPdfFonts();
   const when = (iso: string) =>
     new Date(iso).toLocaleString(locale, { dateStyle: 'short', timeStyle: 'short', timeZone: 'Europe/Istanbul' });
 
@@ -101,20 +99,25 @@ export default function OrdersReportPDF({
     status: labels.colStatus,
   };
 
+  const cell = (c: (typeof COLS)[number]) => ({
+    width: c.width,
+    paddingHorizontal: 4,
+    textAlign: ('align' in c ? c.align : 'left') as 'left' | 'right',
+  });
+
   return (
     <Document title={`${labels.title} — ${periodLabel}`} author="Cangday">
       <Page size="A4" style={s.page}>
         <View style={s.header}>
+          {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image has no alt */}
+          {logo ? <Image src={{ data: logo, format: 'png' }} style={s.logo} /> : <Text style={s.docTitle}>CANGDAY</Text>}
           <View>
-            <Text style={s.brand}>CANGDAY</Text>
-            <Text style={s.muted}>{labels.title}</Text>
-          </View>
-          <View style={{ alignItems: 'flex-end' }}>
-            <Text>{labels.period}: {periodLabel}</Text>
-            <Text style={s.muted}>{labels.generated}: {when(new Date().toISOString())}</Text>
+            <Text style={s.docTitle}>{labels.title}</Text>
+            <Text style={s.meta}>{labels.period}: {periodLabel}</Text>
+            <Text style={s.meta}>{labels.generated}: {when(new Date().toISOString())}</Text>
           </View>
         </View>
-        <View style={s.divider} />
+        <View style={s.rule} />
 
         <View style={s.cards}>
           {cards.map(([label, value]) => (
@@ -128,14 +131,14 @@ export default function OrdersReportPDF({
         </View>
 
         {stats.topProducts.length > 0 && (
-          <View style={{ marginBottom: 12 }}>
+          <View style={{ marginBottom: 14 }} wrap={false}>
             <Text style={s.sectionTitle}>{labels.topProducts}</Text>
             {stats.topProducts.map((p, i) => (
               <View key={p.name} style={s.row}>
-                <Text style={{ width: '6%' }}>{i + 1}.</Text>
+                <Text style={[s.rank, { width: '6%', paddingHorizontal: 4 }]}>{i + 1}</Text>
                 <Text style={{ width: '64%' }}>{p.name}</Text>
                 <Text style={{ width: '10%', textAlign: 'right' }}>×{p.quantity}</Text>
-                <Text style={{ width: '20%', textAlign: 'right' }}>{money(p.revenue)}</Text>
+                <Text style={{ width: '20%', textAlign: 'right', paddingHorizontal: 4 }}>{money(p.revenue)}</Text>
               </View>
             ))}
           </View>
@@ -144,12 +147,10 @@ export default function OrdersReportPDF({
         <Text style={s.sectionTitle}>{labels.orderList}</Text>
         <View style={s.head} fixed>
           {COLS.map((c) => (
-            <Text key={c.key} style={{ width: c.width, paddingHorizontal: 3, textAlign: 'align' in c ? c.align : 'left' }}>
-              {headers[c.key]}
-            </Text>
+            <Text key={c.key} style={cell(c)}>{headers[c.key]}</Text>
           ))}
         </View>
-        {orders.map((o) => {
+        {orders.map((o, i) => {
           const cells: Record<(typeof COLS)[number]['key'], string> = {
             date: when(o.created_at),
             customer: o.customer_name ?? '',
@@ -160,9 +161,16 @@ export default function OrdersReportPDF({
             status: statusLabel(o.status),
           };
           return (
-            <View key={o.id} style={s.row} wrap={false}>
+            <View key={o.id} style={i % 2 ? [s.row, s.rowAlt] : s.row} wrap={false}>
               {COLS.map((c) => (
-                <Text key={c.key} style={{ width: c.width, paddingHorizontal: 3, textAlign: 'align' in c ? c.align : 'left' }}>
+                <Text
+                  key={c.key}
+                  style={[
+                    cell(c),
+                    c.key === 'total' ? { fontWeight: 700 } : {},
+                    c.key === 'status' ? { color: STATUS_COLOR[o.status] ?? C.ink, fontWeight: 600 } : {},
+                  ]}
+                >
                   {cells[c.key]}
                 </Text>
               ))}
@@ -171,7 +179,7 @@ export default function OrdersReportPDF({
         })}
 
         <View style={s.footer} fixed>
-          <Text>Cangday — {labels.title}</Text>
+          <Text>Cangday · cangdayperfume.com</Text>
           <Text render={({ pageNumber, totalPages }) => `${labels.page} ${pageNumber} / ${totalPages}`} />
         </View>
       </Page>

@@ -33,7 +33,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       </div>
 
       <main className={cn(
-        "flex-1 p-4 md:p-8 overflow-y-auto w-full print:m-0 print:p-0 transition-all duration-300",
+        "flex-1 min-w-0 p-4 md:p-8 overflow-y-auto w-full print:m-0 print:p-0 transition-all duration-300",
         isSidebarCollapsed ? "md:ml-20" : "md:ml-72"
       )}>
         <div className="max-w-7xl mx-auto print:max-w-none">

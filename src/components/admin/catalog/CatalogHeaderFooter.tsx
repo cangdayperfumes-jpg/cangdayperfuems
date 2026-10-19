@@ -1,15 +1,17 @@
 import { View, Text, Image } from '@react-pdf/renderer';
 import { catalogStyles as styles } from './catalogStyles';
+import { PDF_LOGO_SRC } from '@/lib/pdf-brand';
 import { CatalogHeaderFooterConfig } from './types';
 
 export function CatalogHeader({ headerFooter }: { headerFooter: CatalogHeaderFooterConfig }) {
   const contactLine = [headerFooter.website, headerFooter.phone, headerFooter.email].filter(Boolean).join('   •   ');
-  if (!headerFooter.logoUrl && !contactLine) return null;
+  // Falls back to the Cangday logo when no custom one was chosen.
+  const logo = headerFooter.logoUrl || PDF_LOGO_SRC;
 
   return (
     <View style={styles.headerRow} fixed>
       {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image is not an HTML img, no alt prop exists */}
-      {headerFooter.logoUrl ? <Image src={headerFooter.logoUrl} style={styles.headerLogo} /> : <View />}
+      <Image src={logo} style={styles.headerLogo} />
       {contactLine ? <Text style={styles.headerText}>{contactLine}</Text> : null}
     </View>
   );

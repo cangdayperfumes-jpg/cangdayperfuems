@@ -45,7 +45,7 @@ export default async function ProductsPage() {
                         {t('totalCount', { count: formattedProducts.length })}
                     </span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                     <Link href="/admin/products/new">
                         <Button>
                             <Plus className="mr-2 h-4 w-4" />

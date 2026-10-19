@@ -1,6 +1,7 @@
 import { Fragment } from 'react';
 import { Document, Page } from '@react-pdf/renderer';
 import { catalogStyles as styles } from './catalogStyles';
+import { registerPdfFonts } from '@/lib/pdf-brand';
 import { CatalogModel } from './types';
 import CatalogCoverPage from './CatalogCoverPage';
 import CatalogTOC from './CatalogTOC';
@@ -26,6 +27,7 @@ export default function CatalogPDF({
   brandNameById,
   imageWatermarkLogoSrc,
 }: CatalogPDFProps) {
+  registerPdfFonts();
   const leadingBanners = model.bannersByGroupId.get(null) || [];
   const defaultWatermarkText = model.cover.companyName || 'CANGDAY';
 

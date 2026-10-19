@@ -1,104 +1,107 @@
-import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
+import { Document, Image, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import {
+  PDF_COLORS as C,
+  PDF_FONT_BODY,
+  PDF_FONT_HEADING,
+  PDF_LOGO_RATIO,
+  PDF_LOGO_SRC,
+  formatPdfMoney,
+  registerPdfFonts,
+} from '@/lib/pdf-brand';
 import { EditableInvoiceItem } from '@/types/invoice';
 
 const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
-    backgroundColor: '#FFFFFF',
-    padding: 40,
-    fontFamily: 'Helvetica',
+    backgroundColor: C.white,
+    paddingTop: 40,
+    paddingBottom: 70,
+    paddingHorizontal: 44,
+    fontFamily: PDF_FONT_BODY,
+    color: C.ink,
   },
   header: {
-    marginBottom: 5,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
   logo: {
-    width: 70,
-    height: 57,
+    width: 130,
+    height: 130 / PDF_LOGO_RATIO,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: 'extrabold',
-    textTransform: 'uppercase',
-    color: '#000000',
-    fontFamily: 'Helvetica-Bold',
+  docTitle: {
+    fontFamily: PDF_FONT_HEADING,
+    fontSize: 24,
+    fontWeight: 600,
+    color: C.ink,
+    textAlign: 'right',
     letterSpacing: 1,
   },
-  subtitle: {
-    fontSize: 10,
-    color: '#888888',
-    marginTop: 4,
-    marginBottom: 20,
+  docSub: {
+    fontSize: 9,
+    color: C.muted,
+    textAlign: 'right',
+    marginTop: 3,
   },
-  thickDivider: {
-    borderBottomWidth: 2,
-    borderBottomColor: '#000000',
-    marginBottom: 20,
+  goldRule: {
+    height: 1.5,
+    backgroundColor: C.gold,
+    marginTop: 16,
+    marginBottom: 22,
   },
-  invoiceMetaRow: {
+  infoRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 24,
+    marginBottom: 26,
   },
-  metaLeft: {
-    flexDirection: 'column',
+  infoBox: {
+    flex: 1,
+    backgroundColor: C.ivory,
+    borderRadius: 3,
+    padding: 12,
   },
-  metaRight: {
-    flexDirection: 'column',
-    alignItems: 'flex-end',
+  infoGap: { width: 12 },
+  eyebrow: {
+    fontSize: 7,
+    fontWeight: 700,
+    color: C.goldDeep,
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+    marginBottom: 6,
   },
-  boldText: {
-    fontSize: 11,
-    fontFamily: 'Helvetica-Bold',
-    fontWeight: 'bold',
-    color: '#000000',
+  strongText: {
+    fontSize: 10.5,
+    fontWeight: 700,
+    color: C.ink,
     marginBottom: 2,
   },
-  normalText: {
-    fontSize: 10,
-    color: '#444444',
-  },
-  customerSection: {
-    marginBottom: 30,
-  },
-  sectionTitle: {
-    fontSize: 12,
-    fontFamily: 'Helvetica-Bold',
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
-    color: '#000000',
-    marginBottom: 10,
-  },
   customerText: {
-    fontSize: 10,
-    color: '#333333',
+    fontSize: 9.5,
+    color: '#3B342E',
     lineHeight: 1.5,
   },
   table: {
     width: '100%',
-    marginBottom: 20,
+    marginBottom: 16,
   },
   tableHeaderRow: {
     flexDirection: 'row',
-    backgroundColor: '#000000',
-    paddingVertical: 6,
+    backgroundColor: C.ink,
+    paddingVertical: 7,
     paddingHorizontal: 10,
     alignItems: 'center',
   },
   tableHeaderCol: {
-    color: '#FFFFFF',
-    fontSize: 9,
-    fontFamily: 'Helvetica-Bold',
-    fontWeight: 'bold',
+    color: C.ivory,
+    fontSize: 7.5,
+    fontWeight: 700,
     textTransform: 'uppercase',
+    letterSpacing: 0.8,
   },
   tableRow: {
     flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#EEEEEE',
-    paddingVertical: 12,
+    borderBottomWidth: 0.75,
+    borderBottomColor: C.line,
+    paddingVertical: 10,
     paddingHorizontal: 10,
     alignItems: 'center',
   },
@@ -111,85 +114,107 @@ const styles = StyleSheet.create({
   colTotal: { width: '20%', textAlign: 'right' },
   colTotalSm: { width: '22%', textAlign: 'right' },
   rowText: {
-    fontSize: 10,
-    color: '#000000',
+    fontSize: 9.5,
+    color: C.ink,
+  },
+  rowName: {
+    fontSize: 9.5,
+    fontWeight: 600,
+    color: C.ink,
   },
   rowSubText: {
-    fontSize: 8,
-    color: '#888888',
+    fontSize: 7.5,
+    color: C.muted,
     marginTop: 2,
   },
   totalsContainer: {
-    flexDirection: 'column',
-    alignItems: 'flex-end',
-    marginTop: 10,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 6,
     width: '100%',
+  },
+  totalsBox: {
+    width: '48%',
+    backgroundColor: C.paper,
+    borderWidth: 0.75,
+    borderColor: C.line,
+    borderRadius: 3,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
   },
   totalRow: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginBottom: 8,
-    width: '100%',
+    justifyContent: 'space-between',
+    marginBottom: 6,
   },
   totalLabel: {
-    width: 60,
-    fontSize: 10,
-    color: '#000000',
-    textAlign: 'left',
+    fontSize: 9.5,
+    color: C.muted,
   },
   totalValue: {
-    width: 80,
-    fontSize: 10,
-    color: '#000000',
+    fontSize: 9.5,
+    color: C.ink,
+    textAlign: 'right',
+  },
+  discountValue: {
+    fontSize: 9.5,
+    color: '#3F6B4E',
     textAlign: 'right',
   },
   grandTotalDivider: {
-    borderTopWidth: 2,
-    borderTopColor: '#000000',
+    borderTopWidth: 1,
+    borderTopColor: C.gold,
     marginTop: 4,
-    paddingTop: 12,
-    width: '100%',
+    paddingTop: 9,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'baseline',
   },
   grandTotalLabel: {
+    fontFamily: PDF_FONT_HEADING,
     fontSize: 12,
-    fontFamily: 'Helvetica-Bold',
-    fontWeight: 'bold',
-    color: '#000000',
-    textTransform: 'uppercase',
+    fontWeight: 600,
+    color: C.ink,
   },
   grandTotalValue: {
-    fontSize: 12,
-    fontFamily: 'Helvetica-Bold',
-    fontWeight: 'bold',
-    color: '#000000',
+    fontFamily: PDF_FONT_HEADING,
+    fontSize: 15,
+    fontWeight: 600,
+    color: C.goldDeep,
   },
   footer: {
     position: 'absolute',
-    bottom: 30,
-    left: 40,
-    right: 40,
-    borderTopWidth: 1,
-    borderTopColor: '#EEEEEE',
+    bottom: 28,
+    left: 44,
+    right: 44,
+    borderTopWidth: 0.75,
+    borderTopColor: C.line,
     paddingTop: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
+  footerThanks: {
+    fontFamily: PDF_FONT_HEADING,
+    fontSize: 11,
+    fontWeight: 500,
+    color: C.ink,
+  },
   footerText: {
-    fontSize: 9,
-    color: '#666666',
-    marginBottom: 4,
+    fontSize: 8,
+    color: C.muted,
   },
   itemCountRow: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   itemCountText: {
-    fontSize: 9,
-    fontFamily: 'Helvetica-Bold',
-    fontWeight: 'bold',
-    color: '#444444',
+    fontSize: 8,
+    fontWeight: 600,
+    color: C.muted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
   },
 });
 
@@ -208,11 +233,7 @@ interface InvoicePDFProps {
   shippingOverride?: number;
 }
 
-// Store prices are Turkish lira. "TL" rather than "₺": the built-in PDF
-// font (Helvetica) has no glyph for the lira sign.
-const formatPrice = (amount: number) => {
-  return `${Number(amount).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} TL`;
-};
+const formatPrice = formatPdfMoney;
 
 // Checkout stores the phone as the country calling code immediately
 // followed by the number, with no separator (e.g. "905551234567"). Prefix
@@ -273,6 +294,7 @@ export default function InvoicePDF({ order, items, hidePrices = false, customIte
   const couponDiscount = Number(order.discount_amount || 0);
   const shippingFee = shippingOverride ?? order.shipping_cost ?? 0;
   const grandTotal = Math.max(subtotal - couponDiscount, 0) + shippingFee;
+  registerPdfFonts();
   const totalQuantity = rows.reduce((sum, row) => sum + row.quantity, 0);
 
   return (
@@ -281,34 +303,41 @@ export default function InvoicePDF({ order, items, hidePrices = false, customIte
         
         {/* Header */}
         <View style={styles.header}>
+          {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image has no alt */}
+          <Image src={PDF_LOGO_SRC} style={styles.logo} />
           <View>
-            <Text style={styles.title}>CANGDAY</Text>
-            <Text style={styles.subtitle}>Modern Perfumery</Text>
+            <Text style={styles.docTitle}>Invoice</Text>
+            <Text style={styles.docSub}>Order #{order.id.replace(/-/g, '').slice(0, 15).toUpperCase()}</Text>
+            <Text style={styles.docSub}>
+              {new Date(order.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+            </Text>
           </View>
         </View>
-        <View style={styles.thickDivider} />
+        <View style={styles.goldRule} />
 
-        {/* Invoice Meta */}
-        <View style={styles.invoiceMetaRow}>
-          <View style={styles.metaLeft}>
-             <Text style={styles.boldText}>Order #{order.id.replace(/-/g, '').slice(0, 15).toUpperCase()}</Text>
-             <Text style={styles.normalText}>{new Date(order.created_at).toLocaleDateString()}</Text>
+        {/* Customer + delivery */}
+        <View style={styles.infoRow}>
+          <View style={styles.infoBox}>
+            <Text style={styles.eyebrow}>Billed to</Text>
+            <Text style={styles.strongText}>{order.customer_name}</Text>
+            {order.customer_email && <Text style={styles.customerText}>{order.customer_email}</Text>}
+            <Text style={styles.customerText}>{formatPhone(order.customer_phone)}</Text>
           </View>
-          <View style={styles.metaRight}>
-             <Text style={styles.boldText}>Invoice</Text>
+          <View style={styles.infoGap} />
+          <View style={styles.infoBox}>
+            <Text style={styles.eyebrow}>Deliver to</Text>
+            {order.customer_address?.line1 && <Text style={styles.customerText}>{order.customer_address.line1}</Text>}
+            {(order.customer_address?.district || order.customer_address?.city) && (
+              <Text style={styles.customerText}>
+                {[order.customer_address.district, order.customer_address.city].filter(Boolean).join(', ')}
+              </Text>
+            )}
+            {order.customer_address?.country && (
+              <Text style={styles.customerText}>
+                {order.customer_address.country} {order.customer_address.postal_code || ''}
+              </Text>
+            )}
           </View>
-        </View>
-
-        {/* Customer Info */}
-        <View style={styles.customerSection}>
-          <Text style={styles.sectionTitle}>Customer Information</Text>
-          <Text style={styles.customerText}>{order.customer_name}</Text>
-          {order.customer_email && <Text style={styles.customerText}>{order.customer_email}</Text>}
-          <Text style={styles.customerText}>{formatPhone(order.customer_phone)}</Text>
-          {order.customer_address?.line1 && <Text style={styles.customerText}>{order.customer_address.line1}</Text>}
-          {order.customer_address?.city && (
-            <Text style={styles.customerText}>{order.customer_address.city}, {order.customer_address.country} {order.customer_address.postal_code || ''}</Text>
-          )}
         </View>
 
         {/* Items Table */}
@@ -339,7 +368,7 @@ export default function InvoicePDF({ order, items, hidePrices = false, customIte
           {rows.map((row) => (
             <View key={row.key} style={styles.tableRow}>
               <View style={hidePrices ? { width: '85%' } : showShippingColumn ? styles.colItemWithShipping : styles.colItem}>
-                <Text style={styles.rowText}>{row.name.toUpperCase()}</Text>
+                <Text style={styles.rowName}>{row.name}</Text>
                 {row.subLines.map((line, i) => (
                   <Text key={i} style={styles.rowSubText}>{line}</Text>
                 ))}
@@ -372,7 +401,7 @@ export default function InvoicePDF({ order, items, hidePrices = false, customIte
         {/* Totals */}
         {!hidePrices && (
         <View style={styles.totalsContainer}>
-           <View style={{ width: '50%' }}>
+           <View style={styles.totalsBox}>
               <View style={styles.totalRow}>
                 <Text style={styles.totalLabel}>Subtotal</Text>
                 <Text style={styles.totalValue}>{formatPrice(subtotal)}</Text>
@@ -380,7 +409,7 @@ export default function InvoicePDF({ order, items, hidePrices = false, customIte
               {couponDiscount > 0 && (
               <View style={styles.totalRow}>
                 <Text style={styles.totalLabel}>Discount{order.coupon_code ? ` (${order.coupon_code})` : ''}</Text>
-                <Text style={styles.totalValue}>-{formatPrice(couponDiscount)}</Text>
+                <Text style={styles.discountValue}>-{formatPrice(couponDiscount)}</Text>
               </View>
               )}
               <View style={styles.totalRow}>
@@ -397,9 +426,9 @@ export default function InvoicePDF({ order, items, hidePrices = false, customIte
         )}
 
         {/* Footer */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Thank you for your order!</Text>
-          <Text style={styles.footerText}>Cangday - Wear What Lingers</Text>
+        <View style={styles.footer} fixed>
+          <Text style={styles.footerThanks}>Thank you for your order</Text>
+          <Text style={styles.footerText}>Cangday · Wear What Lingers · cangdayperfume.com</Text>
         </View>
 
       </Page>

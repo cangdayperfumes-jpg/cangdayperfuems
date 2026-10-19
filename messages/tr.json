@@ -25,7 +25,7 @@
   },
   "trustBar": {
     "freeShipping": "Her siparişte ücretsiz kargo",
-    "freeGift": "750 TL üzeri siparişlerde ücretsiz mini hediye",
+    "freeGift": "{amount} üzeri siparişlerde ücretsiz mini hediye",
     "original": "%100 orijinal ürün garantisi",
     "easyReturns": "14 gün içinde kolay iade"
   },
@@ -291,7 +291,7 @@
     "promo2Cta": "Uygun Kokulara Bak",
     "promo3Eyebrow": "Bizden Hediye",
     "promo3Title": "Ücretsiz Mini Hediye",
-    "promo3Body": "750 TL üzeri siparişlere otomatik eklenir.",
+    "promo3Body": "{amount} üzeri siparişlere otomatik eklenir.",
     "promo3Cta": "Alışverişe Başla"
   },
   "contact": {

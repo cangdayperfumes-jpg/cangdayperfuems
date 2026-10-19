@@ -4,6 +4,9 @@ import { Link } from '@/i18n/navigation';
 import { ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import ImageWithFallback from '@/components/shared/ImageWithFallback';
+import { useSettings } from '@/components/providers/SettingsProvider';
+import { formatPromoAmount } from '@/lib/promotions';
+import { cn } from '@/lib/utils';
 
 // Moody, low-key photography so ivory copy over the bottom gradient always
 // has contrast — one per offer: a single dark bottle (first-order code),
@@ -39,12 +42,15 @@ const CARDS = [
  */
 export default function PromoBanners() {
   const t = useTranslations('home');
+  const { gift } = useSettings();
+  // The mini-gift card (promo3) follows Settings → Free mini gift.
+  const cards = CARDS.filter((c) => c.key !== 'promo3' || gift.enabled);
 
   return (
     <section className="w-full bg-ivory">
       <div className="max-w-[1400px] mx-auto py-10 md:py-20 md:px-6 lg:px-8">
-        <div className="flex md:grid md:grid-cols-3 gap-3 md:gap-5 overflow-x-auto md:overflow-visible snap-x snap-mandatory scroll-px-4 px-4 md:px-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {CARDS.map(({ key, href, image }) => (
+        <div className={cn("flex md:grid gap-3 md:gap-5 overflow-x-auto md:overflow-visible snap-x snap-mandatory scroll-px-4 px-4 md:px-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden", cards.length === 3 ? "md:grid-cols-3" : "md:grid-cols-2")}>
+          {cards.map(({ key, href, image }) => (
             <Link
               key={key}
               href={href}
@@ -71,7 +77,7 @@ export default function PromoBanners() {
                 </h3>
                 <span aria-hidden="true" className="mt-3 block h-px w-10 bg-gold/70 transition-all duration-500 group-hover:w-16" />
                 <p className="mt-3 text-[13px] md:text-sm leading-snug text-ivory/75 max-w-[30ch]">
-                  {t(`${key}Body`)}
+                  {key === 'promo3' ? t('promo3Body', { amount: formatPromoAmount(gift.threshold) }) : t(`${key}Body`)}
                 </p>
                 <span className="mt-4 md:mt-5 inline-flex items-center gap-2 text-[11px] md:text-xs uppercase tracking-widest font-semibold text-gold group-hover:text-gold-soft transition-colors">
                   {t(`${key}Cta`)}

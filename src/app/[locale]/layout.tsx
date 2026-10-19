@@ -186,7 +186,7 @@ export default async function LocaleLayout({
         if (!supabaseConfigured) return null;
         const { data } = await supabase
           .from('system_settings')
-          .select('hide_prices, popup_enabled, popup_title, popup_message, popup_button_text, popup_button_link, popup_image_url, popup_show_on, popup_ends_at, popup_show_bar, popup_title_tr, popup_message_tr, popup_button_text_tr, new_badge_days')
+          .select('hide_prices, popup_enabled, popup_title, popup_message, popup_button_text, popup_button_link, popup_image_url, popup_show_on, popup_ends_at, popup_show_bar, popup_title_tr, popup_message_tr, popup_button_text_tr, new_badge_days, gift_enabled, gift_threshold')
           .eq('id', 'global')
           .single();
         return data;
@@ -221,6 +221,10 @@ export default async function LocaleLayout({
       }
     : null;
   const newBadgeDays: number = settingsData?.new_badge_days ?? 30;
+  const gift = {
+    enabled: settingsData?.gift_enabled ?? true,
+    threshold: Number(settingsData?.gift_threshold ?? 750),
+  };
 
   return (
     <html lang={locale}>
@@ -257,7 +261,7 @@ export default async function LocaleLayout({
         />
         <AuthRecoveryRedirect />
         <NextIntlClientProvider>
-          <SettingsProvider hidePrices={hidePrices} popupSettings={popupSettings} newBadgeDays={newBadgeDays}>
+          <SettingsProvider hidePrices={hidePrices} popupSettings={popupSettings} newBadgeDays={newBadgeDays} gift={gift}>
           <MotionProvider>
             <Suspense fallback={null}>
               <StorefrontLayoutWrapper>

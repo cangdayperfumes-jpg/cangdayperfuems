@@ -1,5 +1,10 @@
+'use client';
+
 import { Truck, Gift, ShieldCheck, RotateCcw } from 'lucide-react';
-import { getTranslations } from 'next-intl/server';
+import { useTranslations } from 'next-intl';
+import { useSettings } from '@/components/providers/SettingsProvider';
+import { formatPromoAmount } from '@/lib/promotions';
+import { cn } from '@/lib/utils';
 
 const ITEMS = [
   { icon: Truck, key: 'freeShipping' },
@@ -21,13 +26,15 @@ const ITEMS = [
  * background, so the lines are always exactly between cells at any
  * column count.
  */
-export default async function TrustBadges() {
-  const t = await getTranslations('trustBar');
+export default function TrustBadges() {
+  const t = useTranslations('trustBar');
+  const { gift } = useSettings();
+  const items = ITEMS.filter((i) => i.key !== 'freeGift' || gift.enabled);
   return (
     <section className="w-full bg-ivory border-b border-border">
       <div className="max-w-[1400px] mx-auto md:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border">
-          {ITEMS.map(({ icon: Icon, key }) => (
+        <div className={cn('grid gap-px bg-border', items.length === 4 ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-3')}>
+          {items.map(({ icon: Icon, key }) => (
             <div
               key={key}
               className="bg-ivory flex flex-col md:flex-row items-center justify-center gap-2 md:gap-3 px-3 py-4 md:py-6 text-center md:text-left"
@@ -36,7 +43,7 @@ export default async function TrustBadges() {
                 <Icon className="h-[18px] w-[18px] md:h-5 md:w-5 text-gold-deep" strokeWidth={1.5} />
               </span>
               <span className="text-[11px] md:text-sm font-medium text-ink/80 leading-snug max-w-[14ch] md:max-w-none">
-                {t(key)}
+                {key === 'freeGift' ? t('freeGift', { amount: formatPromoAmount(gift.threshold) }) : t(key)}
               </span>
             </div>
           ))}

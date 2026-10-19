@@ -1,4 +1,5 @@
 import { View, Text, Image } from '@react-pdf/renderer';
+import { PDF_FONT_BODY } from '@/lib/pdf-brand';
 import { catalogStyles as styles } from './catalogStyles';
 import { Product } from '@/types';
 import { CatalogImageWatermarkConfig, CatalogVisibleFields } from './types';
@@ -30,7 +31,8 @@ const STROKE_OFFSETS: [number, number][] = [
 function ImageWatermarkText({ config, text }: { config: CatalogImageWatermarkConfig; text: string }) {
   const baseTextStyle = {
     fontSize: config.fontSize,
-    fontFamily: 'Helvetica-Bold' as const,
+    fontFamily: PDF_FONT_BODY,
+    fontWeight: 700 as const,
     textTransform: 'uppercase' as const,
     letterSpacing: 1,
     transform: 'rotate(-30deg)',

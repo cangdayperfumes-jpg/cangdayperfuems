@@ -24,9 +24,11 @@ interface SettingsContextType {
   popupSettings: PopupSettings | null;
   /** Products added within this many days get the "New" badge automatically (0 = off). */
   newBadgeDays: number;
+  /** Free mini gift promotion (Settings → General). */
+  gift: { enabled: boolean; threshold: number };
 }
 
-const SettingsContext = createContext<SettingsContextType>({ hidePrices: false, popupSettings: null, newBadgeDays: 30 });
+const SettingsContext = createContext<SettingsContextType>({ hidePrices: false, popupSettings: null, newBadgeDays: 30, gift: { enabled: true, threshold: 750 } });
 
 export const useSettings = () => useContext(SettingsContext);
 
@@ -35,14 +37,16 @@ export const SettingsProvider = ({
   hidePrices,
   popupSettings = null,
   newBadgeDays = 30,
+  gift = { enabled: true, threshold: 750 },
 }: {
   children: ReactNode;
   hidePrices: boolean;
   popupSettings?: PopupSettings | null;
   newBadgeDays?: number;
+  gift?: { enabled: boolean; threshold: number };
 }) => {
   return (
-    <SettingsContext.Provider value={{ hidePrices, popupSettings, newBadgeDays }}>
+    <SettingsContext.Provider value={{ hidePrices, popupSettings, newBadgeDays, gift }}>
       {children}
     </SettingsContext.Provider>
   );
