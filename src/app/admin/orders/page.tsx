@@ -117,7 +117,7 @@ export default async function OrdersPage(props: { searchParams: Promise<{ [key: 
       </div>
 
       {/* ── Period ── */}
-      <div className="flex flex-col gap-3 rounded-lg border bg-white p-4 xl:flex-row xl:items-center xl:justify-between">
+      <div className="flex min-w-0 flex-col gap-3 rounded-lg border bg-white p-4 xl:flex-row xl:items-center xl:justify-between">
         <div className="flex flex-wrap gap-1.5">
           {RANGE_TABS.map((r) => (
             <Link key={r.key} href={href({ range: r.key, from: null, to: null, page: null })}>
@@ -141,7 +141,7 @@ export default async function OrdersPage(props: { searchParams: Promise<{ [key: 
       </div>
 
       {/* ── Summary ── */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5 [&>*]:min-w-0">
         {statCards.map((c) => (
           <div key={c.label} className="rounded-lg border bg-white p-4 shadow-sm">
             <p className="text-xs font-medium uppercase tracking-wide text-gray-500">{c.label}</p>
@@ -151,14 +151,14 @@ export default async function OrdersPage(props: { searchParams: Promise<{ [key: 
         ))}
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <div className="rounded-lg border bg-white p-4 shadow-sm lg:col-span-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="min-w-0 overflow-hidden rounded-lg border bg-white p-3 shadow-sm sm:p-4 lg:col-span-2">
           <h2 className="mb-3 text-sm font-medium text-gray-500">{t('chartTitle')}</h2>
-          <div className="h-64">
+          <div className="h-56 w-full min-w-0 sm:h-64">
             <OrdersChart data={stats.daily} locale={dateLocale} />
           </div>
         </div>
-        <div className="rounded-lg border bg-white p-4 shadow-sm">
+        <div className="min-w-0 rounded-lg border bg-white p-4 shadow-sm">
           <h2 className="mb-3 text-sm font-medium text-gray-500">{t('topProducts')}</h2>
           {stats.topProducts.length === 0 ? (
             <p className="py-8 text-center text-sm text-gray-400">{t('noOrders')}</p>

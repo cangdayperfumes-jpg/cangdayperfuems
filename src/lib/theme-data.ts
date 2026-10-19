@@ -42,7 +42,7 @@ export const getSiteTheme = unstable_cache(
     };
   },
   ['site-theme'],
-  { revalidate: 60 }
+  { revalidate: 60, tags: ['site-settings'] }
 );
 
 /** "#C9A24B" -> "201 162 75" — the space-separated form the --brand-* CSS

@@ -192,7 +192,8 @@ export default async function LocaleLayout({
         return data;
       },
       ['layout-settings'],
-      { revalidate: 60 }
+      // Tagged so saving Settings refreshes it at once (admin/settings/actions.ts).
+      { revalidate: 60, tags: ['site-settings'] }
     )(),
     getSiteTheme(),
   ]);

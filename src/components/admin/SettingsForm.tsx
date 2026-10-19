@@ -15,6 +15,7 @@ import ColorInput from '@/components/admin/ColorInput';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { refreshStorefrontSettings } from '@/app/admin/settings/actions';
 
 const settingsSchema = z.object({
   themeGold: z.string().default('#C9A24B'),
@@ -149,6 +150,8 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
         .eq('id', 'global');
 
       if (error) throw error;
+      // Show the change on the storefront now instead of after its cache expires.
+      await refreshStorefrontSettings().catch((e) => console.error('Storefront refresh failed:', e));
       toast.success(tCommon('savedSuccessfully'));
     } catch (error) {
       console.error('Error updating settings:', error);
