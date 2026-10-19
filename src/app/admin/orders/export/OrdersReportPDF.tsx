@@ -5,6 +5,7 @@ import {
   PDF_FONT_BODY,
   PDF_FONT_HEADING,
   PDF_LOGO_RATIO,
+  PDF_LOGO_SRC,
   registerPdfFonts,
 } from '@/lib/pdf-brand';
 
@@ -62,7 +63,6 @@ export default function OrdersReportPDF({
   locale,
   money,
   statusLabel,
-  logo,
 }: {
   orders: ReportOrder[];
   stats: OrderStats;
@@ -71,8 +71,6 @@ export default function OrdersReportPDF({
   locale: string;
   money: (n: number) => string;
   statusLabel: (status: string) => string;
-  /** PNG bytes — react-pdf on the server treats a path string as a URL to fetch. */
-  logo?: Buffer | null;
 }) {
   registerPdfFonts();
   const when = (iso: string) =>
@@ -110,7 +108,7 @@ export default function OrdersReportPDF({
       <Page size="A4" style={s.page}>
         <View style={s.header}>
           {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image has no alt */}
-          {logo ? <Image src={{ data: logo, format: 'png' }} style={s.logo} /> : <Text style={s.docTitle}>CANGDAY</Text>}
+          <Image src={PDF_LOGO_SRC} style={s.logo} />
           <View>
             <Text style={s.docTitle}>{labels.title}</Text>
             <Text style={s.meta}>{labels.period}: {periodLabel}</Text>

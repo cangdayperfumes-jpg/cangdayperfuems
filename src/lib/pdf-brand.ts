@@ -1,4 +1,5 @@
 import { Font } from '@react-pdf/renderer';
+import { PDF_LOGO_DATA_URI } from './pdf-logo';
 
 /**
  * Shared look for every PDF (invoice, orders report, catalog): the site's
@@ -31,7 +32,7 @@ function publicAsset(rel: string) {
   return isServer ? `${process.cwd()}/public/${rel}` : `/${rel}`;
 }
 
-export const PDF_LOGO_SRC = publicAsset('images/cangday-logo-pdf.png');
+export const PDF_LOGO_SRC = PDF_LOGO_DATA_URI;
 /** The logo file is 640×213. */
 export const PDF_LOGO_RATIO = 640 / 213;
 

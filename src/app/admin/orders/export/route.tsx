@@ -1,5 +1,3 @@
-import { readFile } from 'fs/promises';
-import path from 'path';
 import { NextResponse, type NextRequest } from 'next/server';
 import { renderToBuffer } from '@react-pdf/renderer';
 import { createClient } from '@/utils/supabase/server';
@@ -113,9 +111,6 @@ export async function GET(request: NextRequest) {
     colStatus: t('csvStatus'),
   };
 
-  // Shipped with this route via next.config.ts → outputFileTracingIncludes.
-  const logo = await readFile(path.join(process.cwd(), 'public/images/cangday-logo-pdf.png')).catch(() => null);
-
   const pdf = await renderToBuffer(
     <OrdersReportPDF
       orders={orders}
@@ -125,7 +120,6 @@ export async function GET(request: NextRequest) {
       locale={dateLocale}
       money={money}
       statusLabel={statusLabel}
-      logo={logo}
     />
   );
 
