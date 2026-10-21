@@ -5,8 +5,17 @@
  * notes — so every page still has a unique, language-correct meta description.
  *
  * Cangday's perfumes are high-quality but not the brands' original bottles,
- * so this copy must never claim "original", "authentic" or "by <brand>".
+ * so this copy must never claim "original", "authentic" or "by <brand>" —
+ * except for the brands listed in GENUINE_BRANDS, which are sold as originals.
  */
+
+/** Brands Cangday sells as genuine, original products. */
+export const GENUINE_BRANDS = ['Nishapur'];
+
+export function isGenuineBrand(brand?: string | null) {
+  const b = (brand ?? '').trim().toLowerCase();
+  return !!b && GENUINE_BRANDS.some((g) => g.toLowerCase() === b);
+}
 
 interface ProductCopyInput {
   name_en: string;
@@ -34,6 +43,12 @@ export function productDescription(p: ProductCopyInput, locale: string): string 
 export function productFallbackDescription(p: ProductCopyInput, locale: string): string {
   const aud = AUDIENCE[p.target_audience ?? ''];
   const category = p.categories?.name?.trim();
+  const brand = p.brands?.name?.trim();
+  if (isGenuineBrand(brand)) {
+    return locale === 'tr'
+      ? `${p.name_en} — orijinal ${brand} ${aud ? `${aud.tr} ` : ''}parfümü; yüksek kaliteli ve kalıcı. Cangday’den Türkiye’ye hızlı kargo ve 14 gün kolay iade.`
+      : `${p.name_en} — an original ${brand} ${aud ? `${aud.en} ` : ''}perfume, high-quality and long-lasting. Fast shipping across Turkey from Cangday and 14-day easy returns.`;
+  }
   if (locale === 'tr') {
     return [
       // No category here: category names are English ("Perfumes").

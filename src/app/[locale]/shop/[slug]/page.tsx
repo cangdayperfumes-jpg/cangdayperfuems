@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { SITE_URL, localeAlternates, OG_LOCALE } from '@/lib/seo';
-import { metaDescription, productDescription, productFallbackDescription } from '@/lib/product-seo';
+import { isGenuineBrand, metaDescription, productDescription, productFallbackDescription } from '@/lib/product-seo';
 import { PLACEHOLDER_SUPABASE_URL } from '@/utils/supabase/placeholder';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { Link } from '@/i18n/navigation';
@@ -298,11 +298,11 @@ export default async function ProductPage({ params }: PageProps) {
     inLanguage: locale,
     image: imageUrl,
     url: `${siteUrl}${localePath}/shop/${canonicalSlug}`,
-    // The bottles are Cangday's own high-quality perfumes, not the original
-    // houses' — structured data must not name another brand as the maker.
+    // Most bottles are Cangday's own high-quality perfumes, not the original
+    // houses' — structured data names another brand only for genuine ones.
     brand: {
       '@type': 'Brand',
-      name: 'Cangday',
+      name: isGenuineBrand((product as any).brands?.name) ? (product as any).brands.name : 'Cangday',
     },
     offers,
   };
