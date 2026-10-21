@@ -353,7 +353,7 @@ export default function ShopClientWrapper({
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 min-h-0">
+      <div className="flex-1 min-h-0 min-w-0">
          {initialSeason && seasonTitle && (
             <div className="mb-4 flex items-center justify-between gap-3 rounded-md border bg-muted/40 px-4 py-2.5 text-sm">
                <span>
@@ -375,18 +375,21 @@ export default function ShopClientWrapper({
             {pageIntro && (
                <p className="text-xs md:text-sm text-muted-foreground max-w-2xl mb-3 truncate md:whitespace-normal">{pageIntro}</p>
             )}
-            <div ref={headerRowRef} className="flex items-center justify-between gap-3 border-y border-border py-2.5">
-               <p className="text-xs md:text-sm text-muted-foreground">
+            {/* On phones the count sits on its own line and the sort + filters
+                controls share the full width below — on one line they were
+                wider than the screen and pushed the whole page sideways. */}
+            <div ref={headerRowRef} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-y border-border py-2.5">
+               <p className="w-full text-xs text-muted-foreground sm:w-auto md:text-sm">
                   {t('showingOf', { shown: allProducts.length, total: totalProducts })}
                </p>
-               <div className="flex items-center gap-2">
+               <div className="flex w-full min-w-0 items-center gap-2 sm:w-auto">
                   {/* Sort — native select so mobile gets the OS picker for free. */}
-                  <label className="relative flex items-center">
+                  <label className="relative flex min-w-0 flex-1 items-center sm:flex-none">
                      <span className="sr-only">{t('sortBy')}</span>
                      <select
                         value={filter || ''}
                         onChange={(e) => handleSortChange(e.target.value)}
-                        className="appearance-none bg-transparent pl-2 pr-7 py-1.5 text-xs md:text-sm font-medium text-ink border border-border rounded-sm cursor-pointer hover:border-ink/40 focus:outline-none focus-visible:ring-1 focus-visible:ring-gold"
+                        className="w-full min-w-0 appearance-none truncate bg-transparent pl-2 pr-7 py-1.5 text-xs md:text-sm font-medium text-ink border border-border rounded-sm cursor-pointer hover:border-ink/40 focus:outline-none focus-visible:ring-1 focus-visible:ring-gold"
                      >
                         {sortOptions.map((o) => (
                            <option key={o.value} value={o.value}>{o.label}</option>

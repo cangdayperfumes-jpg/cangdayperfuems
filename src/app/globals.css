@@ -170,3 +170,15 @@
     font-size: 16px !important;
   }
 }
+
+/* Storefront body: never scroll sideways. `clip` keeps the sticky header
+   working; browsers without `clip` support (older iOS Safari)
+   fall back to `hidden`. */
+.storefront-body {
+  overflow-x: hidden;
+}
+@supports (overflow-x: clip) {
+  .storefront-body {
+    overflow-x: clip;
+  }
+}

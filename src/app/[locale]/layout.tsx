@@ -231,9 +231,9 @@ export default async function LocaleLayout({
   return (
     <html lang={locale}>
       <body className={cn(
-        // overflow-x-clip (not -hidden): hides sideways overflow without breaking
-        // the sticky header on mobile Safari/Chrome.
-        "min-h-screen bg-background font-sans antialiased flex flex-col overflow-x-clip",
+        // Sideways overflow is clipped in globals.css (.storefront-body) with a
+        // fallback for older iPhones that don't support overflow: clip.
+        "storefront-body min-h-screen bg-background font-sans antialiased flex flex-col",
         manrope.variable,
         fraunces.variable
       )}>
