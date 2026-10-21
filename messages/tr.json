@@ -106,7 +106,10 @@
     "showLess": "Daha az göster",
     "from": "{price}'den başlayan fiyatlarla",
     "addToCartLabel": "Sepete ekle",
-    "new": "Yeni"
+    "new": "Yeni",
+    "audience_Men": "Erkek",
+    "audience_Women": "Kadın",
+    "audience_Unisex": "Unisex"
   },
   "shop": {
     "filters": "Filtreler",

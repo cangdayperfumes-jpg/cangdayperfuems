@@ -688,7 +688,9 @@
       "variantNameRequired": "Varyant adı gereklidir"
     },
     "newItem": "\"Yeni\" rozeti",
-    "newItemDescription": "Bu üründe Yeni rozetini her zaman göster. Yeni eklenen ürünler rozeti otomatik alır (bkz. Ayarlar)."
+    "newItemDescription": "Bu üründe Yeni rozetini her zaman göster. Yeni eklenen ürünler rozeti otomatik alır (bkz. Ayarlar).",
+    "descriptionTrPlaceholder": "Türkçe açıklama — Türkçe sitede (/tr) gösterilir.",
+    "descriptionSeoHint": "Türkçe ziyaretçilere gösterilir ve Google’da Türkçe aramalar için kullanılır. Koku ailesini ve notaları 2–4 cümlede anlatın. Boşsa İngilizce metin kullanılır."
   },
   "imageUpload": {
     "errorUploadingImage": "Görsel yüklenirken hata oluştu",

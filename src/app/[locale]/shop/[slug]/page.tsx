@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
-import { SITE_URL } from '@/lib/seo';
+import { SITE_URL, localeAlternates, OG_LOCALE } from '@/lib/seo';
+import { metaDescription, productDescription, productFallbackDescription } from '@/lib/product-seo';
 import { PLACEHOLDER_SUPABASE_URL } from '@/utils/supabase/placeholder';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { Link } from '@/i18n/navigation';
@@ -193,29 +194,32 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const siteUrl = SITE_URL;
   const ogImageUrl = toAbsoluteUrl(product.images?.[0], siteUrl);
   const canonicalSlug = product.slug || slug;
-  // Product data is English-only for now — both locales
-  // show the same name/description, but each still gets its own canonical
-  // URL + hreflang alternate so Google indexes /tr and /en separately.
-  const languages = Object.fromEntries(
-    routing.locales.map((l) => [l, `${siteUrl}/${l}/shop/${canonicalSlug}`])
-  );
+  // Each language gets its own description (Turkish on /tr) plus its own
+  // canonical URL and hreflang alternates.
+  const description = metaDescription(product, locale);
+  const brandName = (product as any).brands?.name as string | undefined;
+  // "Brand Name — Original Perfume" style titles match how people search; the
+  // layout template appends " | Cangday".
+  const title = brandName && !product.name_en.toLowerCase().includes(brandName.toLowerCase())
+    ? `${brandName} ${product.name_en}`
+    : product.name_en;
 
   return {
-    title: product.name_en,
-    description: product.description_en?.substring(0, 160) || 'Explore our luxury perfumes.',
-    alternates: {
-      canonical: `${siteUrl}/${locale}/shop/${canonicalSlug}`,
-      languages,
-    },
+    title,
+    description,
+    alternates: localeAlternates(locale, `/shop/${canonicalSlug}`),
     openGraph: {
-      title: product.name_en,
-      description: product.description_en?.substring(0, 160) || 'Explore our luxury perfumes.',
+      type: 'website',
+      title,
+      description,
+      url: `${siteUrl}/${locale}/shop/${canonicalSlug}`,
+      locale: OG_LOCALE[locale],
       images: ogImageUrl ? [{ url: ogImageUrl, width: 800, height: 800, alt: product.name_en }] : [],
     },
     twitter: {
       card: 'summary_large_image',
-      title: product.name_en,
-      description: product.description_en?.substring(0, 160) || 'Explore our luxury perfumes.',
+      title,
+      description,
       images: ogImageUrl ? [ogImageUrl] : [],
     },
   };
@@ -296,7 +300,8 @@ export default async function ProductPage({ params }: PageProps) {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name_en,
-    description: product.description_en || 'Perfume from Cangday.',
+    description: productDescription(product, locale) || productFallbackDescription(product, locale),
+    inLanguage: locale,
     image: imageUrl,
     url: `${siteUrl}${localePath}/shop/${canonicalSlug}`,
     brand: {
@@ -422,14 +427,14 @@ export default async function ProductPage({ params }: PageProps) {
                   )}
                   {product.target_audience && (
                     <span className="text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-wider">
-                      {product.target_audience}
+                      {t.has(`audience_${product.target_audience}`) ? t(`audience_${product.target_audience}` as never) : product.target_audience}
                     </span>
                   )}
                 </div>
               )}
             </div>
 
-            {product.description_en && <ProductDescription text={product.description_en} />}
+            {productDescription(product, locale) && <ProductDescription text={productDescription(product, locale)} />}
 
             <div className="pt-5 md:pt-6 border-t">
               <ProductActions

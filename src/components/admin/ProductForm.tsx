@@ -58,6 +58,7 @@ import { Product, Category, Brand } from '@/types';
 const buildProductSchema = (t: (key: string) => string) => z.object({
   name_en: z.string().min(2, t('validation.nameMinLength')),
   description_en: z.string().optional(),
+  description_tr: z.string().optional(),
   price: z.coerce.number().min(0, t('validation.pricePositive')),
   discount: z.coerce.number().min(0, t('validation.discountPositive')).default(0),
   category_id: z.string().min(1, t('validation.categoryRequired')),
@@ -117,6 +118,7 @@ export default function ProductForm({ initialData, categories: initialCategories
     defaultValues: initialData ? {
       name_en: initialData.name_en,
       description_en: initialData.description_en || '',
+      description_tr: (initialData as { description_tr?: string | null }).description_tr || '',
       price: initialData.price,
       discount: initialData.discount,
       category_id: initialData.category_id || '',
@@ -132,6 +134,7 @@ export default function ProductForm({ initialData, categories: initialCategories
     } : {
       name_en: '',
       description_en: '',
+      description_tr: '',
       price: 0,
       discount: 0,
       category_id: '',
@@ -196,6 +199,7 @@ export default function ProductForm({ initialData, categories: initialCategories
       const productData: Record<string, any> = {
           name_en: data.name_en,
           description_en: data.description_en,
+          description_tr: data.description_tr,
           category_id: data.category_id,
           brand_id: data.brand_id,
           target_audience: data.target_audience,
@@ -413,10 +417,25 @@ export default function ProductForm({ initialData, categories: initialCategories
             name="description_en"
             render={({ field }) => (
                 <FormItem>
-                <FormLabel>{t('description')}</FormLabel>
+                <FormLabel>{t('description')} (EN)</FormLabel>
                 <FormControl>
                     <Textarea placeholder={t('descriptionPlaceholder')} className="min-h-[100px]" {...field} />
                 </FormControl>
+                <FormMessage />
+                </FormItem>
+            )}
+            />
+
+            <FormField
+            control={form.control}
+            name="description_tr"
+            render={({ field }) => (
+                <FormItem>
+                <FormLabel>{t('description')} (TR)</FormLabel>
+                <FormControl>
+                    <Textarea placeholder={t('descriptionTrPlaceholder')} className="min-h-[100px]" {...field} />
+                </FormControl>
+                <FormDescription>{t('descriptionSeoHint')}</FormDescription>
                 <FormMessage />
                 </FormItem>
             )}

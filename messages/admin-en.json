@@ -688,7 +688,9 @@
       "variantNameRequired": "Variant name required"
     },
     "newItem": "\"New\" badge",
-    "newItemDescription": "Always show the New badge on this product. Recently added products get it automatically (see Settings)."
+    "newItemDescription": "Always show the New badge on this product. Recently added products get it automatically (see Settings).",
+    "descriptionTrPlaceholder": "Turkish description — shown on the Turkish site (/tr).",
+    "descriptionSeoHint": "Shown to Turkish visitors and used for Google in Turkish. Describe the scent family and notes in 2–4 sentences. If empty, the English text is used."
   },
   "imageUpload": {
     "errorUploadingImage": "Error uploading image",

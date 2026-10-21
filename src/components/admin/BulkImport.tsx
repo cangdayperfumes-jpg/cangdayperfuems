@@ -44,6 +44,7 @@ export default function BulkImport() {
             return {
                 name_en: p.name_en,
                 description_en: p.description_en,
+                description_tr: (p as { description_tr?: string | null }).description_tr ?? '',
                 price: p.price,
                 discount_price: p.discount,
                 category: p.categories?.name || '',
@@ -61,6 +62,7 @@ export default function BulkImport() {
              excelData.push({
                 name_en: 'Example Perfume',
                 description_en: 'Description...',
+                description_tr: 'Açıklama...',
                 price: 150,
                 discount_price: 0,
                 category: 'Men',
@@ -179,6 +181,7 @@ export default function BulkImport() {
             const productData: Record<string, any> = {
                 name_en: row.name_en || row.name || 'Untitled',
                 description_en: row.description_en || row.description || '',
+                description_tr: row.description_tr || '',
                 price: row.price || 0,
                 discount: row.discount_price || 0,
                 category_id: categoryId,

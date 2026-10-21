@@ -106,7 +106,10 @@
     "showLess": "Show less",
     "from": "From {price}",
     "addToCartLabel": "Add to cart",
-    "new": "New"
+    "new": "New",
+    "audience_Men": "Men",
+    "audience_Women": "Women",
+    "audience_Unisex": "Unisex"
   },
   "shop": {
     "filters": "Filters",
