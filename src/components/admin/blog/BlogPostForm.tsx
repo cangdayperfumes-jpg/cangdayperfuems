@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import ImageUploadField from '@/components/admin/ImageUploadField';
+import { IMAGE_SPECS } from '@/lib/image-specs';
 import ProductMultiSelectPicker, { type SelectedProductRef } from '@/components/admin/ProductMultiSelectPicker';
 import { saveBlogPost, type BlogPostInput } from '@/app/admin/blog/actions';
 import { postLocales, slugify, type BlogFaq, type BlogPostRow } from '@/lib/blog';
@@ -337,6 +338,7 @@ export default function BlogPostForm({ post, relatedProducts }: { post: BlogPost
               value={v.cover_image_url}
               onChange={(url) => set('cover_image_url', url)}
               uploadPrefix="blog/"
+              spec={IMAGE_SPECS.blogCover}
               hint={t('coverHint')}
               aspectClassName="aspect-[16/9] h-auto"
             />

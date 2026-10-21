@@ -23,5 +23,7 @@ export const getActiveCategoryTiles = unstable_cache(
     return data || [];
   },
   ['active-category-tiles'],
-  { revalidate: 60 }
+  // Tagged so admin edits show on the homepage immediately (see
+  // admin/marketing/category-tiles/actions.ts) instead of after the 60s window.
+  { revalidate: 60, tags: ['category-tiles'] }
 );

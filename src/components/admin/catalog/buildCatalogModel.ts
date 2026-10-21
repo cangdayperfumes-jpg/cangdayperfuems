@@ -138,6 +138,7 @@ export function buildCatalogModel(
   });
 
   return {
+    language: config.language ?? 'tr',
     groupBy: config.groupBy,
     cover: config.cover,
     headerFooter: config.headerFooter,

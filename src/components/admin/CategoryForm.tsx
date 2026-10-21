@@ -13,9 +13,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { createCategory, updateCategory } from '@/app/admin/categories/actions'; // Adjust path
 import { useFormStatus } from 'react-dom';
 import { Loader2 } from 'lucide-react';
-import { createClient } from '@/utils/supabase/client';
-import { validateImageFile, uploadToProductsBucket } from '@/lib/upload-image';
-import Image from 'next/image';
+import ImageUploadField from '@/components/admin/ImageUploadField';
+import ImageCropEditorModal from '@/components/admin/ImageCropEditorModal';
+import { IMAGE_SPECS } from '@/lib/image-specs';
+import type { CropMeta } from '@/lib/image-crop';
 import { Checkbox } from '@/components/ui/checkbox';
 
 interface CategoryFormProps {
@@ -46,41 +47,19 @@ export default function CategoryForm({ category }: CategoryFormProps) {
   const t = useTranslations('categories');
   const tc = useTranslations('common');
   const [imageUrl, setImageUrl] = useState<string | null>(category?.image_url || null);
-  const [uploading, setUploading] = useState(false);
+  const [cropDesktop, setCropDesktop] = useState<CropMeta | null>(category?.image_crop_desktop ?? null);
+  const [cropMobile, setCropMobile] = useState<CropMeta | null>(category?.image_crop_mobile ?? null);
+  const [cropOpen, setCropOpen] = useState(false);
   const [isFeatured, setIsFeatured] = useState(category?.is_featured || false);
   const [isPending, startTransition] = useTransition();
-  const supabase = createClient();
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) {
-      return;
-    }
-    const file = e.target.files[0];
-
-    const validation = validateImageFile(file);
-    if (!validation.valid) {
-      alert(validation.error);
-      return;
-    }
-
-    setUploading(true);
-
-    try {
-      const publicUrl = await uploadToProductsBucket(supabase, file, 'categories/');
-      setImageUrl(publicUrl);
-    } catch (error) {
-      console.error('Error uploading image', error);
-      alert(t('errorUploadingImage'));
-    } finally {
-      setUploading(false);
-    }
-  };
 
   const handleSubmit = async (formData: FormData) => {
     // Append image URL if present
     if (imageUrl) {
         formData.set('image_url', imageUrl);
     }
+    formData.set('image_crop_desktop', cropDesktop ? JSON.stringify(cropDesktop) : '');
+    formData.set('image_crop_mobile', cropMobile ? JSON.stringify(cropMobile) : '');
 
     try {
         let result;
@@ -106,7 +85,7 @@ export default function CategoryForm({ category }: CategoryFormProps) {
   };
 
   return (
-    <form action={handleSubmit} className="space-y-6 max-w-lg bg-white p-6 rounded-lg shadow-sm">
+    <form action={handleSubmit} className="space-y-6 max-w-3xl bg-white p-6 rounded-lg border shadow-sm">
       <div className="space-y-2">
         <Label htmlFor="name">{tc('name')}</Label>
         <Input
@@ -140,28 +119,39 @@ export default function CategoryForm({ category }: CategoryFormProps) {
         />
       </div>
 
-       <div className="space-y-2">
-        <Label htmlFor="image">{t('categoryImage')}</Label>
-        <Input
-          id="image"
-          type="file"
-          accept="image/*"
-          onChange={handleImageUpload}
-          disabled={uploading}
+      <ImageUploadField
+        label={t('categoryImage')}
+        value={imageUrl}
+        onChange={(url, reason) => {
+          setImageUrl(url);
+          if (reason !== 'adjust') {
+            setCropDesktop(null);
+            setCropMobile(null);
+          }
+        }}
+        uploadPrefix="categories/"
+        spec={IMAGE_SPECS.category}
+        aspectClassName="h-56"
+        onEditCrop={imageUrl ? () => setCropOpen(true) : undefined}
+      />
+      {imageUrl && (
+        // Home carousel card is 4:7 on both breakpoints; the same focal point
+        // also frames the square card on the Categories page.
+        <ImageCropEditorModal
+          open={cropOpen}
+          onOpenChange={setCropOpen}
+          imageUrl={imageUrl}
+          title={t('categoryImage')}
+          desktopAspect={4 / 7}
+          mobileAspect={4 / 7}
+          initialDesktopCrop={cropDesktop}
+          initialMobileCrop={cropMobile}
+          onSave={({ desktop, mobile }) => {
+            setCropDesktop(desktop);
+            setCropMobile(mobile);
+          }}
         />
-        {uploading && <p className="text-sm text-yellow-600">{tc('loading')}</p>}
-        {imageUrl && (
-            <div className="relative w-full h-40 mt-2 rounded overflow-hidden border">
-                <Image
-                    src={imageUrl}
-                    alt={t('categoryPreviewAlt')}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 512px"
-                    className="object-cover"
-                />
-            </div>
-        )}
-      </div>
+      )}
 
       <div className="flex items-center space-x-2">
           <Checkbox

@@ -6,6 +6,8 @@ interface CatalogPageWatermarkProps {
   lines: CatalogWatermarkLine[];
   /** Used for any enabled line whose own text is left blank. */
   defaultText: string;
+  /** Ivory instead of ink — for the dark cover. */
+  light?: boolean;
 }
 
 /**
@@ -26,7 +28,7 @@ function computeTopOffsets(count: number): string[] {
  * them on every physical page auto-generated from a single logical <Page> —
  * same mechanism CatalogHeader/CatalogFooter use.
  */
-export default function CatalogPageWatermark({ lines, defaultText }: CatalogPageWatermarkProps) {
+export default function CatalogPageWatermark({ lines, defaultText, light = false }: CatalogPageWatermarkProps) {
   const enabledLines = lines.filter((line) => line.enabled);
   if (enabledLines.length === 0) return null;
 
@@ -36,7 +38,7 @@ export default function CatalogPageWatermark({ lines, defaultText }: CatalogPage
     <>
       {enabledLines.map((line, index) => (
         <View key={line.id} style={[styles.pageWatermark, { top: tops[index] }]} fixed>
-          <Text style={[styles.pageWatermarkText, { opacity: line.opacity }]}>
+          <Text style={[styles.pageWatermarkText, { opacity: line.opacity }, light ? { color: '#F5EFE6' } : {}]}>
             {(line.text.trim() || defaultText).toUpperCase()}
           </Text>
         </View>

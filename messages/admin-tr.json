@@ -20,7 +20,11 @@
     "signOut": "Çıkış Yap",
     "language": "Dil",
     "coupons": "Kuponlar",
-    "blog": "Blog"
+    "blog": "Blog",
+    "subscribers": "Aboneler",
+    "viewStore": "Mağazayı görüntüle",
+    "expand": "Menüyü genişlet",
+    "collapse": "Menüyü daralt"
   },
   "common": {
     "save": "Kaydet",
@@ -104,7 +108,9 @@
     "qaHero": "Hero slaytları",
     "qaOffer": "Kampanya ve ayarlar",
     "qaCatalog": "Katalog PDF",
-    "qaMonthReport": "Bu ay"
+    "qaMonthReport": "Bu ay",
+    "subscribersLabel": "Bülten aboneleri",
+    "shippingCountriesHint": "{count} ülkeye gönderim"
   },
   "categories": {
     "title": "Kategoriler",
@@ -255,7 +261,7 @@
     "continentOceania": "Okyanusya",
     "continentSouthAmerica": "Güney Amerika",
     "country": "Ülke",
-    "price": "Fiyat ($)",
+    "price": "Fiyat (₺)",
     "customShippingDetailsOptional": "Özel Kargo Detayları (İsteğe Bağlı)",
     "shippingDetailsPlaceholder": "örn. 3-5 gün içinde teslimat. Gümrük vergileri uygulanabilir.",
     "addZone": "Bölge Ekle",
@@ -509,7 +515,9 @@
     "displayOrderLabel": "Görüntülenme Sırası",
     "enabledLabel": "Etkin",
     "submitUpdate": "Kutucuğu Güncelle",
-    "submitCreate": "Kutucuk Oluştur"
+    "submitCreate": "Kutucuk Oluştur",
+    "tileCropHint": "Yükledikten sonra \"Kırpmayı düzenle\" ile fotoğrafın bu kutucukta hangi kısmının görüneceğini seçin — masaüstü ve mobil için ayrı ayrı. Çerçeve, aşağıda seçtiğiniz kutucuk boyutuna göre ayarlanır.",
+    "tileCropSaved": "Özel kırpma ayarlandı — uygulamak için kutucuğu kaydedin."
   },
   "seasonalCollections": {
     "title": "Sezonluk Koleksiyonlar",
@@ -622,7 +630,7 @@
     "goToLastPage": "Son sayfaya git",
     "editProductDescription": "Ürününüzde burada değişiklik yapın. İşiniz bittiğinde kaydet'e tıklayın.",
     "editPriceForCount": "{count} Ürün için Fiyatı Düzenle",
-    "newPrice": "Yeni Fiyat ($)",
+    "newPrice": "Yeni Fiyat (₺)",
     "pricePlaceholderExample": "örn. 25.00",
     "updatedPriceForCount": "{count} ürünün fiyatı güncellendi",
     "failedToUpdatePrices": "Fiyatlar güncellenemedi",
@@ -642,8 +650,8 @@
     "descriptionPlaceholder": "Zengin bir koku...",
     "hasVariants": "Varyantları Var mı?",
     "hasVariantsDescription": "Bu ürünün farklı boyutları var mı?",
-    "priceLabel": "Fiyat ($)",
-    "discountAmount": "İndirim Tutarı ($)",
+    "priceLabel": "Fiyat (₺)",
+    "discountAmount": "İndirim Tutarı (₺)",
     "discountDescription": "Fiyattan düşülecek tutar",
     "productVariants": "Ürün Varyantları",
     "addVariant": "Varyant Ekle",
@@ -690,7 +698,8 @@
     "newItem": "\"Yeni\" rozeti",
     "newItemDescription": "Bu üründe Yeni rozetini her zaman göster. Yeni eklenen ürünler rozeti otomatik alır (bkz. Ayarlar).",
     "descriptionTrPlaceholder": "Türkçe açıklama — Türkçe sitede (/tr) gösterilir.",
-    "descriptionSeoHint": "Türkçe ziyaretçilere gösterilir ve Google’da Türkçe aramalar için kullanılır. Koku ailesini ve notaları 2–4 cümlede anlatın. Boşsa İngilizce metin kullanılır."
+    "descriptionSeoHint": "Türkçe ziyaretçilere gösterilir ve Google’da Türkçe aramalar için kullanılır. Koku ailesini ve notaları 2–4 cümlede anlatın. Boşsa İngilizce metin kullanılır.",
+    "adjustImage": "Fotoğrafı düzenle"
   },
   "imageUpload": {
     "errorUploadingImage": "Görsel yüklenirken hata oluştu",
@@ -882,5 +891,71 @@
     "mdHint": "Markdown: ## başlık, **kalın**, [bağlantı](/shop), - liste",
     "mdWords": "{count} kelime",
     "uploadFailed": "Görsel yüklenemedi"
+  },
+  "subscribers": {
+    "title": "Bülten aboneleri",
+    "subtitle": "Site altbilgisindeki formdan kayıt olan herkes.",
+    "statTotal": "Toplam",
+    "stat7": "Son 7 gün",
+    "stat30": "Son 30 gün",
+    "searchPlaceholder": "E-posta ara…",
+    "copyAll": "Tüm e-postaları kopyala",
+    "copySelected": "Seçilenleri kopyala",
+    "copied": "{count} e-posta kopyalandı",
+    "copyFailed": "Panoya kopyalanamadı",
+    "exportCsv": "CSV dışa aktar",
+    "deleteSelected": "Sil ({count})",
+    "delete": "Sil",
+    "confirmDelete": "{count, plural, one {Bu abone silinsin mi?} other {# abone silinsin mi?}}",
+    "deleted": "{count, plural, one {Abone silindi} other {# abone silindi}}",
+    "selectAll": "Tümünü seç",
+    "colEmail": "E-posta",
+    "colLanguage": "Dil",
+    "colDate": "Kayıt tarihi",
+    "emptyTitle": "Henüz abone yok",
+    "emptyHint": "Altbilgi formundan gelen kayıtlar burada görünecek.",
+    "noMatches": "Aramanızla eşleşen e-posta yok."
+  },
+  "imageSpecs": {
+    "recommended": "Önerilen: {w} × {h} px ({ratio})",
+    "formats": "JPG, PNG veya WebP, en fazla 5 MB",
+    "actual": "Bu görsel: {w} × {h} px ({ratio})",
+    "tooSmall": "önerilenden küçük, büyük ekranlarda bulanık görünebilir",
+    "shapeOff": "çerçeveden farklı oranda, kenarlar kırpılacak",
+    "shapeOffCrop": "çerçeveden farklı oranda — görünen kısmı seçmek için “Kırpmayı düzenle”yi kullanın",
+    "good": "uygun boyut",
+    "where": {
+      "product": "Ürün kartları ve ürün sayfası — masaüstünde 3:4, telefonda 4:5. Şişeyi ortada ve etrafında boşlukla çekin.",
+      "productMobile": "Yalnızca telefonda kapak görselinin yerine geçer (4:5).",
+      "hero": "Ana sayfa bannerı — masaüstünde geniş 2.6:1, telefonda kare. Konuyu ortada tutun ki iki kırpma da iyi görünsün.",
+      "categoryTile": "“Kategorini bul” ızgarası. Boyut, aşağıda seçilen kutucuk boyutuna göre değişir.",
+      "category": "Kategori kartları — ana sayfada uzun 4:7, Kategoriler sayfasında kare.",
+      "brand": "Marka şeridindeki küçük yuvarlak logo. Düz arka planlı kare bir logo kullanın.",
+      "seasonalDesktop": "Masaüstünde tam genişlikte sezon bannerı (380–640 px yükseklik).",
+      "seasonalMobile": "Telefonda sezon bannerı. Boş bırakılırsa masaüstü bannerı kullanılır.",
+      "seasonalPattern": "Bannerın üzerine düşük opaklıkla serilen doku. Oran fark etmez.",
+      "seasonalDecorative": "Banner köşesindeki küçük süs. Şeffaf arka planlı PNG en iyisidir.",
+      "blogCover": "Blog yazısı kapağı ve blog kartları (16:9).",
+      "catalog": "PDF katalogda kullanılır."
+    }
+  },
+  "imageAdjust": {
+    "button": "Düzenle",
+    "title": "Düzenle — {name}",
+    "sharpen": "Netlik",
+    "brightness": "Parlaklık",
+    "contrast": "Kontrast",
+    "saturation": "Doygunluk",
+    "autoEnhance": "Otomatik iyileştir",
+    "reset": "Sıfırla",
+    "cancel": "İptal",
+    "apply": "Uygula",
+    "applying": "Kaydediliyor…",
+    "applied": "Düzenlenmiş fotoğraf kaydedildi — yayınlamak için formu kaydedin.",
+    "failed": "Düzenlenmiş fotoğraf kaydedilemedi.",
+    "loadFailed": "Bu fotoğraf burada düzenlenemiyor (barındırıldığı yer engelliyor). İndirip tekrar yükleyerek düzenleyebilirsiniz.",
+    "original": "Orijinal",
+    "holdToCompare": "Orijinali görmek için basılı tutun",
+    "note": "Düzenlenmiş bir kopya kaydeder. Orijinal dosya değişmez, istediğiniz zaman geri dönebilirsiniz."
   }
 }

@@ -7,6 +7,7 @@ import ImageWithFallback from '@/components/shared/ImageWithFallback';
 import { useSettings } from '@/components/providers/SettingsProvider';
 import { formatPromoAmount } from '@/lib/promotions';
 import { cn } from '@/lib/utils';
+import Reveal from '@/components/shared/Reveal';
 
 // Moody, low-key photography so ivory copy over the bottom gradient always
 // has contrast — one per offer: a single dark bottle (first-order code),
@@ -35,10 +36,10 @@ const CARDS = [
  * the source project with the discount/bundle/gift-threshold pattern a
  * direct-to-consumer storefront actually needs.
  *
- * Photo cards with copy over a bottom gradient. On mobile they're a
- * horizontal snap row with the next card peeking in (so it reads as
- * swipeable), instead of three tall text-only blocks stacked down the page;
- * from md up they sit as a 3-column grid.
+ * Photo cards with copy over a gradient. On mobile they stack one under
+ * another as short landscape banners (copy on the left over a side
+ * gradient) so the column stays compact; from md up they sit as a grid of
+ * portrait cards with copy over a bottom gradient.
  */
 export default function PromoBanners() {
   const t = useTranslations('home');
@@ -48,27 +49,29 @@ export default function PromoBanners() {
 
   return (
     <section className="w-full bg-ivory">
-      <div className="max-w-[1400px] mx-auto py-10 md:py-20 md:px-6 lg:px-8">
-        <div className={cn("flex md:grid gap-3 md:gap-5 overflow-x-auto md:overflow-visible snap-x snap-mandatory scroll-px-4 px-4 md:px-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden", cards.length === 3 ? "md:grid-cols-3" : "md:grid-cols-2")}>
-          {cards.map(({ key, href, image }) => (
+      <div className="max-w-[1400px] mx-auto px-4 py-10 md:px-6 md:py-20 lg:px-8">
+        <div className={cn("grid grid-cols-1 gap-3 sm:gap-4 md:gap-5", cards.length === 3 ? "md:grid-cols-3" : "md:grid-cols-2")}>
+          {cards.map(({ key, href, image }, i) => (
+            <Reveal key={key} delay={i * 0.1}>
             <Link
-              key={key}
               href={href}
-              className="group relative shrink-0 w-[80%] sm:w-[55%] md:w-auto snap-start aspect-[4/5] overflow-hidden rounded-sm bg-ink"
+              className="group relative block min-h-[210px] sm:min-h-[240px] md:min-h-0 md:aspect-[4/5] overflow-hidden rounded-sm bg-ink"
             >
               <ImageWithFallback
                 src={image}
                 alt=""
                 fill
                 loading="lazy"
-                sizes="(max-width: 640px) 80vw, (max-width: 768px) 55vw, 33vw"
+                sizes="(max-width: 768px) 100vw, 33vw"
                 // Same warm/desaturated grading as the other photo cards on
                 // the page, so stock photos read as one material.
                 className="object-cover transition-transform duration-700 group-hover:scale-105 [filter:grayscale(0.3)_sepia(0.15)_saturate(0.9)_brightness(0.8)]"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-ink/95 via-ink/45 to-ink/5" />
+              {/* Side gradient for the mobile banners, bottom gradient for the
+                  portrait cards. */}
+              <div className="absolute inset-0 bg-gradient-to-r from-ink/95 via-ink/70 to-ink/10 md:bg-gradient-to-t md:from-ink/95 md:via-ink/45 md:to-ink/5" />
 
-              <div className="relative flex h-full flex-col justify-end p-5 md:p-8">
+              <div className="relative flex h-full min-h-[inherit] flex-col justify-center md:justify-end p-6 md:p-8 max-w-[75%] sm:max-w-[60%] md:max-w-none">
                 <p className="text-[10px] md:text-[11px] uppercase tracking-[0.3em] text-gold font-semibold mb-2">
                   {t(`${key}Eyebrow`)}
                 </p>
@@ -76,7 +79,8 @@ export default function PromoBanners() {
                   {t(`${key}Title`)}
                 </h3>
                 <span aria-hidden="true" className="mt-3 block h-px w-10 bg-gold/70 transition-all duration-500 group-hover:w-16" />
-                <p className="mt-3 text-[13px] md:text-sm leading-snug text-ivory/75 max-w-[30ch]">
+                {/* Reserve two lines on desktop so titles line up across the row. */}
+                <p className="mt-3 text-[13px] md:text-sm leading-snug text-ivory/75 max-w-[30ch] md:min-h-[2.75em]">
                   {key === 'promo3' ? t('promo3Body', { amount: formatPromoAmount(gift.threshold) }) : t(`${key}Body`)}
                 </p>
                 <span className="mt-4 md:mt-5 inline-flex items-center gap-2 text-[11px] md:text-xs uppercase tracking-widest font-semibold text-gold group-hover:text-gold-soft transition-colors">
@@ -85,6 +89,7 @@ export default function PromoBanners() {
                 </span>
               </div>
             </Link>
+            </Reveal>
           ))}
         </div>
       </div>

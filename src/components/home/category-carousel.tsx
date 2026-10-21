@@ -2,7 +2,7 @@
 
 import { Category } from '@/types';
 import { Link } from '@/i18n/navigation';
-import ImageWithFallback from '@/components/shared/ImageWithFallback';
+import ResponsiveCroppedImage from '@/components/shared/ResponsiveCroppedImage';
 import { useAutoScrollLoop } from '@/hooks/use-auto-scroll-loop';
 
 interface CategoryCarouselProps {
@@ -13,8 +13,10 @@ function CategoryCard({ category }: { category: Category }) {
   return (
     <div className="relative w-full aspect-[4/7] overflow-hidden whitespace-normal bg-ink">
       {category.image_url ? (
-        <ImageWithFallback
+        <ResponsiveCroppedImage
           src={category.image_url}
+          cropDesktop={category.image_crop_desktop}
+          cropMobile={category.image_crop_mobile}
           alt={category.name}
           fill
           sizes="(max-width: 640px) 45vw, (max-width: 768px) 30vw, 300px"

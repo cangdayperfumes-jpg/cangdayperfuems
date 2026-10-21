@@ -20,7 +20,11 @@
     "signOut": "Sign Out",
     "language": "Language",
     "coupons": "Coupons",
-    "blog": "Blog"
+    "blog": "Blog",
+    "subscribers": "Subscribers",
+    "viewStore": "View store",
+    "expand": "Expand sidebar",
+    "collapse": "Collapse sidebar"
   },
   "common": {
     "save": "Save",
@@ -104,7 +108,9 @@
     "qaHero": "Hero slides",
     "qaOffer": "Offer & settings",
     "qaCatalog": "Catalog PDF",
-    "qaMonthReport": "This month"
+    "qaMonthReport": "This month",
+    "subscribersLabel": "Newsletter subscribers",
+    "shippingCountriesHint": "{count, plural, one {Shipping to # country} other {Shipping to # countries}}"
   },
   "categories": {
     "title": "Categories",
@@ -255,7 +261,7 @@
     "continentOceania": "Oceania",
     "continentSouthAmerica": "South America",
     "country": "Country",
-    "price": "Price ($)",
+    "price": "Price (₺)",
     "customShippingDetailsOptional": "Custom Shipping Details (Optional)",
     "shippingDetailsPlaceholder": "e.g. Delivery within 3-5 days. Customs duties may apply.",
     "addZone": "Add Zone",
@@ -509,7 +515,9 @@
     "displayOrderLabel": "Display Order",
     "enabledLabel": "Enabled",
     "submitUpdate": "Update Tile",
-    "submitCreate": "Create Tile"
+    "submitCreate": "Create Tile",
+    "tileCropHint": "After uploading, use \"Edit crop\" to choose which part of the photo shows in this tile — separately for desktop and mobile. The frame matches the tile size you pick below.",
+    "tileCropSaved": "Custom crop set — save the tile to apply it."
   },
   "seasonalCollections": {
     "title": "Seasonal Collections",
@@ -622,7 +630,7 @@
     "goToLastPage": "Go to last page",
     "editProductDescription": "Make changes to your product here. Click save when you're done.",
     "editPriceForCount": "Edit Price for {count} Products",
-    "newPrice": "New Price ($)",
+    "newPrice": "New Price (₺)",
     "pricePlaceholderExample": "e.g. 25.00",
     "updatedPriceForCount": "Updated price for {count} products",
     "failedToUpdatePrices": "Failed to update prices",
@@ -642,8 +650,8 @@
     "descriptionPlaceholder": "A rich scent...",
     "hasVariants": "Has Variants?",
     "hasVariantsDescription": "Does this product have different sizes?",
-    "priceLabel": "Price ($)",
-    "discountAmount": "Discount Amount ($)",
+    "priceLabel": "Price (₺)",
+    "discountAmount": "Discount Amount (₺)",
     "discountDescription": "Amount to subtract from price",
     "productVariants": "Product Variants",
     "addVariant": "Add Variant",
@@ -690,7 +698,8 @@
     "newItem": "\"New\" badge",
     "newItemDescription": "Always show the New badge on this product. Recently added products get it automatically (see Settings).",
     "descriptionTrPlaceholder": "Turkish description — shown on the Turkish site (/tr).",
-    "descriptionSeoHint": "Shown to Turkish visitors and used for Google in Turkish. Describe the scent family and notes in 2–4 sentences. If empty, the English text is used."
+    "descriptionSeoHint": "Shown to Turkish visitors and used for Google in Turkish. Describe the scent family and notes in 2–4 sentences. If empty, the English text is used.",
+    "adjustImage": "Adjust photo"
   },
   "imageUpload": {
     "errorUploadingImage": "Error uploading image",
@@ -882,5 +891,71 @@
     "mdHint": "Markdown: ## heading, **bold**, [link](/shop), - list",
     "mdWords": "{count} words",
     "uploadFailed": "Image upload failed"
+  },
+  "subscribers": {
+    "title": "Newsletter subscribers",
+    "subtitle": "Everyone who signed up through the form in the site footer.",
+    "statTotal": "Total",
+    "stat7": "Last 7 days",
+    "stat30": "Last 30 days",
+    "searchPlaceholder": "Search email…",
+    "copyAll": "Copy all emails",
+    "copySelected": "Copy selected",
+    "copied": "{count, plural, one {# email copied} other {# emails copied}}",
+    "copyFailed": "Couldn't copy to clipboard",
+    "exportCsv": "Export CSV",
+    "deleteSelected": "Delete ({count})",
+    "delete": "Delete",
+    "confirmDelete": "{count, plural, one {Remove this subscriber?} other {Remove # subscribers?}}",
+    "deleted": "{count, plural, one {Subscriber removed} other {# subscribers removed}}",
+    "selectAll": "Select all",
+    "colEmail": "Email",
+    "colLanguage": "Language",
+    "colDate": "Signed up",
+    "emptyTitle": "No subscribers yet",
+    "emptyHint": "Signups from the footer form will appear here.",
+    "noMatches": "No emails match your search."
+  },
+  "imageSpecs": {
+    "recommended": "Recommended: {w} × {h} px ({ratio})",
+    "formats": "JPG, PNG or WebP, up to 5 MB",
+    "actual": "This image: {w} × {h} px ({ratio})",
+    "tooSmall": "smaller than recommended, may look soft on large screens",
+    "shapeOff": "different shape from the frame, the edges will be cut off",
+    "shapeOffCrop": "different shape from the frame — use “Edit crop” to choose what shows",
+    "good": "good size",
+    "where": {
+      "product": "Product cards and product page — 3:4 on desktop, 4:5 on phones. Keep the bottle centred with some space around it.",
+      "productMobile": "Replaces the cover on phones only (4:5).",
+      "hero": "Homepage banner — wide 2.6:1 on desktop, square on phones. Keep the subject in the middle so both crops work.",
+      "categoryTile": "“Find your category” grid. The size follows the tile size chosen below.",
+      "category": "Category cards — tall 4:7 on the homepage, square on the Categories page.",
+      "brand": "Small round logo in the brand strip. Use a square logo on a plain background.",
+      "seasonalDesktop": "Full-width seasonal banner on desktop (380–640 px tall).",
+      "seasonalMobile": "Seasonal banner on phones. Leave empty to use the desktop banner.",
+      "seasonalPattern": "Texture laid over the banner at low opacity. Any shape.",
+      "seasonalDecorative": "Small decoration in the banner corner. A PNG with a transparent background works best.",
+      "blogCover": "Blog post cover and blog cards (16:9).",
+      "catalog": "Used in the PDF catalog."
+    }
+  },
+  "imageAdjust": {
+    "button": "Adjust",
+    "title": "Adjust — {name}",
+    "sharpen": "Sharpen",
+    "brightness": "Brightness",
+    "contrast": "Contrast",
+    "saturation": "Saturation",
+    "autoEnhance": "Auto enhance",
+    "reset": "Reset",
+    "cancel": "Cancel",
+    "apply": "Apply",
+    "applying": "Saving…",
+    "applied": "Adjusted photo saved — save the form to publish it.",
+    "failed": "Couldn't save the adjusted photo.",
+    "loadFailed": "This photo can't be edited here (it's hosted somewhere that blocks it). Download it and upload it again to adjust it.",
+    "original": "Original",
+    "holdToCompare": "Hold to see the original",
+    "note": "Saves an adjusted copy. The original file stays untouched, so you can always go back."
   }
 }

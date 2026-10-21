@@ -231,7 +231,9 @@ export default async function LocaleLayout({
   return (
     <html lang={locale}>
       <body className={cn(
-        "min-h-screen bg-background font-sans antialiased flex flex-col overflow-x-hidden",
+        // overflow-x-clip (not -hidden): hides sideways overflow without breaking
+        // the sticky header on mobile Safari/Chrome.
+        "min-h-screen bg-background font-sans antialiased flex flex-col overflow-x-clip",
         manrope.variable,
         fraunces.variable
       )}>
@@ -304,13 +306,30 @@ export default async function LocaleLayout({
           </MotionProvider>
           </SettingsProvider>
         </NextIntlClientProvider>
+        {/* Toasts in the storefront palette: espresso card, ivory text, a
+            thin gold edge and gold icon (errors get a soft rose icon). */}
         <Toaster
           position="top-center"
+          offset={16}
+          mobileOffset={12}
+          style={
+            {
+              '--normal-bg': 'rgb(var(--brand-ink-elevated))',
+              '--normal-text': 'rgb(var(--brand-ivory))',
+              '--normal-border': 'rgb(var(--brand-ink-line))',
+              '--border-radius': '2px',
+            } as React.CSSProperties
+          }
           toastOptions={{
-            style: {
-              background: 'white',
-              border: '1px solid black',
-              color: 'black',
+            classNames: {
+              toast:
+                'font-sans !gap-3 !px-4 !py-3.5 border-l-2 !border-l-gold shadow-[0_12px_32px_-12px_rgba(13,13,12,0.55)]',
+              title: '!text-[13px] !font-medium tracking-wide',
+              description: '!text-[12px] !text-ivory/65',
+              icon: 'text-gold',
+              error: '!border-l-rose-300 [&_[data-icon]]:!text-rose-300',
+              actionButton: '!bg-gold !text-ink !rounded-sm !text-[11px] !font-semibold uppercase tracking-widest',
+              cancelButton: '!bg-transparent !text-ivory/70',
             },
           }}
         />

@@ -24,7 +24,9 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row print:bg-white print:block">
-      <div className="print:hidden">
+      {/* `contents` so the mobile top bar inside can stick to the viewport (a
+          wrapper exactly its own height gave it nowhere to stick). */}
+      <div className="contents print:hidden">
         <AdminSidebar
           onSignOut={handleSignOut}
           isCollapsed={isSidebarCollapsed}
@@ -34,9 +36,9 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
       <main className={cn(
         "flex-1 min-w-0 p-4 md:p-8 overflow-y-auto w-full print:m-0 print:p-0 transition-all duration-300",
-        isSidebarCollapsed ? "md:ml-20" : "md:ml-72"
+        isSidebarCollapsed ? "md:ml-[76px]" : "md:ml-64"
       )}>
-        <div className="max-w-7xl mx-auto print:max-w-none">
+        <div className="mx-auto max-w-[1600px] print:max-w-none">
             {children}
         </div>
       </main>

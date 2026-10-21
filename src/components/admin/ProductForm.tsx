@@ -7,12 +7,15 @@ import * as z from 'zod';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
-import { Loader2, Upload, X, Check, ChevronsUpDown, Plus } from 'lucide-react';
+import { Loader2, Upload, X, Check, ChevronsUpDown, Plus, SlidersHorizontal } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from "sonner";
 import { validateImageFile, uploadToProductsBucket } from '@/lib/upload-image';
 import ImageUploadField from '@/components/admin/ImageUploadField';
 import ImageCropEditorModal from '@/components/admin/ImageCropEditorModal';
+import ImageAdjustModal from '@/components/admin/ImageAdjustModal';
+import ImageSpecInfo from '@/components/admin/ImageSpecInfo';
+import { IMAGE_SPECS } from '@/lib/image-specs';
 import type { CropMeta } from '@/lib/image-crop';
 
 // Matches ProductCard's responsive aspect classes (aspect-[4/5] mobile,
@@ -86,10 +89,14 @@ interface ProductFormProps {
   categories?: Category[];
   brands?: Brand[];
   onSuccess?: () => void;
+  /** Closes the edit panel; without it Cancel goes back a page. */
+  onCancel?: () => void;
 }
 
-export default function ProductForm({ initialData, categories: initialCategories = [], brands: initialBrands = [], onSuccess }: ProductFormProps) {
+export default function ProductForm({ initialData, categories: initialCategories = [], brands: initialBrands = [], onSuccess, onCancel }: ProductFormProps) {
   const router = useRouter();
+  // Rendered inside the products list's edit panel (narrow) vs the full page.
+  const compact = !!onSuccess;
   const t = useTranslations('products');
   const tc = useTranslations('common');
   const productSchema = useMemo(() => buildProductSchema(t), [t]);
@@ -112,6 +119,8 @@ export default function ProductForm({ initialData, categories: initialCategories
   const [cropDesktop, setCropDesktop] = useState<CropMeta | null>(initialData?.image_crop_desktop ?? null);
   const [cropMobile, setCropMobile] = useState<CropMeta | null>(initialData?.image_crop_mobile ?? null);
   const [isCropEditorOpen, setIsCropEditorOpen] = useState(false);
+  // Gallery image open in the Adjust (sharpen etc.) editor, by index.
+  const [adjustIndex, setAdjustIndex] = useState<number | null>(null);
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema) as any,
@@ -395,7 +404,14 @@ export default function ProductForm({ initialData, categories: initialCategories
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-6xl bg-white p-6 rounded-lg border shadow-sm">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className={cn(
+          'min-w-0 space-y-8',
+          // In the products list's edit panel the panel itself is the card.
+          compact ? 'px-4 pb-4' : 'max-w-5xl rounded-lg border bg-white p-4 shadow-sm sm:p-6'
+        )}
+      >
 
         <div className="grid grid-cols-1 gap-6">
             <FormField
@@ -447,7 +463,7 @@ export default function ProductForm({ initialData, categories: initialCategories
               control={form.control}
               name="has_variants"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <FormItem className="flex flex-row items-start justify-between gap-4 space-y-0 rounded-lg border p-4">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">{t('hasVariants')}</FormLabel>
                     <FormDescription>
@@ -456,6 +472,7 @@ export default function ProductForm({ initialData, categories: initialCategories
                   </div>
                   <FormControl>
                     <Switch
+                      className="mt-0.5 shrink-0"
                       checked={field.value}
                       onCheckedChange={field.onChange}
                     />
@@ -506,7 +523,7 @@ export default function ProductForm({ initialData, categories: initialCategories
                  </div>
                  
                  {form.watch('variants')?.map((_, index) => (
-                     <div key={index} className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end border-b pb-4 last:border-0">
+                     <div key={index} className={cn('grid grid-cols-1 items-end gap-4 border-b pb-4 last:border-0', compact ? 'sm:grid-cols-2' : 'md:grid-cols-5')}>
                          <FormField
                             control={form.control}
                             name={`variants.${index}.name`}
@@ -553,7 +570,7 @@ export default function ProductForm({ initialData, categories: initialCategories
                                     render={({ field }) => (
                                         <FormItem className="flex flex-row items-center space-x-2 space-y-0">
                                             <FormControl>
-                                                <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                                <Switch className="mt-0.5 shrink-0" checked={field.value} onCheckedChange={field.onChange} />
                                             </FormControl>
                                             <FormLabel className="text-xs">{t('stock')}</FormLabel>
                                         </FormItem>
@@ -580,7 +597,7 @@ export default function ProductForm({ initialData, categories: initialCategories
              </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
            <FormField
             control={form.control}
             name="brand_id"
@@ -722,6 +739,8 @@ export default function ProductForm({ initialData, categories: initialCategories
             )}
           />
 
+        </div>
+
           <FormField
             control={form.control}
             name="target_audience"
@@ -732,15 +751,15 @@ export default function ProductForm({ initialData, categories: initialCategories
                   <RadioGroup
                     onValueChange={field.onChange}
                     defaultValue={field.value}
-                    className="flex flex-row space-x-1"
+                    className="grid grid-cols-3 gap-2 sm:max-w-md"
                   >
                     {(['Men', 'Women', 'Unisex'] as const).map((option) => (
-                        <FormItem key={option} className="flex-1">
+                        <FormItem key={option} className="space-y-0">
                             <FormControl>
                                 <RadioGroupItem value={option} className="sr-only" />
                             </FormControl>
                             <FormLabel className={cn(
-                                "flex flex-1 items-center justify-center rounded-md border-2 border-muted bg-popover p-2 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all",
+                                "flex h-10 w-full items-center justify-center rounded-md border-2 border-muted bg-popover px-2 text-sm hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all",
                                 field.value === option && "border-black bg-black text-white hover:bg-black/90"
                             )}>
                                 {option === 'Men' ? t('men') : option === 'Women' ? t('women') : t('unisex')}
@@ -754,11 +773,12 @@ export default function ProductForm({ initialData, categories: initialCategories
             )}
           />
 
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FormField
             control={form.control}
             name="is_popular"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+              <FormItem className="flex flex-row items-start justify-between gap-4 space-y-0 rounded-lg border p-4">
                 <div className="space-y-0.5">
                   <FormLabel className="text-base">{t('popularItem')}</FormLabel>
                   <FormDescription>
@@ -767,6 +787,7 @@ export default function ProductForm({ initialData, categories: initialCategories
                 </div>
                 <FormControl>
                   <Switch
+                    className="mt-0.5 shrink-0"
                     checked={field.value}
                     onCheckedChange={field.onChange}
                   />
@@ -779,7 +800,7 @@ export default function ProductForm({ initialData, categories: initialCategories
             control={form.control}
             name="is_new"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+              <FormItem className="flex flex-row items-start justify-between gap-4 space-y-0 rounded-lg border p-4">
                 <div className="space-y-0.5">
                   <FormLabel className="text-base">{t('newItem')}</FormLabel>
                   <FormDescription>
@@ -788,6 +809,7 @@ export default function ProductForm({ initialData, categories: initialCategories
                 </div>
                 <FormControl>
                   <Switch
+                    className="mt-0.5 shrink-0"
                     checked={field.value}
                     onCheckedChange={field.onChange}
                   />
@@ -800,6 +822,7 @@ export default function ProductForm({ initialData, categories: initialCategories
         <div className="space-y-4">
             <FormLabel>{t('images')}</FormLabel>
             <p className="text-xs text-muted-foreground">{t('coverImageHint')}</p>
+            <ImageSpecInfo spec={IMAGE_SPECS.product} url={form.watch('images')?.[0]} canCrop />
             <div className="flex flex-wrap gap-4">
                 {form.watch('images')?.map((url, index) => (
                     <div key={index} className="relative group">
@@ -815,6 +838,15 @@ export default function ProductForm({ initialData, categories: initialCategories
                                 {t('editCropAction')}
                             </button>
                         )}
+                        <button
+                            type="button"
+                            onClick={() => setAdjustIndex(index)}
+                            aria-label={t('adjustImage')}
+                            title={t('adjustImage')}
+                            className="absolute -top-2 -left-2 rounded-full bg-white p-1 text-slate-700 shadow-sm ring-1 ring-slate-200 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
+                        >
+                            <SlidersHorizontal className="h-3 w-3" />
+                        </button>
                         <button
                             type="button"
                             onClick={() => removeImage(url)}
@@ -849,10 +881,27 @@ export default function ProductForm({ initialData, categories: initialCategories
               label={t('mobileImageLabel')}
               value={mobileImage}
               onChange={setMobileImage}
+              spec={IMAGE_SPECS.productMobile}
               uploadPrefix="products/mobile/"
               aspectClassName="h-40"
               hint={t('mobileImageHint')}
             />
+
+            {adjustIndex !== null && form.watch('images')?.[adjustIndex] && (
+              <ImageAdjustModal
+                open
+                onOpenChange={(o) => !o && setAdjustIndex(null)}
+                imageUrl={form.watch('images')![adjustIndex]}
+                title={t('images')}
+                uploadPrefix=""
+                onApply={(newUrl) => {
+                  // Same framing as before, so the cover's crop still applies.
+                  const imgs = [...(form.getValues('images') || [])];
+                  imgs[adjustIndex] = newUrl;
+                  form.setValue('images', imgs, { shouldDirty: true });
+                }}
+              />
+            )}
 
             {form.watch('images')?.[0] && (
               <ImageCropEditorModal
@@ -877,7 +926,7 @@ export default function ProductForm({ initialData, categories: initialCategories
               control={form.control}
               name="stock"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <FormItem className="flex flex-row items-start justify-between gap-4 space-y-0 rounded-lg border p-4">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">{t('inStock')}</FormLabel>
                     <FormDescription>
@@ -886,6 +935,7 @@ export default function ProductForm({ initialData, categories: initialCategories
                   </div>
                   <FormControl>
                     <Switch
+                      className="mt-0.5 shrink-0"
                       checked={field.value}
                       onCheckedChange={field.onChange}
                     />
@@ -897,7 +947,7 @@ export default function ProductForm({ initialData, categories: initialCategories
               control={form.control}
               name="is_active"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <FormItem className="flex flex-row items-start justify-between gap-4 space-y-0 rounded-lg border p-4">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">{tc('active')}</FormLabel>
                     <FormDescription>
@@ -906,6 +956,7 @@ export default function ProductForm({ initialData, categories: initialCategories
                   </div>
                   <FormControl>
                     <Switch
+                      className="mt-0.5 shrink-0"
                       checked={field.value}
                       onCheckedChange={field.onChange}
                     />
@@ -915,8 +966,11 @@ export default function ProductForm({ initialData, categories: initialCategories
             />
         </div>
 
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t flex gap-4 z-50 md:relative md:bg-transparent md:border-0 md:p-0 md:pt-4 md:z-auto">
-            <Button type="button" variant="outline" onClick={() => router.back()} className="flex-1 md:flex-none md:w-auto">
+        <div className={cn(
+          'sticky bottom-0 z-20 flex gap-3 border-t bg-white/95 py-3 backdrop-blur',
+          compact ? '-mx-4 px-4' : '-mx-4 px-4 sm:-mx-6 sm:px-6 rounded-b-lg'
+        )}>
+            <Button type="button" variant="outline" onClick={() => (onCancel ? onCancel() : router.back())} className="flex-1 md:flex-none md:w-auto">
                 {tc('cancel')}
             </Button>
             <Button type="submit" disabled={loading} className="flex-1 md:flex-none md:w-auto md:min-w-[150px]">

@@ -31,6 +31,7 @@ import {
 
 import ImageUploadField from '@/components/admin/ImageUploadField';
 import ImageCropEditorModal from '@/components/admin/ImageCropEditorModal';
+import { IMAGE_SPECS } from '@/lib/image-specs';
 import { HeroSlide } from '@/types';
 import type { CropMeta } from '@/lib/image-crop';
 import {
@@ -159,7 +160,7 @@ export default function HeroSlideForm({ initialData }: HeroSlideFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-3xl space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="xl:columns-2 xl:gap-6 [&>*]:mb-6 [&>*]:break-inside-avoid">
         {/* Content */}
         <section className="space-y-4 rounded-lg border bg-white p-6">
           <h2 className="font-heading text-lg">{t('sectionContent')}</h2>
@@ -228,12 +229,16 @@ export default function HeroSlideForm({ initialData }: HeroSlideFormProps) {
           <ImageUploadField
             label={t('slideImageLabel')}
             value={image}
-            onChange={(url) => {
+            onChange={(url, reason) => {
               setImage(url);
-              // A replaced image invalidates any crop computed for the old one.
-              setCropDesktop(null);
-              setCropMobile(null);
+              // A replaced image invalidates any crop computed for the old one;
+              // an adjusted copy has the same framing, so its crop is kept.
+              if (reason !== 'adjust') {
+                setCropDesktop(null);
+                setCropMobile(null);
+              }
             }}
+            spec={IMAGE_SPECS.hero}
             uploadPrefix="hero-slides/"
             aspectClassName="h-56"
             hint={t('slideImageHint')}
@@ -412,18 +417,21 @@ export default function HeroSlideForm({ initialData }: HeroSlideFormProps) {
           <p className="text-xs text-muted-foreground">{t('activationHint')}</p>
         </section>
 
-        <Button type="submit" disabled={saving} size="lg">
-          {saving ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {tc('saving')}
-            </>
-          ) : initialData ? (
-            t('submitUpdate')
-          ) : (
-            t('submitCreate')
-          )}
-        </Button>
+        {/* Spans both columns so Save always sits at the end. */}
+        <div className="[column-span:all] pt-2">
+          <Button type="submit" disabled={saving} size="lg">
+            {saving ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {tc('saving')}
+              </>
+            ) : initialData ? (
+              t('submitUpdate')
+            ) : (
+              t('submitCreate')
+            )}
+          </Button>
+        </div>
       </form>
     </Form>
   );

@@ -48,6 +48,21 @@ export async function getCategoryById(id: string) {
   return data as Category;
 }
 
+/** Crop JSON from the form's hidden fields; absent fields leave the column untouched. */
+function parseCrops(formData: FormData) {
+  const out: Record<string, unknown> = {};
+  for (const key of ['image_crop_desktop', 'image_crop_mobile'] as const) {
+    const raw = formData.get(key);
+    if (typeof raw !== 'string') continue;
+    try {
+      out[key] = raw ? JSON.parse(raw) : null;
+    } catch {
+      // ignore malformed input
+    }
+  }
+  return out;
+}
+
 export async function createCategory(formData: FormData) {
   const supabase = await createClient();
   
@@ -56,6 +71,7 @@ export async function createCategory(formData: FormData) {
   const description = formData.get('description') as string;
   const image_url = formData.get('image_url') as string;
   const is_featured = formData.get('is_featured') === 'on';
+  const crops = parseCrops(formData);
 
   if (!name || !slug) {
     throw new Error('Name and Slug are required');
@@ -69,6 +85,7 @@ export async function createCategory(formData: FormData) {
       description,
       image_url,
       is_featured,
+      ...crops,
     });
 
   if (error) {
@@ -77,8 +94,8 @@ export async function createCategory(formData: FormData) {
   }
 
   revalidatePath('/admin/categories');
-  revalidatePath('/categories');
-  revalidatePath('/');
+  // Storefront pages live under /tr and /en.
+  revalidatePath('/[locale]', 'layout');
   return { success: true };
 }
 
@@ -90,6 +107,7 @@ export async function updateCategory(id: string, formData: FormData) {
   const description = formData.get('description') as string;
   const image_url = formData.get('image_url') as string;
   const is_featured = formData.get('is_featured') === 'on';
+  const crops = parseCrops(formData);
 
   const { error } = await supabase
     .from('categories')
@@ -99,6 +117,7 @@ export async function updateCategory(id: string, formData: FormData) {
       description,
       image_url,
       is_featured,
+      ...crops,
     })
     .eq('id', id);
 
@@ -108,8 +127,8 @@ export async function updateCategory(id: string, formData: FormData) {
   }
 
   revalidatePath('/admin/categories');
-  revalidatePath('/categories');
-  revalidatePath('/');
+  // Storefront pages live under /tr and /en.
+  revalidatePath('/[locale]', 'layout');
   return { success: true };
 }
 
@@ -133,7 +152,7 @@ export async function deleteCategory(id: string) {
   }
 
   revalidatePath('/admin/categories');
-  revalidatePath('/categories');
-  revalidatePath('/');
+  // Storefront pages live under /tr and /en.
+  revalidatePath('/[locale]', 'layout');
   return { success: true };
 }

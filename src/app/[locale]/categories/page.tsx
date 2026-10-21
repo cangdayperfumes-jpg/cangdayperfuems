@@ -1,9 +1,9 @@
 import { localeAlternates } from '@/lib/seo';
+import ResponsiveCroppedImage from '@/components/shared/ResponsiveCroppedImage';
 
 import { createClient } from '@supabase/supabase-js';
 import { PLACEHOLDER_SUPABASE_URL } from '@/utils/supabase/placeholder';
 import { Link } from '@/i18n/navigation';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { getTranslations, getLocale } from 'next-intl/server';
 
@@ -58,8 +58,10 @@ export default async function CategoriesPage() {
             className="group relative aspect-square w-full overflow-hidden block bg-gray-100 rounded-lg shadow-sm"
           >
             {category.image_url ? (
-                <Image
+                <ResponsiveCroppedImage
                 src={category.image_url}
+                cropDesktop={category.image_crop_desktop}
+                cropMobile={category.image_crop_mobile}
                 alt={category.name}
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

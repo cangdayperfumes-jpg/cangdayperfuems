@@ -3,277 +3,470 @@ import { PDF_COLORS as C, PDF_FONT_BODY, PDF_FONT_HEADING } from '@/lib/pdf-bran
 
 // Site look (see src/lib/pdf-brand.ts): Fraunces headings, Manrope text,
 // ink / ivory / gold palette — shared with the invoice and orders report.
+
+// A4 in pt. Content pages keep clear bands for the fixed header/footer so
+// products never run underneath them (the old 40pt padding was smaller
+// than the header, which is what overlapped/broke pages).
+export const PAGE_W = 595.28;
+export const PAD_X = 36;
+export const PAD_TOP = 76;
+export const PAD_BOTTOM = 58;
+export const CONTENT_W = PAGE_W - PAD_X * 2;
+export const CARD_GAP = 10;
+
+export function cardWidth(perRow: number) {
+  return (CONTENT_W - CARD_GAP * (perRow - 1)) / perRow;
+}
+export function cardImageHeight(perRow: number) {
+  return perRow === 3 ? 218 : 98;
+}
+
 export const catalogStyles = StyleSheet.create({
   page: {
-    padding: 40,
+    paddingTop: PAD_TOP,
+    paddingBottom: PAD_BOTTOM,
+    paddingHorizontal: PAD_X,
     fontFamily: PDF_FONT_BODY,
-    fontSize: 10,
+    fontSize: 9,
     color: C.ink,
+    backgroundColor: C.paper,
   },
 
-  // Cover page
+  // ── Cover ──────────────────────────────────────────────────────────────
   coverPage: {
     padding: 0,
-    backgroundColor: C.ivory,
+    backgroundColor: C.ink,
     fontFamily: PDF_FONT_BODY,
+    color: C.ivory,
   },
-  coverImage: {
-    width: '100%',
-    height: 260,
+  coverPhoto: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: PAGE_W,
+    height: 430,
     objectFit: 'cover',
   },
-  coverBody: {
-    padding: 40,
+  coverPhotoShade: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: PAGE_W,
+    height: 430,
+    backgroundColor: C.ink,
+    opacity: 0.28,
+  },
+  coverFrame: {
+    position: 'absolute',
+    top: 22,
+    left: 22,
+    right: 22,
+    bottom: 22,
+    borderWidth: 0.6,
+    borderColor: C.gold,
+    opacity: 0.55,
+  },
+  coverInner: {
+    position: 'absolute',
+    left: 60,
+    right: 60,
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  coverEyebrow: {
+    fontSize: 8.5,
+    fontWeight: 600,
+    color: C.gold,
+    textTransform: 'uppercase',
+    letterSpacing: 3,
+    marginBottom: 18,
+    textAlign: 'center',
   },
   coverLogo: {
-    width: 220,
-    height: 74,
-    marginBottom: 16,
+    width: 290,
+    height: 97,
     objectFit: 'contain',
   },
+  coverRule: {
+    width: 46,
+    borderBottomWidth: 1,
+    borderBottomColor: C.gold,
+    marginTop: 22,
+    marginBottom: 22,
+  },
   coverTitle: {
-    fontSize: 32,
+    fontSize: 30,
     fontFamily: PDF_FONT_HEADING,
-    fontWeight: 600,
+    fontWeight: 500,
+    color: C.ivory,
     textTransform: 'uppercase',
-    letterSpacing: 1.5,
+    letterSpacing: 3,
     textAlign: 'center',
   },
   coverSubtitle: {
-    fontSize: 13,
-    color: C.muted,
-    marginTop: 8,
-    textAlign: 'center',
-  },
-  coverSeason: {
     fontSize: 11,
-    color: C.muted,
-    textTransform: 'uppercase',
-    letterSpacing: 2,
-    marginTop: 14,
+    color: C.ivory,
+    opacity: 0.7,
+    marginTop: 8,
+    letterSpacing: 1,
     textAlign: 'center',
   },
   coverDescription: {
-    fontSize: 10,
-    color: '#3B342E',
-    marginTop: 20,
+    fontSize: 9.5,
+    color: C.ivory,
+    opacity: 0.62,
+    marginTop: 18,
+    lineHeight: 1.65,
     textAlign: 'center',
-    lineHeight: 1.6,
-    maxWidth: 380,
+    maxWidth: 360,
   },
-  coverDivider: {
-    borderBottomWidth: 1,
-    borderBottomColor: C.gold,
-    width: 120,
-    marginTop: 24,
-    marginBottom: 24,
+  coverStats: {
+    marginTop: 22,
+    fontSize: 8,
+    fontWeight: 600,
+    color: C.gold,
+    textTransform: 'uppercase',
+    letterSpacing: 2,
+    textAlign: 'center',
   },
-  coverMetaBlock: {
+  coverBottom: {
+    position: 'absolute',
+    bottom: 46,
+    left: 60,
+    right: 60,
     alignItems: 'center',
   },
-  coverMetaText: {
-    fontSize: 9,
-    color: C.muted,
-    marginBottom: 3,
+  coverMeta: {
+    fontSize: 8,
+    color: C.ivory,
+    opacity: 0.62,
+    marginTop: 3,
     textAlign: 'center',
   },
-  coverDate: {
-    fontSize: 8,
-    color: C.muted,
-    marginTop: 24,
+  coverEdition: {
+    fontSize: 7,
+    color: C.gold,
+    opacity: 0.8,
+    marginTop: 10,
     textTransform: 'uppercase',
-    letterSpacing: 1,
+    letterSpacing: 2,
   },
 
-  // Table of contents
-  tocTitle: {
-    fontSize: 22,
-    fontFamily: PDF_FONT_HEADING,
+  // ── Contents ───────────────────────────────────────────────────────────
+  eyebrow: {
+    fontSize: 7.5,
     fontWeight: 600,
+    color: C.goldDeep,
     textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: 24,
+    letterSpacing: 2.5,
+  },
+  tocTitle: {
+    fontSize: 26,
+    fontFamily: PDF_FONT_HEADING,
+    fontWeight: 500,
+    marginTop: 6,
+  },
+  rule: {
+    width: 40,
+    borderBottomWidth: 1,
+    borderBottomColor: C.gold,
+    marginTop: 12,
+    marginBottom: 22,
   },
   tocRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderBottomWidth: 1,
+    alignItems: 'flex-end',
+    paddingVertical: 9,
+    borderBottomWidth: 0.5,
     borderBottomColor: C.line,
-    paddingVertical: 10,
-  },
-  tocRowText: {
-    fontSize: 12,
+    textDecoration: 'none',
     color: C.ink,
   },
-  tocRowCount: {
-    fontSize: 9,
+  tocNumber: {
+    width: 30,
+    fontSize: 10,
+    fontFamily: PDF_FONT_HEADING,
+    fontWeight: 500,
+    color: C.goldDeep,
+  },
+  tocName: {
+    fontSize: 13,
+    fontFamily: PDF_FONT_HEADING,
+    fontWeight: 500,
+  },
+  tocLeader: {
+    flexGrow: 1,
+    marginHorizontal: 8,
+    marginBottom: 3,
+    borderBottomWidth: 0.6,
+    borderBottomColor: C.line,
+    borderBottomStyle: 'dotted',
+  },
+  tocCount: {
+    fontSize: 8,
+    color: C.muted,
+  },
+  tocNote: {
+    marginTop: 20,
+    fontSize: 7.5,
     color: C.muted,
   },
 
-  // Fixed header / footer
+  // ── Fixed header / footer ──────────────────────────────────────────────
   headerRow: {
     position: 'absolute',
-    top: 16,
-    left: 40,
-    right: 40,
+    top: 26,
+    left: PAD_X,
+    right: PAD_X,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderBottomWidth: 1,
+    borderBottomWidth: 0.6,
     borderBottomColor: C.line,
     paddingBottom: 8,
   },
   headerLogo: {
-    width: 84,
-    height: 28,
+    width: 66,
+    height: 22,
     objectFit: 'contain',
   },
   headerText: {
-    fontSize: 8,
+    fontSize: 7,
+    fontWeight: 600,
     color: C.muted,
+    textTransform: 'uppercase',
+    letterSpacing: 1.6,
   },
   footerRow: {
     position: 'absolute',
-    bottom: 16,
-    left: 40,
-    right: 40,
+    bottom: 24,
+    left: PAD_X,
+    right: PAD_X,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderTopWidth: 1,
+    borderTopWidth: 0.6,
     borderTopColor: C.line,
-    paddingTop: 8,
+    paddingTop: 7,
   },
   footerText: {
-    fontSize: 8,
+    fontSize: 7,
     color: C.muted,
   },
-
-  // Group heading
-  groupHeading: {
-    fontSize: 18,
-    fontFamily: PDF_FONT_HEADING,
+  footerPage: {
+    fontSize: 7,
     fontWeight: 600,
-    textTransform: 'uppercase',
-    letterSpacing: 1.5,
-    textAlign: 'center',
-    marginTop: 20,
-    marginBottom: 16,
-    borderBottomWidth: 1.5,
-    borderBottomColor: C.gold,
-    paddingBottom: 8,
+    color: C.goldDeep,
+    letterSpacing: 1,
   },
 
-  // Product grid
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+  // ── Group heading ──────────────────────────────────────────────────────
+  groupHead: {
+    marginTop: 4,
+    marginBottom: 12,
   },
-  cardSlot3: { width: '33.3333%' },
-  cardSlot4: { width: '25%' },
+  groupTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    marginTop: 4,
+  },
+  groupTitle: {
+    fontSize: 20,
+    fontFamily: PDF_FONT_HEADING,
+    fontWeight: 500,
+  },
+  groupCount: {
+    fontSize: 8,
+    color: C.muted,
+    marginBottom: 3,
+  },
+  groupRule: {
+    flexDirection: 'row',
+    marginTop: 8,
+  },
+  groupRuleGold: {
+    width: 40,
+    borderBottomWidth: 1.2,
+    borderBottomColor: C.gold,
+  },
+  groupRuleLine: {
+    flexGrow: 1,
+    borderBottomWidth: 0.5,
+    borderBottomColor: C.line,
+  },
+
+  // ── Product grid (explicit rows — never one big wrapping grid) ─────────
+  row: {
+    flexDirection: 'row',
+    marginBottom: CARD_GAP,
+  },
   card: {
-    padding: 6,
-    alignItems: 'center',
+    backgroundColor: C.white,
+    borderWidth: 0.5,
+    borderColor: C.line,
+    flexDirection: 'column',
   },
   cardImageWrap: {
     width: '100%',
-    height: 115,
-    marginBottom: 5,
+    padding: 7,
+    backgroundColor: C.white,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: C.paper,
+    position: 'relative',
   },
   cardImage: {
     width: '100%',
     height: '100%',
     objectFit: 'contain',
   },
-  cardName: {
-    fontSize: 8.5,
-    fontFamily: PDF_FONT_BODY,
+  badgeRow: {
+    position: 'absolute',
+    top: 6,
+    left: 6,
+    right: 6,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  badgePopular: {
+    fontSize: 5.8,
     fontWeight: 700,
-    textAlign: 'center',
+    color: C.ink,
+    backgroundColor: C.gold,
+    paddingVertical: 2,
+    paddingHorizontal: 4,
     textTransform: 'uppercase',
-    marginBottom: 3,
+    letterSpacing: 0.8,
+  },
+  badgeStock: {
+    fontSize: 5.8,
+    fontWeight: 700,
+    color: C.white,
+    backgroundColor: C.burgundy,
+    paddingVertical: 2,
+    paddingHorizontal: 4,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  cardBody: {
+    flexGrow: 1,
+    paddingHorizontal: 8,
+    paddingTop: 6,
+    paddingBottom: 7,
+    borderTopWidth: 0.5,
+    borderTopColor: C.line,
   },
   cardTag: {
-    fontSize: 7,
-    color: C.muted,
+    fontSize: 6,
+    fontWeight: 600,
+    color: C.goldDeep,
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    letterSpacing: 1.2,
     marginBottom: 3,
+  },
+  cardName: {
+    fontFamily: PDF_FONT_HEADING,
+    fontWeight: 500,
+    lineHeight: 1.25,
   },
   cardDescription: {
-    fontSize: 7.5,
+    fontSize: 6.6,
     color: C.muted,
-    textAlign: 'center',
-    marginBottom: 4,
-    lineHeight: 1.4,
+    marginTop: 4,
+    lineHeight: 1.45,
   },
-  cardBadgeRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginBottom: 3,
-  },
-  cardBadgePopular: {
-    fontSize: 7,
-    color: C.goldDeep,
-    marginRight: 4,
-  },
-  cardBadgeOutOfStock: {
-    fontSize: 7,
-    color: C.burgundy,
+  cardSpacer: {
+    flexGrow: 1,
   },
   cardPriceRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 2,
+    alignItems: 'baseline',
+    marginTop: 6,
   },
   cardPrice: {
-    fontSize: 9,
-    fontFamily: PDF_FONT_BODY,
+    fontSize: 8.6,
     fontWeight: 700,
+    color: C.ink,
   },
   cardPriceStrike: {
-    fontSize: 8,
+    fontSize: 7,
     color: C.muted,
     marginRight: 5,
     textDecoration: 'line-through',
   },
 
-  // Promo banner
+  // ── Promo banner ───────────────────────────────────────────────────────
   banner: {
     width: '100%',
-    marginTop: 20,
-    marginBottom: 20,
-    padding: 24,
+    marginTop: 6,
+    marginBottom: 18,
+    paddingVertical: 26,
+    paddingHorizontal: 28,
     alignItems: 'center',
     justifyContent: 'center',
   },
   bannerImage: {
     width: '100%',
-    height: 160,
+    height: 150,
     objectFit: 'cover',
-    marginBottom: 12,
+    marginBottom: 14,
   },
   bannerTitle: {
     fontSize: 18,
     fontFamily: PDF_FONT_HEADING,
-    fontWeight: 600,
+    fontWeight: 500,
     textTransform: 'uppercase',
-    letterSpacing: 1.5,
+    letterSpacing: 2,
     textAlign: 'center',
   },
+  bannerRule: {
+    width: 36,
+    borderBottomWidth: 1,
+    borderBottomColor: C.gold,
+    marginTop: 10,
+    marginBottom: 10,
+  },
   bannerSubtitle: {
-    fontSize: 10,
-    marginTop: 6,
+    fontSize: 9.5,
+    textAlign: 'center',
+    lineHeight: 1.5,
+  },
+
+  // ── Back cover ─────────────────────────────────────────────────────────
+  backInner: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 60,
+    right: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  backLogo: {
+    width: 220,
+    height: 74,
+    objectFit: 'contain',
+  },
+  backSlogan: {
+    marginTop: 22,
+    fontSize: 16,
+    fontFamily: PDF_FONT_HEADING,
+    fontWeight: 500,
+    color: C.ivory,
+    textAlign: 'center',
+  },
+  backNote: {
+    position: 'absolute',
+    bottom: 46,
+    left: 60,
+    right: 60,
+    fontSize: 7,
+    color: C.ivory,
+    opacity: 0.5,
     textAlign: 'center',
   },
 
-  // Watermark — page-wide diagonal brand mark (repeats on every
-  // auto-paginated page via the `fixed` prop) plus a per-photo stamp.
+  // ── Watermarks ─────────────────────────────────────────────────────────
   pageWatermark: {
     position: 'absolute',
     top: '46%',
@@ -301,19 +494,6 @@ export const catalogStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  imageWatermarkText: {
-    fontSize: 11,
-    fontFamily: PDF_FONT_BODY,
-    fontWeight: 700,
-    color: C.ink,
-    opacity: 0.14,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    transform: 'rotate(-30deg)',
-  },
-  // Wraps the (possibly stroke-duplicated) watermark text so the outline
-  // copies can be absolutely positioned relative to it instead of the
-  // whole photo.
   imageWatermarkStack: {
     position: 'relative',
   },

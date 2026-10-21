@@ -33,6 +33,7 @@ import {
 
 import ColorInput from '@/components/admin/ColorInput';
 import ImageUploadField from '@/components/admin/ImageUploadField';
+import { IMAGE_SPECS } from '@/lib/image-specs';
 import ProductMultiSelectPicker, { SelectedProductRef } from '@/components/admin/ProductMultiSelectPicker';
 import { SeasonalCollection, SeasonalCollectionProductLink } from '@/types';
 import {
@@ -202,7 +203,7 @@ export default function SeasonalCollectionForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-3xl space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="xl:columns-2 xl:gap-6 [&>*]:mb-6 [&>*]:break-inside-avoid">
         {/* Basic Info */}
         <section className="space-y-4 rounded-lg border bg-white p-6">
           <h2 className="font-heading text-lg">{t('sectionBasicInfo')}</h2>
@@ -294,24 +295,28 @@ export default function SeasonalCollectionForm({
               label={t('desktopBannerLabel')}
               value={bannerDesktop}
               onChange={setBannerDesktop}
+              spec={IMAGE_SPECS.seasonalDesktop}
               uploadPrefix="seasonal/banners/desktop/"
             />
             <ImageUploadField
               label={t('mobileBannerLabel')}
               value={bannerMobile}
               onChange={setBannerMobile}
+              spec={IMAGE_SPECS.seasonalMobile}
               uploadPrefix="seasonal/banners/mobile/"
             />
             <ImageUploadField
               label={t('backgroundPatternLabel')}
               value={backgroundPattern}
               onChange={setBackgroundPattern}
+              spec={IMAGE_SPECS.seasonalPattern}
               uploadPrefix="seasonal/patterns/"
             />
             <ImageUploadField
               label={t('decorativeImageLabel')}
               value={decorativeImage}
               onChange={setDecorativeImage}
+              spec={IMAGE_SPECS.seasonalDecorative}
               uploadPrefix="seasonal/decorative/"
             />
           </div>
@@ -608,18 +613,21 @@ export default function SeasonalCollectionForm({
           <p className="text-xs text-muted-foreground">{t('seoHint')}</p>
         </section>
 
-        <Button type="submit" disabled={saving} size="lg">
-          {saving ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {tc('saving')}
-            </>
-          ) : initialData ? (
-            t('submitUpdate')
-          ) : (
-            t('submitCreate')
-          )}
-        </Button>
+        {/* Spans both columns so Save always sits at the end. */}
+        <div className="[column-span:all] pt-2">
+          <Button type="submit" disabled={saving} size="lg">
+            {saving ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {tc('saving')}
+              </>
+            ) : initialData ? (
+              t('submitUpdate')
+            ) : (
+              t('submitCreate')
+            )}
+          </Button>
+        </div>
       </form>
     </Form>
   );

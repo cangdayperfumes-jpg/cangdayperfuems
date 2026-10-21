@@ -21,24 +21,27 @@ export default function AdminLanguageToggle({ collapsed }: AdminLanguageTogglePr
   }
 
   return (
-    <div className={cn('flex items-center gap-1.5 px-4', collapsed ? 'justify-center px-0' : '')}>
-      {!collapsed && (
-        <span className="text-[10px] font-medium text-zinc-500 uppercase tracking-wider mr-1">{t('language')}</span>
-      )}
-      {ADMIN_LOCALES.map((l) => (
-        <button
-          key={l}
-          type="button"
-          onClick={() => setLocale(l)}
-          aria-current={l === locale}
-          className={cn(
-            'px-2 py-1 text-xs font-semibold uppercase rounded-md transition-colors',
-            l === locale ? 'bg-white text-black' : 'text-zinc-400 hover:text-white hover:bg-zinc-900'
-          )}
-        >
-          {l}
-        </button>
-      ))}
+    <div className={cn('flex items-center justify-between gap-2 px-3', collapsed && 'md:justify-center md:px-0')}>
+      <span className={cn('text-[10px] font-semibold uppercase tracking-[0.22em] text-ivory/35', collapsed && 'md:hidden')}>
+        {t('language')}
+      </span>
+      {/* Segmented control */}
+      <div role="group" aria-label={t('language')} className="flex rounded-md border border-ivory/10 bg-ivory/[0.03] p-0.5">
+        {ADMIN_LOCALES.map((l) => (
+          <button
+            key={l}
+            type="button"
+            onClick={() => setLocale(l)}
+            aria-pressed={l === locale}
+            className={cn(
+              'h-6 min-w-[30px] rounded-[4px] px-1.5 text-[10.5px] font-bold uppercase tracking-wider transition-colors',
+              l === locale ? 'bg-gold text-ink' : 'text-ivory/50 hover:text-ivory'
+            )}
+          >
+            {l}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

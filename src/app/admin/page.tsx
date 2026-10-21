@@ -15,10 +15,10 @@ import {
   Ticket,
   TrendingDown,
   TrendingUp,
-  Truck,
   Wallet,
   BookOpen,
   EyeOff,
+  Mail,
 } from 'lucide-react';
 import { createClient } from '@/utils/supabase/server';
 import { getAdminLocale, getAdminT } from '@/i18n/admin-locale';
@@ -224,7 +224,7 @@ export default async function AdminDashboard() {
           tone={outOfStock ? 'danger' : 'default'}
         />
         <StatCard href="/admin/coupons" icon={Ticket} label={t('activeCoupons')} value={String(liveCoupons)} hint={t('couponOrders30', { count: stats.couponOrders })} />
-        <StatCard href="/admin/shipping" icon={Truck} label={t('shippingCountries')} value={String(shippingCountries ?? 0)} hint={t('subscribers', { count: subscribers ?? 0 })} />
+        <StatCard href="/admin/subscribers" icon={Mail} label={t('subscribersLabel')} value={String(subscribers ?? 0)} hint={t('shippingCountriesHint', { count: shippingCountries ?? 0 })} />
       </div>
 
       {/* ── Chart + recent orders ── */}

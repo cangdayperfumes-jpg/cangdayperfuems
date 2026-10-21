@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/utils/supabase/client';
@@ -37,6 +37,7 @@ const LEGAL_LINKS = [
  */
 export default function Footer() {
   const t = useTranslations('footer');
+  const locale = useLocale();
   const pathname = usePathname();
   const isShopPage = pathname === '/shop';
   // Product pages: the mobile sticky Add to Cart bar (see ProductActions)
@@ -55,7 +56,7 @@ export default function Footer() {
 
     setIsSubmitting(true);
     const supabase = createClient();
-    const { error } = await supabase.from('newsletter_subscribers').insert({ email: trimmed });
+    const { error } = await supabase.from('newsletter_subscribers').insert({ email: trimmed, locale });
     setIsSubmitting(false);
 
     if (!error) {

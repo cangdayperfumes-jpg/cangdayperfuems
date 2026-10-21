@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from '@/components/ui/sheet';
 import CartSheet from '@/components/cart/cart-sheet';
+import CartCountBadge from '@/components/shared/CartCountBadge';
 import LanguageSwitcher from '@/components/shared/LanguageSwitcher';
 import { useCartStore } from '@/hooks/use-cart';
 import { useStore } from '@/hooks/use-store';
@@ -359,11 +360,10 @@ export default function Navbar({ categories = [] }: NavbarProps) {
               onClick={() => setIsCartOpen(true)}
             >
               <ShoppingBag className="h-5 w-5" />
-              {itemCount !== undefined && itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-gold text-ink text-xs flex items-center justify-center font-medium">
-                  {itemCount}
-                </span>
-              )}
+              <CartCountBadge
+                count={itemCount}
+                className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-gold text-ink text-xs flex items-center justify-center font-medium"
+              />
             </Button>
 
             <CartSheet open={isCartOpen} onOpenChange={setIsCartOpen} />

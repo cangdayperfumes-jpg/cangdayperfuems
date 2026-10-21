@@ -8,9 +8,8 @@ import { Label } from '@/components/ui/label';
 import { createBrand, updateBrand } from '@/app/admin/brands/actions';
 import { useFormStatus } from 'react-dom';
 import { Loader2 } from 'lucide-react';
-import { createClient } from '@/utils/supabase/client';
-import { validateImageFile, uploadToProductsBucket } from '@/lib/upload-image';
-import Image from 'next/image';
+import ImageUploadField from '@/components/admin/ImageUploadField';
+import { IMAGE_SPECS } from '@/lib/image-specs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -44,36 +43,9 @@ export default function BrandForm({ brand }: BrandFormProps) {
   const t = useTranslations('brands');
   const tc = useTranslations('common');
   const [imageUrl, setImageUrl] = useState<string | null>(brand?.image_url || null);
-  const [uploading, setUploading] = useState(false);
   const [isFeatured, setIsFeatured] = useState(brand?.is_featured || false);
   const [isPending, startTransition] = useTransition();
-  const supabase = createClient();
   const router = useRouter();
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) {
-      return;
-    }
-    const file = e.target.files[0];
-
-    const validation = validateImageFile(file);
-    if (!validation.valid) {
-      alert(validation.error);
-      return;
-    }
-
-    setUploading(true);
-
-    try {
-      const publicUrl = await uploadToProductsBucket(supabase, file, 'brands/');
-      setImageUrl(publicUrl);
-    } catch (error) {
-      console.error('Error uploading image', error);
-      alert(t('errorUploadingImage'));
-    } finally {
-      setUploading(false);
-    }
-  };
 
   const handleSubmit = async (formData: FormData) => {
     if (imageUrl) {
@@ -104,7 +76,7 @@ export default function BrandForm({ brand }: BrandFormProps) {
   };
 
   return (
-    <form action={handleSubmit} className="space-y-6 max-w-lg bg-white p-6 rounded-lg shadow-sm">
+    <form action={handleSubmit} className="space-y-6 max-w-3xl bg-white p-6 rounded-lg border shadow-sm">
       <div className="space-y-2">
         <Label htmlFor="name">{t('brandName')}</Label>
         <Input
@@ -127,28 +99,14 @@ export default function BrandForm({ brand }: BrandFormProps) {
         />
       </div>
 
-       <div className="space-y-2">
-        <Label htmlFor="image">{t('brandLogoOptional')}</Label>
-        <Input
-          id="image"
-          type="file"
-          accept="image/*"
-          onChange={handleImageUpload}
-          disabled={uploading}
-        />
-        {uploading && <p className="text-sm text-yellow-600">{tc('loading')}</p>}
-        {imageUrl && (
-            <div className="relative w-full h-20 mt-2 rounded overflow-hidden border bg-gray-50">
-                <Image
-                    src={imageUrl}
-                    alt={t('brandPreviewAlt')}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 512px"
-                    className="object-contain p-2"
-                />
-            </div>
-        )}
-      </div>
+      <ImageUploadField
+        label={t('brandLogoOptional')}
+        value={imageUrl}
+        onChange={(url) => setImageUrl(url)}
+        uploadPrefix="brands/"
+        spec={IMAGE_SPECS.brand}
+        aspectClassName="h-32"
+      />
 
       <div className="flex items-center space-x-2">
           <Checkbox

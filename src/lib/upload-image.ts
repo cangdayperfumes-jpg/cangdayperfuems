@@ -7,7 +7,7 @@
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-const MAX_DIMENSION = 1600;
+export const MAX_DIMENSION = 1600;
 const JPEG_QUALITY = 0.85;
 const ONE_YEAR_CACHE_CONTROL = '31536000';
 
@@ -39,9 +39,9 @@ function extFromMimeType(type: string): string {
 }
 
 /** Downscale (if needed) and re-encode for consistent, reasonably-sized uploads. */
-async function resizeAndEncode(blob: Blob): Promise<Blob> {
+async function resizeAndEncode(blob: Blob, maxDimension = MAX_DIMENSION): Promise<Blob> {
   const bitmap = await createImageBitmap(blob);
-  const scale = Math.min(1, MAX_DIMENSION / Math.max(bitmap.width, bitmap.height));
+  const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
   const width = Math.round(bitmap.width * scale);
   const height = Math.round(bitmap.height * scale);
 
@@ -75,9 +75,11 @@ async function hashBlob(blob: Blob): Promise<string> {
 export async function uploadToProductsBucket(
   supabase: any,
   file: Blob,
-  prefix: string = ''
+  prefix: string = '',
+  /** Longest side kept; full-width banners pass a larger value. */
+  maxDimension: number = MAX_DIMENSION
 ): Promise<string> {
-  const optimized = await resizeAndEncode(file);
+  const optimized = await resizeAndEncode(file, maxDimension);
   const mimeType = outputMimeType(file.type);
   const hash = await hashBlob(optimized);
   const path = `${prefix}${hash}.${extFromMimeType(mimeType)}`;

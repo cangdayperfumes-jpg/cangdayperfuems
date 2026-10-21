@@ -61,7 +61,7 @@ export default function TelegramSettings({ status }: { status: TelegramStatus })
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg border shadow-sm max-w-2xl">
+    <div className="mb-6 break-inside-avoid bg-white p-6 rounded-lg border shadow-sm">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold">{t('tgTitle')}</h2>

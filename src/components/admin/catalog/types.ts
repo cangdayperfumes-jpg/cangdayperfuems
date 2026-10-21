@@ -47,6 +47,8 @@ export type CatalogGroupBy = 'category' | 'brand';
 export type CatalogPopularFilter = 'all' | 'popular' | 'not-popular';
 export type CatalogStockFilter = 'all' | 'in-stock';
 export type CatalogProductsPerRow = 3 | 4;
+/** Language of the PDF's own labels and of product descriptions. */
+export type CatalogLanguage = 'tr' | 'en';
 
 export interface CatalogWatermarkLine {
   id: string;
@@ -79,6 +81,7 @@ export interface CatalogImageWatermarkConfig {
 }
 
 export interface CatalogConfig {
+  language: CatalogLanguage;
   groupBy: CatalogGroupBy;
   productsPerRow: CatalogProductsPerRow;
   /** Force-include these product ids regardless of the filters below. */
@@ -125,6 +128,7 @@ export interface CatalogModelGroup {
 }
 
 export interface CatalogModel {
+  language: CatalogLanguage;
   groupBy: CatalogGroupBy;
   cover: CatalogCoverConfig;
   headerFooter: CatalogHeaderFooterConfig;
@@ -138,22 +142,52 @@ export interface CatalogModel {
   imageWatermark: CatalogImageWatermarkConfig;
 }
 
-// No default logo asset exists yet for Cangday — the logo upload field in
-// the editor is how an admin sets one; this just avoids a broken image path.
+// Empty = the built-in Cangday logo (gold, transparent) is used.
 export const DEFAULT_CATALOG_LOGO_URL = '';
 
-export function defaultCoverConfig(): CatalogCoverConfig {
+export const STORE_DEFAULTS = {
+  companyName: 'Cangday',
+  website: 'cangdayperfume.com',
+  email: 'support@cangdayperfume.com',
+};
+
+/** "Autumn / Winter 2026" — the season the catalog is made in. */
+export function currentSeasonName(language: CatalogLanguage, date = new Date()): string {
+  const m = date.getMonth();
+  const y = date.getFullYear();
+  const springSummer = m >= 2 && m <= 7;
+  if (language === 'tr') return `${springSummer ? 'İlkbahar / Yaz' : 'Sonbahar / Kış'} ${y}`;
+  return `${springSummer ? 'Spring / Summer' : 'Autumn / Winter'} ${y}`;
+}
+
+/** Pre-filled cover copy per language, so a catalog is ready without typing. */
+export function coverCopy(language: CatalogLanguage) {
+  return language === 'tr'
+    ? {
+        title: 'Parfüm Kataloğu',
+        subtitle: 'Modern Parfümeri',
+        seasonName: currentSeasonName('tr'),
+        description:
+          'Nasıl kokduklarına göre seçilmiş, özenle derlenmiş tasarımcı ve niş parfümler. Kalıcı, şık ve seçmesi kolay.',
+      }
+    : {
+        title: 'Fragrance Catalogue',
+        subtitle: 'Modern Perfumery',
+        seasonName: currentSeasonName('en'),
+        description:
+          'An edited collection of designer and niche fragrances, chosen for how they actually wear — long-lasting, beautifully made and easy to choose from.',
+      };
+}
+
+export function defaultCoverConfig(language: CatalogLanguage = 'tr'): CatalogCoverConfig {
   return {
-    title: 'Product Catalog',
-    subtitle: '',
-    companyName: 'Cangday',
+    ...coverCopy(language),
+    companyName: STORE_DEFAULTS.companyName,
     phone: '',
-    email: '',
-    website: '',
+    email: STORE_DEFAULTS.email,
+    website: STORE_DEFAULTS.website,
     social: '',
     address: '',
-    seasonName: '',
-    description: '',
     logoUrl: DEFAULT_CATALOG_LOGO_URL,
     coverImageUrl: '',
   };
@@ -162,11 +196,11 @@ export function defaultCoverConfig(): CatalogCoverConfig {
 export function defaultHeaderFooterConfig(): CatalogHeaderFooterConfig {
   return {
     logoUrl: DEFAULT_CATALOG_LOGO_URL,
-    website: '',
+    website: STORE_DEFAULTS.website,
     phone: '',
-    email: '',
+    email: STORE_DEFAULTS.email,
     social: '',
-    copyrightText: `© ${new Date().getFullYear()} Cangday. All rights reserved.`,
+    copyrightText: `© ${new Date().getFullYear()} Cangday`,
   };
 }
 
@@ -181,31 +215,23 @@ export function defaultVisibleFields(): CatalogVisibleFields {
   };
 }
 
-/**
- * Line 1 mirrors the catalog's original single fixed watermark (repeats the
- * brand/company name, faint 5% opacity, enabled by default). Lines 2–4 are
- * off until the merchant turns them on, so existing catalogs look unchanged.
- */
+/** Page-wide diagonal text is off by default (it fights the product photos); lines can be turned on. */
 export function defaultWatermarkLines(): CatalogWatermarkLine[] {
   return [
-    { id: 'watermark-1', enabled: true, text: '', opacity: 0.05 },
-    { id: 'watermark-2', enabled: false, text: '', opacity: 0.05 },
-    { id: 'watermark-3', enabled: false, text: '', opacity: 0.05 },
-    { id: 'watermark-4', enabled: false, text: '', opacity: 0.05 },
+    { id: 'watermark-1', enabled: false, text: '', opacity: 0.04 },
+    { id: 'watermark-2', enabled: false, text: '', opacity: 0.04 },
+    { id: 'watermark-3', enabled: false, text: '', opacity: 0.04 },
+    { id: 'watermark-4', enabled: false, text: '', opacity: 0.04 },
   ];
 }
 
-/**
- * Matches the catalog's original hardcoded per-photo stamp: faint "ROYAL
- * PERFUMES" text, 14% opacity, no outline — so existing catalogs render
- * unchanged until a merchant switches mode or tweaks the sliders.
- */
+/** A light "CANGDAY" stamp on each photo — enough to mark the images without spoiling them. */
 export function defaultImageWatermark(): CatalogImageWatermarkConfig {
   return {
     mode: 'text',
     text: '',
-    opacity: 0.14,
-    fontSize: 11,
+    opacity: 0.1,
+    fontSize: 10,
     strokeColor: '#FFFFFF',
     strokeWidth: 0,
     logoUrl: '',
@@ -213,20 +239,21 @@ export function defaultImageWatermark(): CatalogImageWatermarkConfig {
   };
 }
 
-export function defaultCatalogConfig(): CatalogConfig {
+export function defaultCatalogConfig(language: CatalogLanguage = 'tr'): CatalogConfig {
   return {
+    language,
     groupBy: 'category',
     productsPerRow: 4,
     includeProductIds: [],
     excludeProductIds: [],
     filterCategoryIds: [],
     filterPopular: 'all',
-    filterStock: 'all',
+    filterStock: 'in-stock',
     manualSelectionOnly: false,
     groupOrder: [],
     productOrderByGroup: {},
     visibleFields: defaultVisibleFields(),
-    cover: defaultCoverConfig(),
+    cover: defaultCoverConfig(language),
     headerFooter: defaultHeaderFooterConfig(),
     banners: [],
     watermarkLines: defaultWatermarkLines(),

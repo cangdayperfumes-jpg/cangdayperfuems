@@ -1,26 +1,29 @@
 import { View, Text, Image } from '@react-pdf/renderer';
 import { PDF_FONT_BODY } from '@/lib/pdf-brand';
-import { catalogStyles as styles } from './catalogStyles';
+import { formatCurrency } from '@/lib/utils';
+import { CARD_GAP, cardImageHeight, cardWidth, catalogStyles as styles } from './catalogStyles';
 import { Product } from '@/types';
-import { CatalogImageWatermarkConfig, CatalogVisibleFields } from './types';
+import { CatalogImageWatermarkConfig, CatalogLanguage, CatalogVisibleFields } from './types';
+import { catalogDescription, catalogPrice, clip, type CatalogLabels } from './catalogLabels';
 
 interface CatalogProductCardProps {
   product: Product;
+  perRow: number;
+  isLast: boolean;
   imageSrc: string;
   groupLabel?: string;
   visibleFields: CatalogVisibleFields;
+  language: CatalogLanguage;
+  labels: CatalogLabels;
   imageWatermark: CatalogImageWatermarkConfig;
   imageWatermarkLogoSrc?: string;
   /** Used when imageWatermark.text is left blank. */
   defaultWatermarkText: string;
 }
 
-const formatPrice = (amount: number) => `$${amount.toFixed(2)}`;
-
-// react-pdf's Text primitive has no native outline/stroke — `stroke` and
-// `strokeWidth` styles only apply to SVG shapes, not text glyphs. Fake it by
-// stacking the same string in the outline color at 4 diagonal offsets behind
-// the real (fill-colored) text on top.
+// react-pdf's Text primitive has no native outline/stroke — fake it by
+// stacking the same string in the outline color at 4 diagonal offsets
+// behind the real (fill-colored) text on top.
 const STROKE_OFFSETS: [number, number][] = [
   [-1, -1],
   [-1, 1],
@@ -34,7 +37,7 @@ function ImageWatermarkText({ config, text }: { config: CatalogImageWatermarkCon
     fontFamily: PDF_FONT_BODY,
     fontWeight: 700 as const,
     textTransform: 'uppercase' as const,
-    letterSpacing: 1,
+    letterSpacing: 1.5,
     transform: 'rotate(-30deg)',
   };
 
@@ -47,86 +50,77 @@ function ImageWatermarkText({ config, text }: { config: CatalogImageWatermarkCon
             style={[
               styles.imageWatermarkStrokeText,
               baseTextStyle,
-              {
-                color: config.strokeColor,
-                opacity: config.opacity,
-                top: dy * config.strokeWidth,
-                left: dx * config.strokeWidth,
-              },
+              { color: config.strokeColor, opacity: config.opacity, top: dy * config.strokeWidth, left: dx * config.strokeWidth },
             ]}
           >
             {text}
           </Text>
         ))}
-      <Text style={[baseTextStyle, { color: '#000000', opacity: config.opacity }]}>{text}</Text>
+      <Text style={[baseTextStyle, { color: '#120D0A', opacity: config.opacity }]}>{text}</Text>
     </View>
   );
 }
 
 export default function CatalogProductCard({
   product,
+  perRow,
+  isLast,
   imageSrc,
   groupLabel,
   visibleFields,
+  language,
+  labels,
   imageWatermark,
   imageWatermarkLogoSrc,
   defaultWatermarkText,
 }: CatalogProductCardProps) {
-  // discount is stored as a flat amount, not a percentage — see ProductCard.tsx
-  const hasDiscount = visibleFields.discount && product.discount > 0;
-  const finalPrice = hasDiscount ? product.price - product.discount : product.price;
+  // discount is a flat amount, not a percentage — see ProductCard.tsx
+  const price = visibleFields.price ? catalogPrice(product, visibleFields.discount) : null;
   const showOutOfStock = visibleFields.stock && !product.stock;
   const showPopular = visibleFields.popular && product.is_popular;
+  const roomy = perRow === 3;
+  const description = visibleFields.description ? catalogDescription(product, language) : '';
 
   return (
-    <View style={styles.card} wrap={false}>
-      <View style={styles.cardImageWrap}>
+    <View style={[styles.card, { width: cardWidth(perRow), marginRight: isLast ? 0 : CARD_GAP }]}>
+      <View style={[styles.cardImageWrap, { height: cardImageHeight(perRow) }]}>
         {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image is not an HTML img, no alt prop exists */}
         <Image src={imageSrc} style={styles.cardImage} />
         {imageWatermark.mode === 'text' && (
           <View style={styles.imageWatermarkOverlay}>
-            <ImageWatermarkText
-              config={imageWatermark}
-              text={(imageWatermark.text.trim() || defaultWatermarkText).toUpperCase()}
-            />
+            <ImageWatermarkText config={imageWatermark} text={(imageWatermark.text.trim() || defaultWatermarkText).toUpperCase()} />
           </View>
         )}
         {imageWatermark.mode === 'logo' && imageWatermarkLogoSrc && (
           <View style={styles.imageWatermarkOverlay}>
             {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image is not an HTML img, no alt prop exists */}
-            <Image
-              src={imageWatermarkLogoSrc}
-              style={{ width: `${imageWatermark.logoSize}%`, opacity: imageWatermark.opacity }}
-            />
+            <Image src={imageWatermarkLogoSrc} style={{ width: `${imageWatermark.logoSize}%`, opacity: imageWatermark.opacity }} />
           </View>
         )}
+        {showPopular || showOutOfStock ? (
+          <View style={styles.badgeRow}>
+            {showPopular ? <Text style={styles.badgePopular}>{labels.popular}</Text> : <View />}
+            {showOutOfStock ? <Text style={styles.badgeStock}>{labels.outOfStock}</Text> : null}
+          </View>
+        ) : null}
       </View>
 
-      <Text style={styles.cardName}>{product.name_en}</Text>
-
-      {visibleFields.category && groupLabel ? <Text style={styles.cardTag}>{groupLabel}</Text> : null}
-
-      {showPopular || showOutOfStock ? (
-        <View style={styles.cardBadgeRow}>
-          {showPopular ? <Text style={styles.cardBadgePopular}>★ Popular</Text> : null}
-          {showOutOfStock ? <Text style={styles.cardBadgeOutOfStock}>Out of Stock</Text> : null}
-        </View>
-      ) : null}
-
-      {visibleFields.description && product.description_en ? (
-        <Text style={styles.cardDescription}>
-          {product.description_en.length > 140
-            ? `${product.description_en.slice(0, 140)}…`
-            : product.description_en}
-        </Text>
-      ) : null}
-
-      {visibleFields.price ? (
-        <View style={styles.cardPriceRow}>
-          {hasDiscount ? <Text style={styles.cardPriceStrike}>{formatPrice(product.price)}</Text> : null}
-          <Text style={styles.cardPrice}>{formatPrice(finalPrice)}</Text>
-        </View>
-      ) : null}
+      <View style={styles.cardBody}>
+        {visibleFields.category && groupLabel ? <Text style={styles.cardTag}>{clip(groupLabel, 34)}</Text> : null}
+        <Text style={[styles.cardName, { fontSize: roomy ? 10 : 8.6 }]}>{clip(product.name_en, roomy ? 90 : 66)}</Text>
+        {description ? <Text style={styles.cardDescription}>{clip(description, roomy ? 140 : 78)}</Text> : null}
+        <View style={styles.cardSpacer} />
+        {price ? (
+          <View style={styles.cardPriceRow}>
+            {price.was ? <Text style={styles.cardPriceStrike}>{formatCurrency(price.was)}</Text> : null}
+            <Text style={styles.cardPrice}>
+              {language === 'tr'
+                ? `${formatCurrency(price.price)}${price.from ? `'den ${labels.from}` : ''}`
+                : `${price.from ? `${labels.from} ` : ''}${formatCurrency(price.price)}`}
+            </Text>
+          </View>
+        ) : null}
+      </View>
     </View>
   );
 }

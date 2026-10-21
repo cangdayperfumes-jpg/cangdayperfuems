@@ -532,20 +532,21 @@ export function ProductsTable({
 
       {/* Edit Sheet */}
       <Sheet open={isEditSheetOpen} onOpenChange={setIsEditSheetOpen}>
-        <SheetContent className="sm:max-w-2xl overflow-y-auto w-full">
+        <SheetContent className="w-full gap-0 overflow-y-auto overflow-x-hidden sm:max-w-3xl [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <SheetHeader>
                 <SheetTitle>{t('editProduct')}</SheetTitle>
                 <SheetDescription>
                     {t('editProductDescription')}
                 </SheetDescription>
             </SheetHeader>
-            <div className="mt-6">
+            <div className="mt-2">
                 {editingProduct && (
                     <ProductForm
                         initialData={editingProduct}
                         categories={categories}
                         brands={brands}
                         onSuccess={() => setIsEditSheetOpen(false)}
+                        onCancel={() => setIsEditSheetOpen(false)}
                     />
                 )}
             </div>

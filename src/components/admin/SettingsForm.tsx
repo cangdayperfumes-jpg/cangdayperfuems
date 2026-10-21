@@ -158,10 +158,11 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      {/* `contents` lets each card join the page's two-column flow. */}
+      <form onSubmit={form.handleSubmit(onSubmit)} className="contents">
 
         {/* ── General Settings ─────────────────────────────── */}
-        <div className="bg-white p-6 rounded-lg border shadow-sm max-w-2xl">
+        <div className="mb-6 break-inside-avoid bg-white p-6 rounded-lg border shadow-sm">
           <h2 className="text-lg font-semibold mb-4">{t('generalTitle')}</h2>
           <FormField
             control={form.control}
@@ -199,7 +200,7 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
         </div>
 
         {/* ── Analytics & Search Console ─────────────────────── */}
-        <div className="bg-white p-6 rounded-lg border shadow-sm max-w-2xl space-y-4">
+        <div className="mb-6 break-inside-avoid bg-white p-6 rounded-lg border shadow-sm space-y-4">
           <div>
             <h2 className="text-lg font-semibold">{t('analyticsTitle')}</h2>
             <p className="text-sm text-muted-foreground">{t('analyticsDesc')}</p>
@@ -235,7 +236,7 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
         </div>
 
         {/* ── Free mini gift ───────────────────────────────── */}
-        <div className="bg-white p-6 rounded-lg border shadow-sm max-w-2xl">
+        <div className="mb-6 break-inside-avoid bg-white p-6 rounded-lg border shadow-sm">
           <h2 className="text-lg font-semibold mb-4">{t('giftTitle')}</h2>
           <FormField
             control={form.control}
@@ -270,7 +271,7 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
         </div>
 
         {/* ── Popup Settings ───────────────────────────────── */}
-        <div className="bg-white p-6 rounded-lg border shadow-sm max-w-2xl">
+        <div className="mb-6 break-inside-avoid bg-white p-6 rounded-lg border shadow-sm">
           <h2 className="text-lg font-semibold mb-4">{t('popupBannerTitle')}</h2>
           <div className="space-y-4">
             <FormField
@@ -489,7 +490,7 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
         </div>
 
         {/* ── Seasonal Collections ──────────────────────────── */}
-        <div className="bg-white p-6 rounded-lg border shadow-sm max-w-2xl">
+        <div className="mb-6 break-inside-avoid bg-white p-6 rounded-lg border shadow-sm">
           <h2 className="text-lg font-semibold mb-4">{t('seasonalTitle')}</h2>
           <div className="space-y-4">
             <FormField
@@ -541,10 +542,12 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
           </div>
         </div>
 
-        <Button type="submit" disabled={saving}>
-          {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {t('saveSettings')}
-        </Button>
+        <div className="[column-span:all]">
+          <Button type="submit" disabled={saving} size="lg">
+            {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {t('saveSettings')}
+          </Button>
+        </div>
       </form>
     </Form>
   );

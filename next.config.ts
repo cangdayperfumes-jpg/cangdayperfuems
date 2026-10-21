@@ -16,7 +16,7 @@ const cspHeader = `
     style-src 'self' 'unsafe-inline';
     img-src 'self' blob: data: https:;
     font-src 'self' data:;
-    connect-src 'self' https://*.supabase.co https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com;
+    connect-src 'self' https://*.supabase.co https://images.unsplash.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com;
     object-src 'none';
     base-uri 'self';
     form-action 'self';

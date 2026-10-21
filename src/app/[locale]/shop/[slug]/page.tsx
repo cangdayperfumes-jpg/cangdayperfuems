@@ -10,6 +10,7 @@ import { formatCurrency } from '@/lib/utils';
 import ProductGallery from '@/components/shop/ProductGallery';
 import ProductActions from '@/components/shop/ProductActions';
 import ProductDescription from '@/components/shop/ProductDescription';
+import Reveal from '@/components/shared/Reveal';
 import ProductCard from '@/components/shared/ProductCard';
 import { Badge } from '@/components/ui/badge';
 import FavoriteButton from '@/components/shared/FavoriteButton';
@@ -361,7 +362,7 @@ export default async function ProductPage({ params }: PageProps) {
         </nav>
         <div className="grid grid-cols-1 gap-6 md:gap-10 lg:grid-cols-2 lg:gap-14 lg:items-start">
           {/* Left: Gallery — sticks in view on large screens while a long description scrolls */}
-          <div className="lg:sticky lg:top-20 max-w-md mx-auto lg:mx-0 w-full">
+          <Reveal y={10} className="lg:sticky lg:top-20 max-w-md mx-auto lg:mx-0 w-full">
             <ProductGallery
               images={product.images || []}
               name={product.name_en}
@@ -369,10 +370,10 @@ export default async function ProductPage({ params }: PageProps) {
               cropDesktop={product.image_crop_desktop}
               cropMobile={product.image_crop_mobile}
             />
-          </div>
+          </Reveal>
 
           {/* Right: Details */}
-          <div className="space-y-5 md:space-y-6">
+          <Reveal y={10} delay={0.12} className="space-y-5 md:space-y-6">
             <div>
               <div className="flex items-center gap-2 mb-2 md:mb-3">
                 <TrackViewItem id={product.id} name={product.name_en} price={finalPrice} brand={(product as any).brands?.name} category={product.categories?.name} />
@@ -446,7 +447,7 @@ export default async function ProductPage({ params }: PageProps) {
                 initialVariants={product.product_variants || []}
               />
             </div>
-          </div>
+          </Reveal>
         </div>
 
         {relatedProducts.length > 0 && (
@@ -455,8 +456,10 @@ export default async function ProductPage({ params }: PageProps) {
               {t('relatedProducts')}
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-3 gap-y-6 md:gap-6">
-              {relatedProducts.map((related: any) => (
-                <ProductCard key={related.id} product={related} />
+              {relatedProducts.map((related: any, i: number) => (
+                <Reveal key={related.id} delay={(i % 4) * 0.08}>
+                  <ProductCard product={related} />
+                </Reveal>
               ))}
             </div>
           </div>

@@ -7,6 +7,7 @@ import { useCartStore } from '@/hooks/use-cart';
 import { useStore } from '@/hooks/use-store';
 import { useWishlistStore } from '@/store/useWishlistStore';
 import CartSheet from '@/components/cart/cart-sheet';
+import CartCountBadge from '@/components/shared/CartCountBadge';
 import WishlistSheet from '@/components/cart/WishlistSheet';
 import { useState } from 'react';
 
@@ -53,11 +54,10 @@ export default function BottomNav() {
         >
           <div className="relative">
             <ShoppingBag className="h-5 w-5" />
-            {itemCount !== undefined && itemCount > 0 && (
-              <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[10px] font-bold text-white">
-                {itemCount}
-              </span>
-            )}
+            <CartCountBadge
+              count={itemCount}
+              className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[10px] font-bold text-white"
+            />
           </div>
           <span className="text-[10px] mt-1">{t('cart')}</span>
         </button>

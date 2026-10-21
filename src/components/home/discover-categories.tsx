@@ -1,14 +1,13 @@
 import { Link } from '@/i18n/navigation';
 import { ArrowRight } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
-import ImageWithFallback from '@/components/shared/ImageWithFallback';
+import ResponsiveCroppedImage from '@/components/shared/ResponsiveCroppedImage';
 import type { CategoryTile } from '@/types';
 
 type Content = {
   title: string;
   cta: string;
   href?: string;
-  image?: string;
   // Full literal Tailwind classes (not built from interpolated values —
   // Tailwind's JIT scanner needs the exact class string present in source
   // to generate it, same constraint as colSpanClass/rowSpanClass below).
@@ -20,20 +19,8 @@ type Content = {
   positionClass?: string;
 };
 
-// Curated people-with-bottle photography for the two hero slots, used in
-// place of whatever image_url the admin tile carries. The admin-managed
-// photos currently seeded for these two (a folded-fabric bottle shot, a
-// bare product shot) have no person in them; the brief for this section
-// specifically asked for a woman/man actually holding the perfume. Swap
-// these for admin-uploaded photos (via /admin/marketing/category-tiles)
-// once the site has its own shoot — this is a placeholder, not a
-// permanent bypass of that admin control.
-const WOMEN_IMAGE = 'https://images.unsplash.com/photo-1784215118418-1c1ff08edac1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=900';
-const MEN_IMAGE = 'https://images.unsplash.com/photo-1770193349323-efd1c5492a83?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=900';
-
 /**
- * Maps an admin-entered tile's link_href to translated title/CTA copy (and,
- * for the hero slots, a curated image) so the categories we know how to
+ * Maps an admin-entered tile's link_href to translated title/CTA copy so the categories we know how to
  * localize — Women's, Men's, Gift Sets, Body Mists, and Popular (the only
  * taxonomy Cangday's catalog actually has: audience, product type, and the
  * is_popular flag) always render correctly, even though
@@ -54,7 +41,6 @@ function resolveContent(tile: CategoryTile, t: Awaited<ReturnType<typeof getTran
     return {
       title: t('discoverWomenTitle'),
       cta: t('discoverWomenCta'),
-      image: WOMEN_IMAGE,
       positionClass: 'object-[center_42%] md:object-[center_22%]',
     };
   }
@@ -62,12 +48,12 @@ function resolveContent(tile: CategoryTile, t: Awaited<ReturnType<typeof getTran
     return {
       title: t('discoverMenTitle'),
       cta: t('discoverMenCta'),
-      image: MEN_IMAGE,
       positionClass: 'object-[center_35%]',
     };
   }
   if (href.includes('category=gift-sets')) return { title: t('discoverGiftTitle'), cta: t('discoverGiftCta') };
   if (href.includes('category=body-mists')) return { title: t('discoverMistsTitle'), cta: t('discoverMistsCta') };
+  if (href.includes('popular=true')) return { title: t('discoverPopularTitle'), cta: t('discoverPopularCta') };
   if (href.includes('category=niche-perfumes')) {
     return { title: t('discoverPopularTitle'), cta: t('discoverPopularCta'), href: '/shop?popular=true' };
   }
@@ -91,7 +77,7 @@ export default async function DiscoverCategories({ tiles }: { tiles: CategoryTil
 
         <div className="grid grid-cols-2 md:grid-cols-4 md:grid-rows-2 gap-3 md:gap-4 md:h-[600px]">
           {tiles.map((tile) => {
-            const { title, cta, href, image, positionClass } = resolveContent(tile, t);
+            const { title, cta, href, positionClass } = resolveContent(tile, t);
             // col_span >= 2 is this data model's existing signal for "this is
             // a primary/hero tile" (Women's and Men's both use col_span 2
             // today) — reused here to drive the mobile layout too, instead
@@ -115,8 +101,12 @@ export default async function DiscoverCategories({ tiles }: { tiles: CategoryTil
                   isPrimary ? 'col-span-2 aspect-[2/1]' : 'col-span-1 aspect-[3/4]'
                 } md:aspect-auto md:w-full md:h-full ${colSpanClass} ${rowSpanClass}`}
               >
-                <ImageWithFallback
-                  src={image ?? tile.image_url}
+                {/* Framing set in Admin → Category Tiles → Edit crop (separate
+                    desktop/mobile); without one, the defaults below apply. */}
+                <ResponsiveCroppedImage
+                  src={tile.image_url}
+                  cropDesktop={tile.image_crop_desktop}
+                  cropMobile={tile.image_crop_mobile}
                   alt={title}
                   fill
                   loading="lazy"

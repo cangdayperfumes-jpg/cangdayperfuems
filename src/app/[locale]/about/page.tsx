@@ -4,6 +4,7 @@ import { Link } from '@/i18n/navigation';
 import { ArrowRight } from 'lucide-react';
 import { getTranslations, getLocale } from 'next-intl/server';
 import ShinyText from '@/components/ui/shiny-text';
+import Reveal from '@/components/shared/Reveal';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('about');
@@ -12,6 +13,15 @@ export async function generateMetadata(): Promise<Metadata> {
     description: t('metaDescription'),
     alternates: localeAlternates(await getLocale(), '/about'),
   };
+}
+
+/** Small gold eyebrow label used above every section heading on the site. */
+function Eyebrow({ children, onDark = false }: { children: React.ReactNode; onDark?: boolean }) {
+  return (
+    <p className={`text-[10px] md:text-xs uppercase tracking-[0.35em] font-semibold ${onDark ? 'text-gold' : 'text-gold-deep'}`}>
+      {children}
+    </p>
+  );
 }
 
 export default async function AboutPage() {
@@ -42,145 +52,123 @@ export default async function AboutPage() {
   ];
 
   return (
-    <div className="bg-white">
+    <div className="bg-ivory text-ink">
 
-      {/* ── 1. Hero ── */}
-      <section className="relative pt-20 pb-14 md:pt-28 md:pb-20 flex flex-col items-center text-center px-4 overflow-hidden">
+      {/* ── 1. Hero — ink surface with the site's grain, like the home hero ── */}
+      <section className="ink-grain bg-ink text-ivory overflow-hidden">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.04]"
-          style={{
-            backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)',
-            backgroundSize: '28px 28px',
-          }}
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgb(var(--brand-gold)/0.18),transparent_60%)]"
         />
-        <p className="text-xs tracking-[0.35em] text-gray-400 uppercase mb-5 font-medium">
-          {t('ourStory')}
-        </p>
-        <h1 className="text-5xl sm:text-6xl md:text-7xl font-heading font-light tracking-tight text-gray-900 leading-none">
-          Cang<span className="italic">day</span>
-        </h1>
-        <div className="mt-6 w-8 h-px bg-gray-300 mx-auto" />
-        <p className="mt-6 max-w-xl text-base md:text-lg text-gray-500 font-light leading-relaxed">
-          {t('tagline')}
-        </p>
+        <Reveal className="relative z-[2] mx-auto flex max-w-3xl flex-col items-center px-4 pt-20 pb-16 text-center md:pt-32 md:pb-24">
+          <Eyebrow onDark>{t('ourStory')}</Eyebrow>
+          <h1 className="mt-5 font-heading text-6xl font-light leading-none tracking-tight sm:text-7xl md:text-8xl">
+            Cang<span className="italic text-gold-soft">day</span>
+          </h1>
+          <span aria-hidden className="mt-7 block h-px w-12 bg-gold/70" />
+          <p className="mt-7 max-w-xl text-base font-light leading-relaxed text-ivory/70 md:text-lg">
+            {t('tagline')}
+          </p>
+        </Reveal>
       </section>
 
-      {/* ── 2. Values Row ── */}
-      <section className="border-y border-gray-100 py-8 md:py-10">
-        <div className="max-w-5xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-0 divide-x divide-gray-100">
-          {values.map(({ label, sub }) => (
-            <div key={sub} className="text-center px-4 py-2 md:py-0">
-              <p className="text-2xl md:text-3xl font-heading font-light text-gray-900 tracking-tight">
-                {label}
-              </p>
-              <p className="mt-1 text-[10px] text-gray-400 uppercase tracking-widest font-medium">
-                {sub}
-              </p>
-            </div>
+      {/* ── 2. Values row ── */}
+      <section className="border-b border-ink/10">
+        <div className="mx-auto grid max-w-5xl grid-cols-2 px-4 md:grid-cols-4">
+          {values.map(({ label, sub }, i) => (
+            <Reveal
+              key={sub}
+              delay={i * 0.08}
+              className={`px-3 py-7 text-center md:py-10 ${i % 2 === 1 ? 'border-l border-ink/10' : ''} ${i >= 2 ? 'border-t border-ink/10 md:border-t-0' : ''} ${i === 2 ? 'md:border-l' : ''}`}
+            >
+              <p className="font-heading text-2xl font-light tracking-tight md:text-3xl">{label}</p>
+              <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-gold-deep">{sub}</p>
+            </Reveal>
           ))}
         </div>
       </section>
 
-      {/* ── 3. Our Story ── */}
-      <section className="max-w-3xl mx-auto px-4 py-14 md:py-20 text-center">
-        <p className="text-xs tracking-[0.3em] text-gray-400 uppercase font-medium mb-3">
-          {t('whyCangday')}
-        </p>
-        <h2 className="sr-only">{t('ourStory')}</h2>
-        <p className="text-xl md:text-2xl lg:text-3xl font-heading font-light text-gray-800 leading-snug">
-          {t('storyHeadline')}
-        </p>
-        <div className="mt-8 space-y-5 text-sm md:text-base text-gray-500 font-light leading-relaxed max-w-xl mx-auto">
-          <p>
-            {t('storyP1')}
+      {/* ── 3. Our story ── */}
+      <section className="mx-auto max-w-3xl px-4 py-16 text-center md:py-24">
+        <Reveal>
+          <Eyebrow>{t('whyCangday')}</Eyebrow>
+          <h2 className="sr-only">{t('ourStory')}</h2>
+          <p className="mt-4 font-heading text-2xl font-light leading-snug md:text-3xl lg:text-4xl">
+            {t('storyHeadline')}
           </p>
-          <p>
-            {t('storyP2')}
-          </p>
-        </div>
-        <p className="mt-8 text-base md:text-lg font-heading font-medium text-gray-900">
-          {t('slogan')}
-        </p>
+        </Reveal>
+        <Reveal delay={0.1} className="mx-auto mt-8 max-w-xl space-y-5 text-sm font-light leading-relaxed text-ink/70 md:text-base">
+          <p>{t('storyP1')}</p>
+          <p>{t('storyP2')}</p>
+        </Reveal>
+        <Reveal delay={0.15} className="mt-10 flex items-center justify-center gap-4">
+          <span aria-hidden className="h-px w-10 bg-gold/60" />
+          <p className="font-heading text-lg italic text-gold-deep md:text-xl">{t('slogan')}</p>
+          <span aria-hidden className="h-px w-10 bg-gold/60" />
+        </Reveal>
       </section>
 
-      {/* ── 4. Statement Section ── */}
-      <section className="w-full bg-zinc-800">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="pt-10 md:pt-14">
-            <p className="text-xs tracking-[0.3em] text-zinc-500 uppercase font-medium">
-              {t('ourCommitment')}
-            </p>
-          </div>
-          <div className="divide-y divide-zinc-700">
+      {/* ── 4. Commitment ── */}
+      <section className="ink-grain bg-ink text-ivory">
+        <div className="relative z-[2] mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <Reveal className="pt-12 md:pt-16">
+            <Eyebrow onDark>{t('ourCommitment')}</Eyebrow>
+          </Reveal>
+          <div className="divide-y divide-ivory/10 pb-4 md:pb-8">
             {statements.map(({ n, prefix, word }, i) => (
-              <div key={n} className="grid grid-cols-[3rem_1fr] md:grid-cols-[5rem_1fr] gap-6 items-center py-8 md:py-10">
-                <span className="text-xs text-zinc-500 tracking-widest font-medium">{n}</span>
-                <p className="text-2xl md:text-3xl lg:text-4xl font-heading font-light text-zinc-200 leading-snug">
+              <Reveal key={n} delay={i * 0.1} className="grid grid-cols-[2.5rem_1fr] items-center gap-5 py-8 md:grid-cols-[5rem_1fr] md:gap-6 md:py-10">
+                <span className="font-heading text-sm italic text-gold">{n}</span>
+                <p className="font-heading text-2xl font-light leading-snug text-ivory/85 md:text-3xl lg:text-4xl">
                   {prefix}{' '}
                   <ShinyText
                     text={word}
                     speed={3 + i * 0.5}
-                    color="#e4e4e7"
-                    shineColor="#ffffff"
-                    className="font-normal"
+                    color="#D5C4A4"
+                    shineColor="#F3EEE5"
+                    className="font-normal italic"
                   />
                 </p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── 5. Core Strengths ── */}
-      <section className="max-w-5xl mx-auto px-4 py-14 md:py-20">
-        <div className="mb-10 md:mb-14 text-center">
-          <p className="text-xs tracking-[0.3em] text-gray-400 uppercase font-medium mb-3">
-            {t('whatYouGet')}
-          </p>
-          <h2 className="text-2xl md:text-4xl font-heading font-light text-gray-900 tracking-tight">
+      {/* ── 5. What you get ── */}
+      <section className="mx-auto max-w-5xl px-4 py-16 md:py-24">
+        <Reveal className="mb-10 text-center md:mb-14">
+          <Eyebrow>{t('whatYouGet')}</Eyebrow>
+          <h2 className="mt-3 font-heading text-3xl font-light tracking-tight md:text-4xl">
             {t('shoppingWithCangday')}
           </h2>
-        </div>
+        </Reveal>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-0">
+        <div className="grid grid-cols-1 gap-x-12 sm:grid-cols-2">
           {capabilities.map((item, i) => (
-            <div key={i} className="flex gap-4 items-start border-t border-gray-100 py-5">
-              <span className="text-gray-200 text-base leading-none mt-0.5 flex-shrink-0">—</span>
-              <p className="text-sm md:text-base text-gray-600 font-light leading-snug">{item}</p>
-            </div>
+            <Reveal key={i} delay={(i % 2) * 0.06} className="flex items-start gap-4 border-t border-ink/10 py-5">
+              <span aria-hidden className="mt-2 h-1.5 w-1.5 shrink-0 rotate-45 bg-gold" />
+              <p className="text-sm font-light leading-snug text-ink/80 md:text-base">{item}</p>
+            </Reveal>
           ))}
         </div>
       </section>
 
-      {/* ── 6. CTA ── */}
-      <section className="border-t border-gray-100 py-14 md:py-20 px-4 text-center">
-        <h2 className="sr-only">Shop Cangday</h2>
-        <div className="max-w-xl mx-auto space-y-6">
-          <p className="text-xs text-gray-400 uppercase tracking-widest font-medium">{t('readyToExplore')}</p>
-          <h3 className="text-2xl md:text-3xl font-heading font-light text-gray-900">
-            {t('findYourScent')}
-          </h3>
-          <Link
-            href="/shop"
-            className="inline-flex items-center gap-2 px-7 py-3 bg-black text-white text-xs tracking-widest uppercase font-medium hover:bg-gray-800 transition-colors"
-          >
-            {t('shopTheCollection')} <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-      </section>
-
-      {/* ── 7. Closing Brand Block ── */}
-      <section className="bg-gray-50 border-t border-gray-100 py-14 md:py-20 px-4 text-center">
-        <h2 className="sr-only">Cangday</h2>
-        <div className="max-w-xl mx-auto space-y-2">
-          <p className="text-xs tracking-[0.3em] text-gray-400 uppercase font-medium">
-            Cangday
-          </p>
-          <p className="text-2xl md:text-3xl font-heading font-light text-gray-800">
-            {t('slogan')}
-          </p>
-        </div>
+      {/* ── 6. CTA + sign-off ── */}
+      <section className="px-4 pb-16 md:pb-24">
+        <Reveal className="ink-grain mx-auto max-w-5xl overflow-hidden rounded-sm bg-ink-elevated px-6 py-14 text-center text-ivory md:py-20">
+          <div className="relative z-[2] mx-auto max-w-xl">
+            <h2 className="sr-only">Shop Cangday</h2>
+            <Eyebrow onDark>{t('readyToExplore')}</Eyebrow>
+            <h3 className="mt-4 font-heading text-3xl font-light md:text-4xl">{t('findYourScent')}</h3>
+            <Link
+              href="/shop"
+              className="notch-corners mt-8 inline-flex items-center gap-2 bg-gold px-8 py-3.5 text-xs font-semibold uppercase tracking-widest text-ink transition-colors hover:bg-gold-soft"
+            >
+              {t('shopTheCollection')} <ArrowRight className="h-4 w-4" />
+            </Link>
+            <p className="mt-10 font-heading text-base italic text-ivory/50">{t('slogan')}</p>
+          </div>
+        </Reveal>
       </section>
 
     </div>

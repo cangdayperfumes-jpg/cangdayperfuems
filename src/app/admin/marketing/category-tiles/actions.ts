@@ -1,8 +1,9 @@
 'use server';
 
 import { createClient } from '@/utils/supabase/server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, updateTag } from 'next/cache';
 import { CategoryTile } from '@/types';
+import type { CropMeta } from '@/lib/image-crop';
 
 export interface CategoryTileInput {
   label: string;
@@ -12,11 +13,16 @@ export interface CategoryTileInput {
   row_span: CategoryTile['row_span'];
   display_order: number;
   is_active: boolean;
+  image_crop_desktop?: CropMeta | null;
+  image_crop_mobile?: CropMeta | null;
 }
 
 function revalidateTilePaths() {
   revalidatePath('/admin/marketing/category-tiles');
-  revalidatePath('/');
+  // The homepage lives at /tr and /en (the [locale] route), not '/', and
+  // reads tiles through a tagged cache — refresh both.
+  updateTag('category-tiles');
+  revalidatePath('/[locale]', 'page');
 }
 
 export async function getCategoryTiles() {
