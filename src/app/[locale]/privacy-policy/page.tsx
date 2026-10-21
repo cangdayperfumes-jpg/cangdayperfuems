@@ -1,18 +1,19 @@
 import type { Metadata } from 'next';
+import { localeAlternates } from '@/lib/seo';
 import { Link } from '@/i18n/navigation';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, getLocale } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('privacy');
   return {
     title: t('metaTitle'),
     description: t('metaDescription'),
-    alternates: { canonical: '/privacy-policy' },
+    alternates: localeAlternates(await getLocale(), '/privacy-policy'),
     robots: { index: true, follow: true },
   };
 }
 
-const lastUpdated = 'August 22, 2026';
+const lastUpdated = 'October 21, 2026';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (

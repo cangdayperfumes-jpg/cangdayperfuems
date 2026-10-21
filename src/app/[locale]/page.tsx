@@ -1,6 +1,8 @@
 
 
 import { createClient } from '@supabase/supabase-js';
+import { SITE_URL, localeAlternates } from '@/lib/seo';
+import type { Metadata } from 'next';
 import { PLACEHOLDER_SUPABASE_URL } from '@/utils/supabase/placeholder';
 import Hero from "@/components/shared/Hero";
 import BrandTicker from '@/components/home/brand-ticker';
@@ -33,9 +35,12 @@ import Reveal from '@/components/shared/Reveal';
 
 export const revalidate = 60;
 
-// No page-level canonical: the [locale] layout already sets it to
-// `${siteUrl}/${locale}` — a fixed '/' here made /en point at the bare
-// domain, which redirects to /tr.
+// Canonical + hreflang for /tr and /en (a fixed '/' would point at the bare
+// domain, which redirects to /tr).
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  return { alternates: localeAlternates(locale, '') };
+}
 
 export default async function Home() {
   const t = await getTranslations('home');
@@ -125,7 +130,7 @@ export default async function Home() {
   ];
   const collections = categoryTiles.length > 0 ? categoryTiles : FALLBACK_TILES;
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.cangday.com";
+  const siteUrl = SITE_URL;
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",

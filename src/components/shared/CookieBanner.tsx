@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
+import { CONSENT_KEY, setAnalyticsConsent } from '@/lib/analytics';
 
 export default function CookieBanner() {
   const t = useTranslations('common');
@@ -10,15 +11,26 @@ export default function CookieBanner() {
 
   useEffect(() => {
     // Check if user has already accepted cookies
-    const hasAccepted = localStorage.getItem('cookies_accepted');
-    if (!hasAccepted) {
+    // Ask once: 'true' (accepted) or 'false' (declined) are both remembered.
+    let answered: string | null = null;
+    try {
+      answered = localStorage.getItem(CONSENT_KEY);
+    } catch {
+      // Storage blocked — ask every visit.
+    }
+    if (answered === null) {
       // Small delay so it doesn't appear instantly
       setTimeout(() => setShowBanner(true), 1000);
     }
   }, []);
 
   const acceptCookies = () => {
-    localStorage.setItem('cookies_accepted', 'true');
+    setAnalyticsConsent(true);
+    setShowBanner(false);
+  };
+
+  const declineCookies = () => {
+    setAnalyticsConsent(false);
     setShowBanner(false);
   };
 
@@ -34,7 +46,7 @@ export default function CookieBanner() {
         <div className="flex flex-row items-center gap-3 w-full md:w-auto">
           <Button
             variant="outline"
-            onClick={() => setShowBanner(false)}
+            onClick={declineCookies}
             className="flex-1 md:flex-none"
           >
             {t('decline')}

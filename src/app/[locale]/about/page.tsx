@@ -1,7 +1,8 @@
+import { localeAlternates } from '@/lib/seo';
 import { Metadata } from 'next';
 import { Link } from '@/i18n/navigation';
 import { ArrowRight } from 'lucide-react';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, getLocale } from 'next-intl/server';
 import ShinyText from '@/components/ui/shiny-text';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -9,9 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: t('metaTitle'),
     description: t('metaDescription'),
-    alternates: {
-      canonical: '/about',
-    },
+    alternates: localeAlternates(await getLocale(), '/about'),
   };
 }
 

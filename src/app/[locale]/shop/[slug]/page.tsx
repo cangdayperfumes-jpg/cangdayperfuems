@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { SITE_URL } from '@/lib/seo';
 import { PLACEHOLDER_SUPABASE_URL } from '@/utils/supabase/placeholder';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { Link } from '@/i18n/navigation';
@@ -12,6 +13,7 @@ import ProductCard from '@/components/shared/ProductCard';
 import { Badge } from '@/components/ui/badge';
 import FavoriteButton from '@/components/shared/FavoriteButton';
 import NewBadge from '@/components/shop/NewBadge';
+import TrackViewItem from '@/components/shop/TrackViewItem';
 import type { Metadata } from 'next';
 import { unstable_cache } from 'next/cache';
 import { getTranslations } from 'next-intl/server';
@@ -188,7 +190,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!product) return { title: 'Product Not Found' };
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.cangday.com';
+  const siteUrl = SITE_URL;
   const ogImageUrl = toAbsoluteUrl(product.images?.[0], siteUrl);
   const canonicalSlug = product.slug || slug;
   // Product data is English-only for now — both locales
@@ -248,7 +250,7 @@ export default async function ProductPage({ params }: PageProps) {
   const finalPrice = hasDiscount ? product.price - product.discount : product.price;
 
   const t = await getTranslations('product');
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.cangday.com';
+  const siteUrl = SITE_URL;
   const canonicalSlug = product.slug || product.id;
   const imageUrl = toAbsoluteUrl(product.images?.[0], siteUrl);
   const brandName = (product as any).brands?.name || 'Cangday';
@@ -263,7 +265,7 @@ export default async function ProductPage({ params }: PageProps) {
   // number. The 14-day mail return policy matches /terms-of-service.
   const offers: Record<string, any> = {
     '@type': 'Offer',
-    url: `${siteUrl}/shop/${canonicalSlug}`,
+    url: `${siteUrl}${localePath}/shop/${canonicalSlug}`,
     seller: {
       '@type': 'Organization',
       name: 'Cangday',
@@ -372,6 +374,7 @@ export default async function ProductPage({ params }: PageProps) {
           <div className="space-y-5 md:space-y-6">
             <div>
               <div className="flex items-center gap-2 mb-2 md:mb-3">
+                <TrackViewItem id={product.id} name={product.name_en} price={finalPrice} brand={(product as any).brands?.name} category={product.categories?.name} />
                 <NewBadge product={product} />
                 {hasDiscount && <Badge variant="destructive">{t('sale')}</Badge>}
                 {!product.stock && <Badge variant="secondary">{t('outOfStock')}</Badge>}

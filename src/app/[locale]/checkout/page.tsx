@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { analytics } from '@/lib/analytics';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, Check, ChevronDown, Loader2, Lock, RotateCcw, ShieldCheck, ShoppingBag } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -145,6 +146,17 @@ function CheckoutContent() {
     setStickyBarVisible(true);
     return () => setStickyBarVisible(false);
   }, [setStickyBarVisible]);
+
+  // GA4 begin_checkout — once, as soon as the persisted bag has loaded.
+  const checkoutTracked = useRef(false);
+  useEffect(() => {
+    if (checkoutTracked.current || !items?.length) return;
+    checkoutTracked.current = true;
+    analytics.beginCheckout(
+      items.reduce((s, i) => s + i.price * i.quantity, 0),
+      items.map((i) => ({ item_id: i.id, item_name: i.name, price: i.price, quantity: i.quantity }))
+    );
+  }, [items]);
 
   if (items !== undefined && items.length === 0) {
     return (

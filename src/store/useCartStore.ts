@@ -1,6 +1,7 @@
 // Consolidated Cart Store to replace use-cart.ts hook over time
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { analytics } from '@/lib/analytics';
 
 export interface Product {
     id: string;
@@ -35,6 +36,8 @@ export const useCartStore = create<CartState>()(
         (set, get) => ({
             items: [],
             addItem: (product) => set((state) => {
+                // Every add-to-cart path (cards, product page, favourites) goes through here.
+                analytics.addToCart({ item_id: product.id, item_name: product.name, price: product.price, quantity: 1, ...(product.variantName ? { item_variant: product.variantName } : {}) });
                 const existingItem = state.items.find(item => 
                     item.id === product.id && item.variantId === product.variantId
                 );

@@ -64,7 +64,7 @@
     "decline": "Decline",
     "acceptAll": "Accept All",
     "cookieTitle": "We value your privacy",
-    "cookieMessage": "We use cookies to enhance your browsing experience, serve personalized ads or content, and analyze our traffic. By clicking \"Accept All\", you consent to our use of cookies."
+    "cookieMessage": "We use Google Analytics cookies to understand how the site is used and improve it — only if you accept. Essential storage (your bag and favourites) works either way. We don’t use advertising cookies."
   },
   "cart": {
     "title": "Your Bag",
@@ -310,13 +310,25 @@
     "exploreCollection": "Explore Collection"
   },
   "blog": {
-    "metaTitle": "Blog",
-    "metaDescription": "Notes on fragrance, layering, and finding your signature scent from Cangday.",
-    "title": "Blog",
-    "intro": "Sourcing guides, product knowledge, and shipping know-how for wholesale fragrance buyers.",
-    "backToBlog": "← Back to Blog",
-    "featuredFragrance": "Featured Fragrance",
-    "shopThisFragrance": "Shop this fragrance"
+    "metaTitle": "Fragrance Journal",
+    "metaDescription": "Perfume guides from Cangday: how to choose a signature scent, layer fragrances, make perfume last longer and find the right niche or designer bottle.",
+    "title": "Journal",
+    "intro": "Guides to choosing, wearing and caring for fragrance — written by the Cangday team.",
+    "eyebrow": "Cangday Journal",
+    "tagsLabel": "Filter by topic",
+    "allPosts": "All",
+    "empty": "No articles yet — check back soon.",
+    "readMore": "Read article",
+    "readingTime": "{minutes} min read",
+    "breadcrumbHome": "Home",
+    "by": "By {author}",
+    "updated": "Updated",
+    "inShort": "In short",
+    "contents": "Contents",
+    "faqTitle": "Frequently asked questions",
+    "writtenBy": "Written by",
+    "productsInPost": "Fragrances in this article",
+    "morePosts": "More from the journal"
   },
   "about": {
     "metaTitle": "About Us",
@@ -408,7 +420,7 @@
     "s3Item1": "<b>Supabase</b> — hosts our database and stores order records.",
     "s3Item2": "<b>Resend</b> — delivers transactional order-confirmation emails.",
     "s4Title": "Cookies & Local Storage",
-    "s4Body": "We use browser local storage to remember the contents of your shopping cart between visits. If you sign in to our admin dashboard, we use a session cookie to keep you signed in. We do not currently use advertising or analytics cookies.",
+    "s4Body": "We use browser local storage to remember your shopping bag and favourites between visits. If you accept the cookie notice, we also use Google Analytics cookies to measure visits and purchases in aggregate and improve the store; if you decline, Analytics only receives anonymous, cookieless signals. We do not use advertising cookies. You can change your choice at any time by clearing this site’s data in your browser. If you sign in to our admin dashboard, we use a session cookie to keep you signed in.",
     "s5Title": "Data Retention",
     "s5Body": "We retain order records for as long as necessary to fulfill your order and to meet our accounting and legal record-keeping obligations.",
     "s6Title": "Your Rights",

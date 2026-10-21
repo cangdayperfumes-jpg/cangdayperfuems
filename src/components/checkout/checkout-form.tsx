@@ -21,6 +21,7 @@ import { useCheckout } from '@/contexts/checkout-context';
 import { useSettings } from '@/components/providers/SettingsProvider';
 import { TURKEY_PROVINCES } from '@/lib/turkey-provinces';
 import { couponDiscount, couponProblemFromError } from '@/lib/coupons';
+import { analytics } from '@/lib/analytics';
 import {
   DOMESTIC_COUNTRY_CODE,
   countryDisplayName,
@@ -226,6 +227,14 @@ export default function CheckoutForm() {
       } catch (emailError) {
         console.error('Non-fatal error: Failed to send confirmation email', emailError);
       }
+
+      analytics.purchase({
+        id: order.id,
+        value: Number(order.total_amount ?? total),
+        shipping: shippingCost,
+        coupon: order.coupon_code,
+        items: items.map((i) => ({ item_id: i.id, item_name: i.name, price: i.price, quantity: i.quantity, ...(i.variantName ? { item_variant: i.variantName } : {}) })),
+      });
 
       toast.success(t('orderPlaced'));
       router.push(`/checkout/success?orderId=${order.id}`);

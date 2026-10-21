@@ -3,9 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "predev": "node scripts/generate-blog-data.js",
     "dev": "next dev",
-    "prebuild": "node scripts/generate-blog-data.js",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint"
@@ -32,6 +30,7 @@
     "framer-motion": "^12.34.0",
     "gray-matter": "^4.0.3",
     "lucide-react": "^0.563.0",
+    "marked": "^15.0.12",
     "next": "16.1.6",
     "next-intl": "^4.14.9",
     "next-mdx-remote": "^6.0.0",

@@ -17,9 +17,6 @@
 /.next/
 /out/
 
-# generated at build time by scripts/generate-blog-data.js, see src/lib/blog.ts
-/src/lib/blog-data.generated.json
-
 # production
 /build
 

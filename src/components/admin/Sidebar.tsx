@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { LayoutDashboard, Package, ShoppingCart, Truck, Star, LogOut, Settings, Menu, ChevronLeft, ChevronRight, Sparkles, Ticket } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Truck, Star, LogOut, Settings, Menu, ChevronLeft, ChevronRight, Sparkles, Ticket, Newspaper } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
@@ -37,6 +37,7 @@ export default function AdminSidebar({ onSignOut, isCollapsed = false, setIsColl
     {
       label: t('marketing'),
       items: [
+        { href: '/admin/blog', label: t('blog'), icon: Newspaper },
         { href: '/admin/coupons', label: t('coupons'), icon: Ticket },
         { href: '/admin/marketing/hero-slides', label: t('heroSlides'), icon: Sparkles },
         { href: '/admin/marketing/category-tiles', label: t('categoryTiles'), icon: Sparkles },

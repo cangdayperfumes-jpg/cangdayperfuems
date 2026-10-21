@@ -1,13 +1,14 @@
 import type { Metadata } from 'next';
+import { localeAlternates } from '@/lib/seo';
 import { Link } from '@/i18n/navigation';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, getLocale } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('terms');
   return {
     title: t('metaTitle'),
     description: t('metaDescription'),
-    alternates: { canonical: '/terms-of-service' },
+    alternates: localeAlternates(await getLocale(), '/terms-of-service'),
     robots: { index: true, follow: true },
   };
 }

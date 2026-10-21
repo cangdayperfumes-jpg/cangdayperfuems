@@ -4,6 +4,7 @@
 import { useState, useEffect, useRef, useTransition } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from '@/i18n/navigation';
+import { analytics } from '@/lib/analytics';
 import { Product, Category, Brand } from '@/types';
 import ShopSidebar from '@/components/shop/ShopSidebar';
 import ProductCard from '@/components/shared/ProductCard';
@@ -69,6 +70,11 @@ export default function ShopClientWrapper({
   // any search arriving via a link (or Google's sitelinks search box).
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery || '');
   const [debouncedQuery] = useDebounce(searchQuery, 500);
+
+  // GA4 search event for every settled search term.
+  useEffect(() => {
+    if (debouncedQuery.trim().length >= 2) analytics.search(debouncedQuery.trim());
+  }, [debouncedQuery]);
 
   // Re-seed when `q` changes from OUTSIDE this component (e.g. the header
   // search navigating here while /shop is already mounted) — useState's

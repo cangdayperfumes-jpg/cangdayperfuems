@@ -33,6 +33,8 @@ const settingsSchema = z.object({
   newBadgeDays: z.coerce.number().int().min(0).max(365).default(30),
   giftEnabled: z.boolean().default(true),
   giftThreshold: z.coerce.number().positive().default(750),
+  gaMeasurementId: z.string().trim().toUpperCase().regex(/^(G-[A-Z0-9]{4,16})?$/, 'G-XXXXXXXXXX').default(''),
+  gscVerification: z.string().trim().regex(/^[A-Za-z0-9_-]{0,100}$/).default(''),
   seasonalCollectionsMultiActive: z.boolean().default(false),
   seasonalSectionPosition: z.string().default('after_gender_collection'),
 });
@@ -56,6 +58,8 @@ export interface SettingsInitialData {
   new_badge_days?: number | null;
   gift_enabled?: boolean | null;
   gift_threshold?: number | null;
+  ga_measurement_id?: string | null;
+  gsc_verification?: string | null;
   seasonal_collections_multi_active: boolean | null;
   seasonal_section_position: string | null;
   theme_gold?: string | null;
@@ -98,6 +102,8 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
       newBadgeDays: initialData?.new_badge_days ?? 30,
       giftEnabled: initialData?.gift_enabled ?? true,
       giftThreshold: Number(initialData?.gift_threshold ?? 750),
+      gaMeasurementId: initialData?.ga_measurement_id ?? '',
+      gscVerification: initialData?.gsc_verification ?? '',
       seasonalCollectionsMultiActive: initialData?.seasonal_collections_multi_active ?? false,
       seasonalSectionPosition: initialData?.seasonal_section_position ?? 'after_gender_collection',
     },
@@ -131,6 +137,8 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
           new_badge_days: data.newBadgeDays,
           gift_enabled: data.giftEnabled,
           gift_threshold: data.giftThreshold,
+          ga_measurement_id: data.gaMeasurementId,
+          gsc_verification: data.gscVerification,
           seasonal_collections_multi_active: data.seasonalCollectionsMultiActive,
           seasonal_section_position: data.seasonalSectionPosition,
         })
@@ -185,6 +193,42 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
                   <Input type="number" min={0} max={365} className="max-w-[140px]" {...field} />
                 </FormControl>
                 <FormDescription>{t('newBadgeDaysDesc')}</FormDescription>
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* ── Analytics & Search Console ─────────────────────── */}
+        <div className="bg-white p-6 rounded-lg border shadow-sm max-w-2xl space-y-4">
+          <div>
+            <h2 className="text-lg font-semibold">{t('analyticsTitle')}</h2>
+            <p className="text-sm text-muted-foreground">{t('analyticsDesc')}</p>
+          </div>
+          <FormField
+            control={form.control}
+            name="gaMeasurementId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t('gaIdLabel')}</FormLabel>
+                <FormControl>
+                  <Input placeholder="G-XXXXXXXXXX" className="max-w-[240px] font-mono uppercase" {...field} />
+                </FormControl>
+                <FormDescription>{t('gaIdDesc')}</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="gscVerification"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t('gscLabel')}</FormLabel>
+                <FormControl>
+                  <Input placeholder="abc123…" className="font-mono" {...field} />
+                </FormControl>
+                <FormDescription>{t('gscDesc')}</FormDescription>
+                <FormMessage />
               </FormItem>
             )}
           />

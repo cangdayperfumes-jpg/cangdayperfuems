@@ -64,7 +64,7 @@
     "decline": "Reddet",
     "acceptAll": "Tümünü Kabul Et",
     "cookieTitle": "Gizliliğinize değer veriyoruz",
-    "cookieMessage": "Tarama deneyiminizi iyileştirmek, kişiselleştirilmiş içerik ve reklamlar sunmak ve trafiğimizi analiz etmek için çerezler kullanıyoruz. \"Tümünü Kabul Et\"e tıklayarak çerez kullanımımızı onaylıyorsunuz."
+    "cookieMessage": "Sitenin nasıl kullanıldığını anlamak ve geliştirmek için — yalnızca onay verirseniz — Google Analytics çerezleri kullanıyoruz. Zorunlu depolama (sepetiniz ve favorileriniz) her durumda çalışır. Reklam çerezi kullanmıyoruz."
   },
   "cart": {
     "title": "Sepetiniz",
@@ -310,13 +310,25 @@
     "exploreCollection": "Koleksiyonu Keşfet"
   },
   "blog": {
-    "metaTitle": "Günlük",
-    "metaDescription": "Cangday'den parfüm, katmanlama ve imza kokunuzu bulma üzerine notlar.",
+    "metaTitle": "Parfüm Rehberi",
+    "metaDescription": "Cangday parfüm rehberleri: imza kokunuzu seçme, parfüm katmanlama, kalıcılığı artırma ve doğru niş ya da tasarımcı parfümü bulma.",
     "title": "Günlük",
-    "intro": "Toptan parfüm alıcıları için tedarik rehberleri, ürün bilgisi ve kargo ipuçları.",
-    "backToBlog": "← Günlüğe Dön",
-    "featuredFragrance": "Öne Çıkan Koku",
-    "shopThisFragrance": "Bu kokuyu satın al"
+    "intro": "Koku seçme, kullanma ve saklama üzerine rehberler — Cangday ekibinden.",
+    "eyebrow": "Cangday Günlük",
+    "tagsLabel": "Konuya göre filtrele",
+    "allPosts": "Tümü",
+    "empty": "Henüz yazı yok — yakında burada.",
+    "readMore": "Yazıyı oku",
+    "readingTime": "{minutes} dk okuma",
+    "breadcrumbHome": "Ana sayfa",
+    "by": "Yazan: {author}",
+    "updated": "Güncellendi",
+    "inShort": "Kısaca",
+    "contents": "İçindekiler",
+    "faqTitle": "Sıkça sorulan sorular",
+    "writtenBy": "Yazar",
+    "productsInPost": "Bu yazıdaki parfümler",
+    "morePosts": "Günlük’ten diğer yazılar"
   },
   "about": {
     "metaTitle": "Hakkımızda",
@@ -408,7 +420,7 @@
     "s3Item1": "<b>Supabase</b> — veritabanımızı barındırır ve sipariş kayıtlarını saklar.",
     "s3Item2": "<b>Resend</b> — işlemsel sipariş onay e-postalarını iletir.",
     "s4Title": "Çerezler ve Yerel Depolama",
-    "s4Body": "Ziyaretler arasında alışveriş sepetinizin içeriğini hatırlamak için tarayıcı yerel depolamasını kullanıyoruz. Yönetim paneline giriş yaptığınızda, oturumunuzu açık tutmak için bir oturum çerezi kullanıyoruz. Şu anda reklam veya analiz çerezleri kullanmıyoruz.",
+    "s4Body": "Ziyaretler arasında sepetinizi ve favorilerinizi hatırlamak için tarayıcı yerel depolamasını kullanıyoruz. Çerez bildirimini kabul ederseniz, ziyaret ve satın alımları toplu olarak ölçmek ve mağazayı geliştirmek için Google Analytics çerezlerini de kullanırız; reddederseniz Analytics yalnızca anonim, çerezsiz sinyaller alır. Reklam çerezi kullanmıyoruz. Tercihinizi tarayıcınızdan bu sitenin verilerini silerek istediğiniz zaman değiştirebilirsiniz. Yönetim paneline giriş yaptığınızda oturumunuzu açık tutmak için bir oturum çerezi kullanıyoruz.",
     "s5Title": "Veri Saklama",
     "s5Body": "Siparişinizi tamamlamak ve muhasebe ile yasal kayıt tutma yükümlülüklerimizi karşılamak için gerekli olduğu sürece sipariş kayıtlarını saklarız.",
     "s6Title": "Haklarınız",

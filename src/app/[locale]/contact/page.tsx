@@ -1,13 +1,14 @@
 import type { Metadata } from 'next';
+import { localeAlternates } from '@/lib/seo';
 import { Mail } from 'lucide-react';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, getLocale } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('contact');
   return {
     title: t('metaTitle'),
     description: t('metaDescription'),
-    alternates: { canonical: '/contact' },
+    alternates: localeAlternates(await getLocale(), '/contact'),
   };
 }
 

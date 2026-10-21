@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { SITE_URL, localeAlternates } from '@/lib/seo';
 import { PLACEHOLDER_SUPABASE_URL } from '@/utils/supabase/placeholder';
 import ShopClientWrapper from '@/components/shop/ShopClientWrapper';
 import { notFound } from 'next/navigation';
@@ -136,18 +137,20 @@ export async function generateMetadata({ searchParams, params }: { searchParams:
   }
 
   // To prevent indexing infinite parameter combinations, we set canonical to base shop url if there are many params
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.cangday.com";
-  let canonicalUrl = `${baseUrl}/${locale}/shop`;
-  if (categorySlug && !searchQuery) canonicalUrl += `?category=${categorySlug}`;
-  else if (seasonSlug && !searchQuery) canonicalUrl += `?season=${seasonSlug}`;
-  else if (audience && !searchQuery) canonicalUrl += `?audience=${audience}`;
+  let shopPath = '/shop';
+  if (categorySlug && !searchQuery) shopPath += `?category=${encodeURIComponent(categorySlug)}`;
+  else if (seasonSlug && !searchQuery) shopPath += `?season=${encodeURIComponent(seasonSlug)}`;
+  else if (audience && !searchQuery) shopPath += `?audience=${encodeURIComponent(audience)}`;
+  const alternates = localeAlternates(locale, shopPath);
+  const canonicalUrl = alternates.canonical as string;
 
   return {
     title,
     description,
-    alternates: {
-      canonical: canonicalUrl,
-    },
+    alternates,
+    // Search results are thin, endless duplicates — keep them out of the
+    // index but let crawlers follow through to the products.
+    ...(searchQuery ? { robots: { index: false, follow: true } } : {}),
     openGraph: {
       title,
       description,

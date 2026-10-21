@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { SITE_URL } from '@/lib/seo';
 import { Suspense } from "react";
 import { preconnect } from "react-dom";
 import { Fraunces, Manrope } from "next/font/google";
@@ -16,6 +17,8 @@ import ScrollToTop from "@/components/shared/ScrollToTop";
 import SitePopup from "@/components/shared/SitePopup";
 import OfferBar from "@/components/shared/OfferBar";
 import CookieBanner from "@/components/shared/CookieBanner";
+import GoogleAnalytics from "@/components/providers/GoogleAnalytics";
+import { getAnalyticsSettings } from "@/lib/analytics-settings";
 import AnnouncementBar from "@/components/shared/AnnouncementBar";
 import AuthRecoveryRedirect from "@/components/shared/AuthRecoveryRedirect";
 import { Toaster } from "@/components/ui/sonner";
@@ -45,7 +48,7 @@ const manrope = Manrope({
   weight: ["400", "500", "600", "700", "800"],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.cangday.com";
+const siteUrl = SITE_URL;
 
 // Without this, phones have no layout-viewport hint and fall back to a
 // ~980px desktop-width viewport (then zoom out to fit) — which also means
@@ -66,11 +69,6 @@ export async function generateMetadata({
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
 
-  const languages = Object.fromEntries(
-    routing.locales.map((l) => [l, `${siteUrl}/${l}`])
-  );
-  languages["x-default"] = `${siteUrl}/${routing.defaultLocale}`;
-
   const title =
     locale === "tr" ? "Cangday | Modern Parfümeri" : "Cangday | Modern Perfumery";
   const description =
@@ -78,8 +76,11 @@ export async function generateMetadata({
       ? "Cangday, günlük kullanım için seçilmiş tasarımcı ve niş parfümlerden oluşan modern bir koku evidir. Orijinal şişeler, dünya çapında kargo, kolay iade."
       : "Cangday is a modern fragrance house — an edited collection of designer and niche perfumes for everyday wear. Original bottles, worldwide shipping, easy returns.";
 
+  const { gscVerification } = await getAnalyticsSettings();
+
   return {
     metadataBase: new URL(siteUrl),
+    ...(gscVerification ? { verification: { google: gscVerification } } : {}),
     title: {
       default: title,
       template: `%s | Cangday`,
@@ -94,10 +95,9 @@ export async function generateMetadata({
       address: false,
       telephone: false,
     },
-    alternates: {
-      canonical: `${siteUrl}/${locale}`,
-      languages,
-    },
+    // No canonical/hreflang here on purpose: every page sets its own via
+    // localeAlternates() (src/lib/seo.ts). A layout-level canonical is
+    // inherited by any page that forgets one, and it pointed at the homepage.
     openGraph: {
       title,
       description,
@@ -167,7 +167,7 @@ export default async function LocaleLayout({
   );
 
   // Run all three in parallel + cache results for 60s
-  const [rawCategories, settings, theme] = await Promise.all([
+  const [rawCategories, settings, theme, analytics] = await Promise.all([
     unstable_cache(
       async () => {
         if (!supabaseConfigured) return null;
@@ -196,6 +196,7 @@ export default async function LocaleLayout({
       { revalidate: 60, tags: ['site-settings'] }
     )(),
     getSiteTheme(),
+    getAnalyticsSettings(),
   ]);
 
   const categories = rawCategories?.map((item: any) => {
@@ -251,6 +252,16 @@ export default async function LocaleLayout({
               "url": siteUrl,
               "description": "Cangday is a modern fragrance house offering an edited collection of designer and niche perfumes for everyday wear.",
               "slogan": "Wear What Lingers.",
+              "logo": `${siteUrl}/images/cangday-logo-pdf.png`,
+              "image": `${siteUrl}/images/cangday-logo.png`,
+              "areaServed": "TR",
+              "knowsAbout": ["Perfume", "Fragrance", "Niche perfume", "Designer perfume", "Eau de parfum"],
+              "contactPoint": {
+                "@type": "ContactPoint",
+                "contactType": "customer service",
+                "url": `${siteUrl}/${locale}/contact`,
+                "availableLanguage": ["Turkish", "English"],
+              },
             })
           }}
         />
@@ -285,6 +296,11 @@ export default async function LocaleLayout({
             </StorefrontLayoutWrapper>
             <SitePopup />
             <CookieBanner />
+            {analytics.gaId && (
+              <Suspense fallback={null}>
+                <GoogleAnalytics id={analytics.gaId} />
+              </Suspense>
+            )}
           </MotionProvider>
           </SettingsProvider>
         </NextIntlClientProvider>

@@ -1,10 +1,11 @@
+import { localeAlternates } from '@/lib/seo';
 
 import { createClient } from '@supabase/supabase-js';
 import { PLACEHOLDER_SUPABASE_URL } from '@/utils/supabase/placeholder';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, getLocale } from 'next-intl/server';
 
 export const revalidate = 60;
 
@@ -13,7 +14,7 @@ export async function generateMetadata() {
   return {
     title: t('metaTitle'),
     description: t('metaDescription'),
-    alternates: { canonical: '/categories' },
+    alternates: localeAlternates(await getLocale(), '/categories'),
     openGraph: {
       title: `${t('metaTitle')} | Cangday`,
       description: t('metaDescription'),

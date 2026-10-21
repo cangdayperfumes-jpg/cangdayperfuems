@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { useStore } from '@/hooks/use-store';
 import { useWishlistStore, type WishlistItem } from '@/store/useWishlistStore';
 import { cn } from '@/lib/utils';
+import { analytics } from '@/lib/analytics';
 
 /**
  * Heart toggle for saving a product to favourites. `variant="overlay"` is the
@@ -30,6 +31,7 @@ export default function FavoriteButton({
     e.preventDefault();
     e.stopPropagation();
     const nowSaved = toggle(item);
+    if (nowSaved) analytics.addToWishlist({ item_id: item.id, item_name: item.name, price: item.price - (item.discount || 0) });
     toast.success(nowSaved ? t('added', { name: item.name }) : t('removed', { name: item.name }));
   };
 

@@ -1,9 +1,10 @@
+import { localeAlternates } from '@/lib/seo';
 import { createClient } from '@supabase/supabase-js';
 import { PLACEHOLDER_SUPABASE_URL } from '@/utils/supabase/placeholder';
 import { Separator } from '@/components/ui/separator';
 import ShippingContent from '@/components/shipping/ShippingContent';
 import { Link } from '@/i18n/navigation';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, getLocale } from 'next-intl/server';
 import { Truck, DollarSign, PackageCheck, MapPinned, ShieldCheck, Mail } from 'lucide-react';
 
 export const revalidate = 60; // Revalidate every minute
@@ -13,7 +14,7 @@ export async function generateMetadata() {
   return {
     title: t('metaTitle'),
     description: t('metaDescription'),
-    alternates: { canonical: '/shipping' },
+    alternates: localeAlternates(await getLocale(), '/shipping'),
   };
 }
 

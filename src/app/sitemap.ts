@@ -1,20 +1,17 @@
 import { MetadataRoute } from 'next';
+import { SITE_URL } from '@/lib/seo';
 import { createClient } from '@supabase/supabase-js';
 import { PLACEHOLDER_SUPABASE_URL } from '@/utils/supabase/placeholder';
 import { getActiveSeasonalCollections } from '@/lib/seasonal-collections-data';
 import { fetchAllRows } from '@/lib/fetch-all-rows';
-import { getAllPosts } from '@/lib/blog';
+import { getPublishedRows, postLocales } from '@/lib/blog';
 import { routing } from '@/i18n/routing';
 
-// getAllPosts() (@/lib/blog) now reads from a JSON file generated at build
-// time (scripts/generate-blog-data.js) instead of the filesystem at request
-// time, so this route no longer has any untraceable runtime dependency --
-// safe to go back to force-dynamic, which is what we actually want so newly
-// added/removed products and categories (fetched from Supabase below) show
-// up in the sitemap immediately rather than waiting on an ISR window.
+// force-dynamic so new products, categories and blog posts (all read from
+// Supabase) show up in the sitemap immediately.
 export const dynamic = 'force-dynamic';
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.cangday.com';
+const siteUrl = SITE_URL;
 
 // Every route is served under both /tr and /en (localePrefix: "always" —
 // see src/i18n/routing.ts), so each path becomes one sitemap entry per
@@ -55,13 +52,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...localizedEntries('/blog', { lastModified: new Date(), changeFrequency: 'weekly', priority: 0.6 }),
   ];
 
-  const blogRoutes: MetadataRoute.Sitemap = getAllPosts().flatMap((post) =>
-    localizedEntries(`/blog/${post.slug}`, {
-      lastModified: new Date(post.updated || post.date),
-      changeFrequency: 'monthly',
+  // Each post only in the languages it's written in; hreflang between them.
+  const blogRoutes: MetadataRoute.Sitemap = (await getPublishedRows()).flatMap((post) => {
+    const locales = postLocales(post);
+    const path = `/blog/${post.slug}`;
+    const languages: Record<string, string> = Object.fromEntries(locales.map((l) => [l, `${siteUrl}/${l}${path}`]));
+    return locales.map((l) => ({
+      url: `${siteUrl}/${l}${path}`,
+      lastModified: new Date(post.updated_at),
+      changeFrequency: 'monthly' as const,
       priority: 0.6,
-    })
-  );
+      alternates: { languages },
+      ...(post.cover_image_url ? { images: [post.cover_image_url] } : {}),
+    }));
+  });
 
   // 2. Fetch Dynamic Data
   const [
