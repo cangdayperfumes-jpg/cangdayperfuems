@@ -24,6 +24,7 @@ export async function generateMetadata() {
 
 export default async function CategoriesPage() {
   const t = await getTranslations('categories');
+  const locale = await getLocale();
   // Cookie-free client: this page only reads public data, and cookies() would
   // force fully dynamic (uncached) rendering, overriding `revalidate` above.
   const supabase = createClient(
@@ -77,9 +78,9 @@ export default async function CategoriesPage() {
               <h2 className="text-3xl md:text-4xl font-heading text-white mb-4 tracking-wide drop-shadow-md text-center">
                 {category.name}
               </h2>
-              {category.description && (
+              {((locale === 'tr' && category.description_tr) || category.description) && (
                   <p className="text-white/80 text-sm max-w-xs text-center mb-6 line-clamp-2">
-                      {category.description}
+                      {(locale === 'tr' && category.description_tr) || category.description}
                   </p>
               )}
               <Button

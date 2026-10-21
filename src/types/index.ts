@@ -42,6 +42,7 @@ export interface Category {
   slug: string;
   image_url?: string | null;
   description?: string | null;
+  description_tr?: string | null;
   is_featured?: boolean;
   image_crop_desktop?: CropMeta | null;
   image_crop_mobile?: CropMeta | null;

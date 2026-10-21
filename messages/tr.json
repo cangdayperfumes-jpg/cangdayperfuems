@@ -158,7 +158,8 @@
     "emptyTitle": "Henüz eşleşen ürün yok",
     "emptyHint": "Bir filtreyi kaldırmayı veya farklı bir koku ya da marka aramayı deneyin.",
     "browseAll": "Tüm parfümlere göz at",
-    "popularPicks": "Popüler seçimler"
+    "popularPicks": "Popüler seçimler",
+    "categoryIntroFallback": "Cangday’de {category} — yüksek kaliteli, kalıcı kokular."
   },
   "checkout": {
     "backToShop": "Mağazaya Dön",

@@ -15,7 +15,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Link } from '@/i18n/navigation';
 import { useDebounce } from 'use-debounce';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 interface ShopClientWrapperProps {
   products: Product[];
@@ -56,6 +56,7 @@ export default function ShopClientWrapper({
   pagination,
 }: ShopClientWrapperProps) {
   const t = useTranslations('shop');
+  const locale = useLocale();
   // Must match `limit` in app/[locale]/shop/page.tsx — used to restart the
   // fade-in stagger at the top of every newly loaded page.
   const limitPerPage = 12;
@@ -213,7 +214,7 @@ export default function ShopClientWrapper({
   const pageIntro = seasonTitle
     ? undefined
     : selectedCategory
-    ? toShortIntro(selectedCategory.description || `Shop ${selectedCategory.name} at Cangday — an edited collection of designer and niche perfumes.`)
+    ? toShortIntro((locale === 'tr' && (selectedCategory as { description_tr?: string | null }).description_tr) || selectedCategory.description || t('categoryIntroFallback', { category: selectedCategory.name }))
     : initialAudience
     ? t('shopAudience', { audience: translatedAudience?.toLowerCase?.() ?? initialAudience.toLowerCase() })
     : t('defaultIntro');

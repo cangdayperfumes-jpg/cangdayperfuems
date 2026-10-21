@@ -26,7 +26,7 @@ const getCachedCategories = unstable_cache(
     const supabase = getSupabase();
     const { data } = await supabase
       .from('categories')
-      .select('id, name, slug, image_url, description, is_featured, products!inner(id)')
+      .select('id, name, slug, image_url, description, description_tr, is_featured, products!inner(id)')
       .eq('products.is_active', true)
       .order('name');
     return (data || []).map((item: any) => ({
@@ -35,6 +35,7 @@ const getCachedCategories = unstable_cache(
       slug: item.slug,
       image_url: item.image_url,
       description: item.description,
+      description_tr: item.description_tr,
       is_featured: item.is_featured,
     }));
   },
@@ -114,8 +115,9 @@ export async function generateMetadata({ searchParams, params }: { searchParams:
     const category = categories.find((c: any) => c.slug === categorySlug);
     if (category) {
       title = category.name;
-      if (category.description && category.description.length > 50) {
-        description = category.description;
+      const catDescription = (locale === 'tr' && category.description_tr) || category.description;
+      if (catDescription && catDescription.length > 50) {
+        description = catDescription;
       } else {
         description = t('metaCategoryDescription', { category: category.name });
       }

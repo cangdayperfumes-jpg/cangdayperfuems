@@ -158,7 +158,8 @@
     "emptyTitle": "Nothing matches just yet",
     "emptyHint": "Try removing a filter or searching for a different scent or brand.",
     "browseAll": "Browse all perfumes",
-    "popularPicks": "Popular picks"
+    "popularPicks": "Popular picks",
+    "categoryIntroFallback": "Shop {category} at Cangday — high-quality, long-lasting fragrances."
   },
   "checkout": {
     "backToShop": "Back to Shop",
