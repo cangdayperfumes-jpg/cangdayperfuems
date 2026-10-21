@@ -177,7 +177,10 @@ export default function CheckoutForm() {
       const { createClient } = await import('@/utils/supabase/client');
       const supabase = createClient();
 
-      const { data: order, error: orderError } = await supabase.from('orders').insert(orderData).select().single();
+      // The id is made here so the order never has to be read back: the public
+      // has no read access to orders (they hold customers' personal details).
+      const orderId = crypto.randomUUID();
+      const { error: orderError } = await supabase.from('orders').insert({ id: orderId, ...orderData });
       if (orderError) {
         console.error('Error saving order:', JSON.stringify(orderError, null, 2));
         const couponProblem = couponProblemFromError(orderError.message);
@@ -192,7 +195,7 @@ export default function CheckoutForm() {
       }
 
       const orderItems = items.map((item) => ({
-        order_id: order.id,
+        order_id: orderId,
         product_id: item.id,
         quantity: item.quantity,
         unit_price: item.price,
@@ -214,7 +217,7 @@ export default function CheckoutForm() {
       fetch('/api/telegram/new-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId: order.id }),
+        body: JSON.stringify({ orderId }),
         keepalive: true,
       }).catch((e) => console.error('Non-fatal: Telegram notification failed', e));
 
@@ -222,22 +225,22 @@ export default function CheckoutForm() {
         await fetch('/api/emails', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'confirmation', email: values.email, orderId: order.id, customerName: values.name }),
+          body: JSON.stringify({ type: 'confirmation', email: values.email, orderId, customerName: values.name }),
         });
       } catch (emailError) {
         console.error('Non-fatal error: Failed to send confirmation email', emailError);
       }
 
       analytics.purchase({
-        id: order.id,
-        value: Number(order.total_amount ?? total),
+        id: orderId,
+        value: total,
         shipping: shippingCost,
-        coupon: order.coupon_code,
+        coupon: activeCoupon?.code,
         items: items.map((i) => ({ item_id: i.id, item_name: i.name, price: i.price, quantity: i.quantity, ...(i.variantName ? { item_variant: i.variantName } : {}) })),
       });
 
       toast.success(t('orderPlaced'));
-      router.push(`/checkout/success?orderId=${order.id}`);
+      router.push(`/checkout/success?orderId=${orderId}`);
     } catch (error) {
       console.error('Error placing order:', error);
       toast.error(t('orderFailed'));

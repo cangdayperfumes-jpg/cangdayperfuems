@@ -1,6 +1,4 @@
 import { Link } from '@/i18n/navigation';
-import { Button } from '@/components/ui/button';
-import { CheckCircle } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { createClient } from '@/utils/supabase/server';
 import SuccessClient from '@/components/shop/SuccessClient';
@@ -17,22 +15,14 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
   let order = null;
   let items = [];
 
-  if (orderId) {
-      const { data: orderData } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('id', orderId)
-        .single();
-      
-      order = orderData;
-
-      if (order) {
-          const { data: orderItems } = await supabase
-            .from('order_items')
-            .select('*, products(name_en)')
-            .eq('order_id', orderId);
-          items = orderItems || [];
-      }
+  // Orders aren't publicly readable; this function returns only this order
+  // (its random id is the key) and only for a week after it was placed.
+  if (orderId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(orderId)) {
+    const { data } = await supabase.rpc('get_order_receipt', { p_order_id: orderId });
+    if (data) {
+      order = data.order;
+      items = data.items || [];
+    }
   }
 
   return (
