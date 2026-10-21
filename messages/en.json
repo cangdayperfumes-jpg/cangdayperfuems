@@ -26,7 +26,7 @@
   "trustBar": {
     "freeShipping": "Free shipping on every order",
     "freeGift": "Free mini gift over {amount}",
-    "original": "100% original, guaranteed",
+    "original": "High-quality, long-lasting scents",
     "easyReturns": "14-day easy returns"
   },
   "footer": {
@@ -226,7 +226,7 @@
     "notAvailable": "Not available",
     "free": "Free",
     "secureCheckout": "Secure checkout",
-    "originalGuaranteed": "100% original",
+    "originalGuaranteed": "High-quality scents",
     "easyReturns": "14-day returns",
     "showSummary": "Show order summary ({count})",
     "hideSummary": "Hide order summary",
@@ -340,8 +340,8 @@
     "tagline": "A modern fragrance house — an edited collection of designer and niche perfumes for everyday wear.",
     "value1Label": "Curated",
     "value1Sub": "Not Everything, On Purpose",
-    "value2Label": "100%",
-    "value2Sub": "Original, Guaranteed",
+    "value2Label": "Long-lasting",
+    "value2Sub": "High-Quality Scents",
     "value3Label": "Worldwide",
     "value3Sub": "Shipping",
     "value4Label": "14-Day",

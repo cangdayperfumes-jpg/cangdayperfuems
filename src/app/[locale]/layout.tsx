@@ -73,8 +73,8 @@ export async function generateMetadata({
     locale === "tr" ? "Cangday | Modern Parfümeri" : "Cangday | Modern Perfumery";
   const description =
     locale === "tr"
-      ? "Cangday, günlük kullanım için seçilmiş tasarımcı ve niş parfümlerden oluşan modern bir koku evidir. Orijinal şişeler, dünya çapında kargo, kolay iade."
-      : "Cangday is a modern fragrance house — an edited collection of designer and niche perfumes for everyday wear. Original bottles, worldwide shipping, easy returns.";
+      ? "Cangday, günlük kullanım için yüksek kaliteli ve kalıcı parfümler sunan modern bir koku evidir. Türkiye’ye hızlı kargo, dünya çapında gönderim ve 14 gün kolay iade."
+      : "Cangday is a modern fragrance house offering high-quality, long-lasting perfumes for everyday wear. Fast shipping across Turkey, worldwide delivery and 14-day easy returns.";
 
   const { gscVerification } = await getAnalyticsSettings();
 
@@ -250,7 +250,7 @@ export default async function LocaleLayout({
               "name": "Cangday",
               "legalName": "Cangday",
               "url": siteUrl,
-              "description": "Cangday is a modern fragrance house offering an edited collection of designer and niche perfumes for everyday wear.",
+              "description": "Cangday is a modern fragrance house offering high-quality, long-lasting perfumes for everyday wear.",
               "slogan": "Wear What Lingers.",
               "logo": `${siteUrl}/images/cangday-logo-pdf.png`,
               "image": `${siteUrl}/images/cangday-logo.png`,

@@ -197,12 +197,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // Each language gets its own description (Turkish on /tr) plus its own
   // canonical URL and hreflang alternates.
   const description = metaDescription(product, locale);
-  const brandName = (product as any).brands?.name as string | undefined;
-  // "Brand Name — Original Perfume" style titles match how people search; the
-  // layout template appends " | Cangday".
-  const title = brandName && !product.name_en.toLowerCase().includes(brandName.toLowerCase())
-    ? `${brandName} ${product.name_en}`
-    : product.name_en;
+  const title = product.name_en;
 
   return {
     title,
@@ -257,7 +252,6 @@ export default async function ProductPage({ params }: PageProps) {
   const siteUrl = SITE_URL;
   const canonicalSlug = product.slug || product.id;
   const imageUrl = toAbsoluteUrl(product.images?.[0], siteUrl);
-  const brandName = (product as any).brands?.name || 'Cangday';
   const localePath = `/${locale}`;
 
   // Offer.price/availability are only truthful to include when the storefront
@@ -304,9 +298,11 @@ export default async function ProductPage({ params }: PageProps) {
     inLanguage: locale,
     image: imageUrl,
     url: `${siteUrl}${localePath}/shop/${canonicalSlug}`,
+    // The bottles are Cangday's own high-quality perfumes, not the original
+    // houses' — structured data must not name another brand as the maker.
     brand: {
       '@type': 'Brand',
-      name: brandName,
+      name: 'Cangday',
     },
     offers,
   };

@@ -26,7 +26,7 @@
   "trustBar": {
     "freeShipping": "Her siparişte ücretsiz kargo",
     "freeGift": "{amount} üzeri siparişlerde ücretsiz mini hediye",
-    "original": "%100 orijinal ürün garantisi",
+    "original": "Yüksek kaliteli, kalıcı kokular",
     "easyReturns": "14 gün içinde kolay iade"
   },
   "footer": {
@@ -226,7 +226,7 @@
     "notAvailable": "Gönderim yok",
     "free": "Ücretsiz",
     "secureCheckout": "Güvenli ödeme",
-    "originalGuaranteed": "%100 orijinal",
+    "originalGuaranteed": "Yüksek kaliteli koku",
     "easyReturns": "14 gün iade",
     "showSummary": "Sipariş özetini göster ({count})",
     "hideSummary": "Sipariş özetini gizle",
@@ -340,8 +340,8 @@
     "tagline": "Her güne uygun, seçilmiş tasarımcı ve niş parfümlerden oluşan modern bir koku evi.",
     "value1Label": "Seçilmiş",
     "value1Sub": "Her Şey Değil, Bilinçli Seçim",
-    "value2Label": "%100",
-    "value2Sub": "Orijinal, Garantili",
+    "value2Label": "Kalıcı",
+    "value2Sub": "Yüksek Kaliteli Kokular",
     "value3Label": "Dünya Çapında",
     "value3Sub": "Kargo",
     "value4Label": "14 Gün",

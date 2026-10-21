@@ -11,24 +11,19 @@ export const revalidate = 3600;
  */
 export async function GET() {
   let categories: { name: string; slug: string }[] = [];
-  let brands: { name: string }[] = [];
   if (isSupabaseConfigured()) {
     const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
       auth: { persistSession: false },
     });
-    const [c, b] = await Promise.all([
-      supabase.from('categories').select('name, slug').order('name'),
-      supabase.from('brands').select('name').order('name').limit(60),
-    ]);
-    categories = (c.data ?? []).filter((x) => x.slug);
-    brands = b.data ?? [];
+    const { data } = await supabase.from('categories').select('name, slug').order('name');
+    categories = (data ?? []).filter((x) => x.slug);
   }
   const posts = (await getPublishedRows()).slice(0, 30);
 
   const lines = [
     '# Cangday — Modern Perfumery',
     '',
-    '> Cangday is an online perfume shop based in Turkey selling original designer and niche fragrances (eau de parfum, extrait de parfum, body mists). Ships across Turkey and internationally; 14-day returns. Site available in Turkish (/tr) and English (/en). Prices in Turkish lira (TRY).',
+    '> Cangday is an online perfume shop based in Turkey selling high-quality, long-lasting perfumes (eau de parfum, extrait de parfum, body mists). Ships across Turkey and internationally; 14-day returns. Site available in Turkish (/tr) and English (/en). Prices in Turkish lira (TRY).',
     '',
     '## Shop',
     `- [All perfumes (TR)](${SITE_URL}/tr/shop): Full catalogue with filters by brand, category, gender and price`,
@@ -44,9 +39,6 @@ export async function GET() {
     `- [About Cangday](${SITE_URL}/en/about)`,
   ];
 
-  if (brands.length) {
-    lines.push('', '## Brands carried', brands.map((b) => b.name).join(', '));
-  }
 
   if (posts.length) {
     lines.push('', '## Journal (fragrance guides)');

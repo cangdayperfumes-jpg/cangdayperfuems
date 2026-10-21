@@ -3,6 +3,9 @@
  * data. Products without a written description get a short factual one built
  * from real fields (name, brand, audience, category) — never invented scent
  * notes — so every page still has a unique, language-correct meta description.
+ *
+ * Cangday's perfumes are high-quality but not the brands' original bottles,
+ * so this copy must never claim "original", "authentic" or "by <brand>".
  */
 
 interface ProductCopyInput {
@@ -29,19 +32,18 @@ export function productDescription(p: ProductCopyInput, locale: string): string 
 
 /** Factual fallback when no description is written. */
 export function productFallbackDescription(p: ProductCopyInput, locale: string): string {
-  const brand = p.brands?.name?.trim();
   const aud = AUDIENCE[p.target_audience ?? ''];
   const category = p.categories?.name?.trim();
   if (locale === 'tr') {
     return [
       // No category here: category names are English ("Perfumes").
-      `${p.name_en}${brand ? `, ${brand}` : ''} imzalı orijinal ${aud ? `${aud.tr} ` : ''}parfüm.`,
-      'Cangday güvencesiyle %100 orijinal şişe, Türkiye’ye hızlı kargo ve 14 gün kolay iade.',
+      `${p.name_en} — yüksek kaliteli, kalıcı ${aud ? `${aud.tr} ` : ''}parfüm.`,
+      'Cangday’den Türkiye’ye hızlı kargo ve 14 gün kolay iade.',
     ].join(' ');
   }
   return [
-    `${p.name_en}${brand ? ` by ${brand}` : ''} — an original ${aud ? `${aud.en} ` : ''}fragrance${category ? ` (${category})` : ''}.`,
-    '100% authentic bottle from Cangday, fast shipping across Turkey and 14-day easy returns.',
+    `${p.name_en} — a high-quality, long-lasting ${aud ? `${aud.en} ` : ''}fragrance${category ? ` (${category})` : ''}.`,
+    'Fast shipping across Turkey from Cangday and 14-day easy returns.',
   ].join(' ');
 }
 
