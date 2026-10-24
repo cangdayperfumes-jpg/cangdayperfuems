@@ -95,6 +95,18 @@ const getCachedProductCounts = unstable_cache(
   { revalidate: 60 }
 );
 
+/** Minimum price for the Niche collection (Settings → General). Tagged so saving Settings refreshes it. */
+const getNicheMinPrice = unstable_cache(
+  async (): Promise<number> => {
+    if (!isSupabaseConfigured()) return 3000;
+    const { data } = await getSupabase().from('system_settings').select('niche_min_price').eq('id', 'global').single();
+    const value = Number((data as { niche_min_price?: number } | null)?.niche_min_price);
+    return Number.isFinite(value) && value >= 0 ? value : 3000;
+  },
+  ['niche-min-price'],
+  { revalidate: 300, tags: ['site-settings'] }
+);
+
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
 export async function generateMetadata({ searchParams, params }: { searchParams: SearchParams; params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -105,6 +117,7 @@ export async function generateMetadata({ searchParams, params }: { searchParams:
   const audience = typeof resolvedParams.audience === 'string' ? resolvedParams.audience : undefined;
   const searchQuery = typeof resolvedParams.q === 'string' ? resolvedParams.q : undefined;
   const seasonSlug = typeof resolvedParams.season === 'string' ? resolvedParams.season : undefined;
+  const niche = resolvedParams.niche === 'true';
 
   let title = t('metaTitleAll');
   let description = t('metaDescriptionAll');
@@ -130,6 +143,9 @@ export async function generateMetadata({ searchParams, params }: { searchParams:
       description = collection.seo_description || collection.description || `Shop our ${collection.title} collection at Cangday.`;
       ogImage = collection.banner_image_desktop || undefined;
     }
+  } else if (niche) {
+    title = t('nicheCollection');
+    description = t('metaNicheDescription');
   } else if (audience) {
     title = t('audienceCollection', { audience });
     description = t('metaAudienceDescription', { audience });
@@ -142,6 +158,7 @@ export async function generateMetadata({ searchParams, params }: { searchParams:
   let shopPath = '/shop';
   if (categorySlug && !searchQuery) shopPath += `?category=${encodeURIComponent(categorySlug)}`;
   else if (seasonSlug && !searchQuery) shopPath += `?season=${encodeURIComponent(seasonSlug)}`;
+  else if (niche && !searchQuery) shopPath += '?niche=true';
   else if (audience && !searchQuery) shopPath += `?audience=${encodeURIComponent(audience)}`;
   const alternates = localeAlternates(locale, shopPath);
   const canonicalUrl = alternates.canonical as string;
@@ -175,6 +192,7 @@ export default async function ShopPage(props: {
   const searchQuery = typeof searchParams.q === 'string' ? searchParams.q : undefined;
   const filter = typeof searchParams.filter === 'string' ? searchParams.filter : undefined;
   const popularOnly = searchParams.popular === 'true';
+  const nicheOnly = searchParams.niche === 'true';
   const seasonSlug = typeof searchParams.season === 'string' ? searchParams.season : undefined;
   const page = typeof searchParams.page === 'string' ? parseInt(searchParams.page) : 1;
   const limit = 12;
@@ -185,10 +203,11 @@ export default async function ShopPage(props: {
   const to = page * limit - 1;
 
   // 1. Load cached Categories, Brands, and product counts (all independent — parallel)
-  const [categories, brands, productCounts] = await Promise.all([
+  const [categories, brands, productCounts, nicheMinPrice] = await Promise.all([
     getCachedCategories(),
     getCachedBrands(),
     getCachedProductCounts(),
+    nicheOnly ? getNicheMinPrice() : Promise.resolve(undefined),
   ]);
 
   if (!categories || !brands) {
@@ -272,6 +291,12 @@ export default async function ShopPage(props: {
       query = query.eq('is_popular', true);
   }
 
+  // Niche: highest selling price (incl. sizes — see products.max_price) at or
+  // above the minimum set in Settings.
+  if (nicheOnly && nicheMinPrice !== undefined) {
+      query = query.gte('max_price', nicheMinPrice);
+  }
+
   if (audience) {
       if (audience === 'Men') {
          query = query.in('target_audience', ['Men', 'Unisex']);
@@ -339,6 +364,7 @@ export default async function ShopPage(props: {
         initialAudience={audience}
         initialBrands={brandSlugs}
         initialPopular={popularOnly}
+        nicheMinPrice={nicheOnly ? nicheMinPrice : undefined}
         initialFilter={filter}
         initialSeason={seasonSlug}
         seasonTitle={seasonTitle}

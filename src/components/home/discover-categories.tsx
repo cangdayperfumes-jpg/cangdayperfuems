@@ -53,9 +53,11 @@ function resolveContent(tile: CategoryTile, t: Awaited<ReturnType<typeof getTran
   }
   if (href.includes('category=gift-sets')) return { title: t('discoverGiftTitle'), cta: t('discoverGiftCta') };
   if (href.includes('category=body-mists')) return { title: t('discoverMistsTitle'), cta: t('discoverMistsCta') };
+  if (href.includes('niche=true')) return { title: t('discoverNicheTitle'), cta: t('discoverNicheCta') };
   if (href.includes('popular=true')) return { title: t('discoverPopularTitle'), cta: t('discoverPopularCta') };
+  // Legacy link to a category that no longer exists — now the Niche collection.
   if (href.includes('category=niche-perfumes')) {
-    return { title: t('discoverPopularTitle'), cta: t('discoverPopularCta'), href: '/shop?popular=true' };
+    return { title: t('discoverNicheTitle'), cta: t('discoverNicheCta'), href: '/shop?niche=true' };
   }
   return { title: tile.label, cta: t('discoverDefaultCta') };
 }

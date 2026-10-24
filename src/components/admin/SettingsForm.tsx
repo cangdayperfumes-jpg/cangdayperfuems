@@ -31,6 +31,7 @@ const settingsSchema = z.object({
   popupMessageTr: z.string().default(''),
   popupButtonTextTr: z.string().default(''),
   newBadgeDays: z.coerce.number().int().min(0).max(365).default(30),
+  nicheMinPrice: z.coerce.number().min(0).default(3000),
   giftEnabled: z.boolean().default(true),
   giftThreshold: z.coerce.number().positive().default(750),
   gaMeasurementId: z.string().trim().toUpperCase().regex(/^(G-[A-Z0-9]{4,16})?$/, 'G-XXXXXXXXXX').default(''),
@@ -56,6 +57,7 @@ export interface SettingsInitialData {
   popup_message_tr?: string | null;
   popup_button_text_tr?: string | null;
   new_badge_days?: number | null;
+  niche_min_price?: number | null;
   gift_enabled?: boolean | null;
   gift_threshold?: number | null;
   ga_measurement_id?: string | null;
@@ -100,6 +102,7 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
       popupMessageTr: initialData?.popup_message_tr ?? '',
       popupButtonTextTr: initialData?.popup_button_text_tr ?? '',
       newBadgeDays: initialData?.new_badge_days ?? 30,
+      nicheMinPrice: Number(initialData?.niche_min_price ?? 3000),
       giftEnabled: initialData?.gift_enabled ?? true,
       giftThreshold: Number(initialData?.gift_threshold ?? 750),
       gaMeasurementId: initialData?.ga_measurement_id ?? '',
@@ -135,6 +138,7 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
           popup_message_tr: data.popupMessageTr,
           popup_button_text_tr: data.popupButtonTextTr,
           new_badge_days: data.newBadgeDays,
+          niche_min_price: data.nicheMinPrice,
           gift_enabled: data.giftEnabled,
           gift_threshold: data.giftThreshold,
           ga_measurement_id: data.gaMeasurementId,
@@ -194,6 +198,22 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
                   <Input type="number" min={0} max={365} className="max-w-[140px]" {...field} />
                 </FormControl>
                 <FormDescription>{t('newBadgeDaysDesc')}</FormDescription>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="nicheMinPrice"
+            render={({ field }) => (
+              <FormItem className="mt-4">
+                <FormLabel>{t('nicheMinPriceLabel')}</FormLabel>
+                <FormControl>
+                  <div className="relative max-w-[180px]">
+                    <Input type="number" min={0} step="50" className="pr-8" {...field} />
+                    <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">₺</span>
+                  </div>
+                </FormControl>
+                <FormDescription>{t('nicheMinPriceDesc')}</FormDescription>
               </FormItem>
             )}
           />

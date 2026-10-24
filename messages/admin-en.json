@@ -407,7 +407,9 @@
     "gaIdLabel": "Google Analytics 4 Measurement ID",
     "gaIdDesc": "Analytics → Admin → Data streams → your web stream. Starts with G-. Leave empty to turn tracking off.",
     "gscLabel": "Search Console verification code",
-    "gscDesc": "Only if you verify with the \"HTML tag\" method: paste just the content=\"…\" value. Not needed if you verified with DNS."
+    "gscDesc": "Only if you verify with the \"HTML tag\" method: paste just the content=\"…\" value. Not needed if you verified with DNS.",
+    "nicheMinPriceLabel": "Niche collection — minimum price",
+    "nicheMinPriceDesc": "Perfumes priced at or above this (including any size) appear in the Niche collection at /shop?niche=true and on the homepage Niche tile."
   },
   "login": {
     "title": "Admin Access",

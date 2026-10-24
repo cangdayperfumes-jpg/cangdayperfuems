@@ -159,7 +159,11 @@
     "emptyHint": "Try removing a filter or searching for a different scent or brand.",
     "browseAll": "Browse all perfumes",
     "popularPicks": "Popular picks",
-    "categoryIntroFallback": "Shop {category} at Cangday — high-quality, long-lasting fragrances."
+    "categoryIntroFallback": "Shop {category} at Cangday — high-quality, long-lasting fragrances.",
+    "nicheCollection": "Niche Perfumes",
+    "nicheIntro": "Our premium selection — perfumes from {price} and up.",
+    "nicheChip": "Niche · {price}+",
+    "metaNicheDescription": "Shop niche perfumes at Cangday — our premium, higher-end selection of rich, long-lasting fragrances."
   },
   "checkout": {
     "backToShop": "Back to Shop",
@@ -296,7 +300,9 @@
     "promo3Eyebrow": "On Us",
     "promo3Title": "Free Mini Gift",
     "promo3Body": "Automatically added to orders over {amount}.",
-    "promo3Cta": "Start Shopping"
+    "promo3Cta": "Start Shopping",
+    "discoverNicheTitle": "Niche Perfumes",
+    "discoverNicheCta": "Discover"
   },
   "contact": {
     "metaTitle": "Contact Us",

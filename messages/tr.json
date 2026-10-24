@@ -159,7 +159,11 @@
     "emptyHint": "Bir filtreyi kaldırmayı veya farklı bir koku ya da marka aramayı deneyin.",
     "browseAll": "Tüm parfümlere göz at",
     "popularPicks": "Popüler seçimler",
-    "categoryIntroFallback": "Cangday’de {category} — yüksek kaliteli, kalıcı kokular."
+    "categoryIntroFallback": "Cangday’de {category} — yüksek kaliteli, kalıcı kokular.",
+    "nicheCollection": "Niş Parfümler",
+    "nicheIntro": "Özel seçkimiz — {price} ve üzeri parfümler.",
+    "nicheChip": "Niş · {price}+",
+    "metaNicheDescription": "Cangday'de niş parfümleri keşfedin — zengin ve kalıcı kokulardan oluşan özel, üst segment seçkimiz."
   },
   "checkout": {
     "backToShop": "Mağazaya Dön",
@@ -296,7 +300,9 @@
     "promo3Eyebrow": "Bizden Hediye",
     "promo3Title": "Ücretsiz Mini Hediye",
     "promo3Body": "{amount} üzeri siparişlere otomatik eklenir.",
-    "promo3Cta": "Alışverişe Başla"
+    "promo3Cta": "Alışverişe Başla",
+    "discoverNicheTitle": "Niş Parfümler",
+    "discoverNicheCta": "Keşfet"
   },
   "contact": {
     "metaTitle": "İletişim",

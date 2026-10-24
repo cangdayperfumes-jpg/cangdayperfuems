@@ -25,6 +25,8 @@ interface ShopClientWrapperProps {
   initialCategorySlug?: string;
   initialAudience?: string;
   initialPopular?: boolean;
+  /** Set when the Niche collection (?niche=true) is active — its minimum price. */
+  nicheMinPrice?: number;
   initialBrands?: string[];
   initialFilter?: string;
   initialSeason?: string;
@@ -47,6 +49,7 @@ export default function ShopClientWrapper({
   initialCategorySlug,
   initialAudience,
   initialPopular,
+  nicheMinPrice,
   initialBrands = [],
   initialFilter,
   initialSeason,
@@ -189,8 +192,14 @@ export default function ShopClientWrapper({
     ? t('audienceCollection', { audience: translatedAudience ?? initialAudience })
     : undefined;
 
+  const nichePrice = nicheMinPrice !== undefined
+    ? new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(nicheMinPrice)
+    : undefined;
+
   const selectedCategoryName = seasonTitle
     ? seasonTitle
+    : nichePrice && !selectedCategory
+    ? t('nicheCollection')
     : selectedCategory
     ? selectedCategory.name
     : audienceLabel
@@ -213,6 +222,8 @@ export default function ShopClientWrapper({
   // page as mobile and previously saw no on-page copy at all here.
   const pageIntro = seasonTitle
     ? undefined
+    : nichePrice && !selectedCategory
+    ? t('nicheIntro', { price: nichePrice })
     : selectedCategory
     ? toShortIntro((locale === 'tr' && (selectedCategory as { description_tr?: string | null }).description_tr) || selectedCategory.description || t('categoryIntroFallback', { category: selectedCategory.name }))
     : initialAudience
@@ -271,6 +282,9 @@ export default function ShopClientWrapper({
   }
   if (initialPopular) {
     activeChips.push({ key: 'popular', label: t('popular'), onRemove: () => navigateWithParams((p) => p.delete('popular')) });
+  }
+  if (nichePrice) {
+    activeChips.push({ key: 'niche', label: t('nicheChip', { price: nichePrice }), onRemove: () => navigateWithParams((p) => p.delete('niche')) });
   }
   selectedBrands.forEach((slug) => {
     const brand = brands.find((b) => b.slug === slug);

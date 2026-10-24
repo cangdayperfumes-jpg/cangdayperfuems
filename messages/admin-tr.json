@@ -407,7 +407,9 @@
     "gaIdLabel": "Google Analytics 4 Ölçüm Kimliği",
     "gaIdDesc": "Analytics → Yönetici → Veri akışları → web akışınız. G- ile başlar. Takibi kapatmak için boş bırakın.",
     "gscLabel": "Search Console doğrulama kodu",
-    "gscDesc": "Yalnızca \"HTML etiketi\" yöntemiyle doğruluyorsanız: sadece content=\"…\" değerini yapıştırın. DNS ile doğruladıysanız gerekmez."
+    "gscDesc": "Yalnızca \"HTML etiketi\" yöntemiyle doğruluyorsanız: sadece content=\"…\" değerini yapıştırın. DNS ile doğruladıysanız gerekmez.",
+    "nicheMinPriceLabel": "Niş koleksiyon — minimum fiyat",
+    "nicheMinPriceDesc": "Bu fiyat ve üzerindeki parfümler (herhangi bir boyutu dahil) /shop?niche=true adresindeki Niş koleksiyonda ve ana sayfadaki Niş kutucuğunda görünür."
   },
   "login": {
     "title": "Yönetici Girişi",
