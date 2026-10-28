@@ -8,7 +8,8 @@ import { createClient } from '@/utils/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
-import { ArrowUpRight, Instagram, Loader2 } from 'lucide-react';
+import { ArrowUpRight, Loader2 } from 'lucide-react';
+import { BludoraMark, BludoraWordmark } from '@/components/shared/BludoraLogo';
 
 const SHOP_LINKS = [
   { href: '/shop', key: 'allPerfumes' },
@@ -132,13 +133,12 @@ export default function Footer() {
               aria-label={t('madeByLabel')}
               className="group mt-4 inline-flex md:mt-5 items-center gap-3 rounded-sm border border-border bg-background px-3 py-2.5 text-left transition-colors hover:border-gold/60"
             >
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-ink text-gold transition-colors group-hover:bg-gold-deep group-hover:text-ivory">
-                <Instagram className="h-4 w-4" strokeWidth={1.75} />
-              </span>
+              <BludoraMark className="h-9 w-auto shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5" />
               <span className="leading-tight">
                 <span className="block text-[9px] md:text-[10px] uppercase tracking-[0.2em] text-ink/50">{t('madeBy')}</span>
-                <span className="mt-0.5 flex items-center gap-1 text-xs md:text-sm font-semibold text-ink">
-                  Bludora Software
+                <span className="mt-1 flex items-center gap-1.5">
+                  <BludoraWordmark className="text-sm md:text-base" />
+                  <span className="text-[10px] md:text-[11px] font-medium text-ink/50">Software</span>
                   <ArrowUpRight className="h-3.5 w-3.5 text-ink/40 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-gold-deep" />
                 </span>
               </span>
