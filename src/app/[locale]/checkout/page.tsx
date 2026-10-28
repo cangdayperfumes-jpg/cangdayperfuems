@@ -12,6 +12,7 @@ import GiftProgress from '@/components/cart/GiftProgress';
 import CouponField from '@/components/checkout/CouponField';
 import { couponDiscount } from '@/lib/coupons';
 import { useBagOffers } from '@/hooks/use-bag-offers';
+import { shippingTotal } from '@/lib/shipping';
 import OfferLines from '@/components/cart/OfferLines';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
@@ -50,7 +51,9 @@ function useTotals() {
   const items = useStore(useCartStore, (state) => state.items);
   const { subtotal, lines: offerLines, afterOffers } = useBagOffers(items);
   const { shipping, coupon } = useCheckout();
-  const shippingCost = shipping?.available ? shipping.price : 0;
+  // Cargo is charged per bottle (lib/shipping.ts → shippingTotal).
+  const bottles = items?.reduce((n, i) => n + i.quantity, 0) ?? 0;
+  const shippingCost = shippingTotal(shipping, bottles);
   // Offers come off first; a coupon applies to what's left (the database
   // checks it against the same amount).
   const discount = couponDiscount(coupon, afterOffers);
@@ -61,11 +64,19 @@ function ShippingValue() {
   const t = useTranslations('checkout');
   const { shipping } = useCheckout();
   const { hidePrices } = useSettings();
+  const items = useStore(useCartStore, (state) => state.items);
+  const bottles = items?.reduce((n, i) => n + i.quantity, 0) ?? 0;
   if (hidePrices) return <span className="text-xs text-muted-foreground">{t('includedInQuote')}</span>;
   if (!shipping) return <span className="text-xs text-muted-foreground">{t('selectDestination')}</span>;
   if (!shipping.available) return <span className="text-xs text-destructive">{t('notAvailable')}</span>;
   if (shipping.price === 0) return <span className="font-medium text-sage-deep">{t('free')}</span>;
-  return <span>{formatCurrency(shipping.price)}</span>;
+  // "3 × ₺50  ₺150" so the per-bottle charge is clear.
+  return (
+    <span>
+      {bottles > 1 && <span className="mr-1.5 text-xs text-muted-foreground">{bottles} × {formatCurrency(shipping.price)}</span>}
+      {formatCurrency(shippingTotal(shipping, bottles))}
+    </span>
+  );
 }
 
 function OrderSummary() {

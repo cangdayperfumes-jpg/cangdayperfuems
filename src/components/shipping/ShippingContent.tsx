@@ -98,7 +98,7 @@ export default function ShippingContent({ groupedZones, allZones }: ShippingCont
                                             </div>
                                             {!hidePrices && (
                                                 <span className="text-black font-semibold text-sm whitespace-nowrap">
-                                                    {Number(zone.price) === 0 ? t('free') : formatCurrency(Number(zone.price))}
+                                                    {Number(zone.price) === 0 ? t('free') : <>{formatCurrency(Number(zone.price))} <span className="font-normal text-gray-500">{t('perItem')}</span></>}
                                                 </span>
                                             )}
                                         </div>

@@ -24,7 +24,8 @@ export function getEnabledCountryZones(zones: ShippingZone[]): ShippingZone[] {
 }
 
 /**
- * Shipping price for one order (charged once, not per item).
+ * Cargo price for one bottle — the order pays it per bottle (see
+ * shippingTotal), so 3 bottles cost 3 × this price.
  * Turkey: a matching enabled province override wins, otherwise the
  * national Turkey price. Other countries: that country's price. A
  * disabled/missing country is not shippable.
@@ -47,6 +48,12 @@ export function quoteShipping(
     }
   }
   return { available: true, price: Number(countryZone.price), details: countryZone.shipping_details };
+}
+
+/** Total cargo for the bag: the zone's per-bottle price × the number of bottles. */
+export function shippingTotal(quote: ShippingQuote | null | undefined, bottles: number): number {
+  if (!quote?.available) return 0;
+  return Math.round(quote.price * Math.max(0, bottles) * 100) / 100;
 }
 
 /** Localized country name (e.g. "Almanya" on /tr), falling back to the stored English name. */

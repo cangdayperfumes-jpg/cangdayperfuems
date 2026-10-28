@@ -29,6 +29,7 @@ import {
   flagUrl,
   getEnabledCountryZones,
   quoteShipping,
+  shippingTotal,
   type ShippingZone,
 } from '@/lib/shipping';
 
@@ -144,7 +145,9 @@ export default function CheckoutForm() {
 
     try {
       setIsSubmitting(true);
-      const shippingCost = hidePrices ? 0 : quote.price;
+      // Cargo is charged per bottle.
+      const bottles = items.reduce((n, i) => n + i.quantity, 0);
+      const shippingCost = hidePrices ? 0 : shippingTotal(quote, bottles);
       // Offers come off first and are saved with the order (offer_discount /
       // offer_lines), so every later view shows these exact amounts. The
       // database re-validates the coupon against what's left and recomputes

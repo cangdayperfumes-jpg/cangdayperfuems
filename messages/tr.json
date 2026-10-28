@@ -27,7 +27,7 @@
     "freeShipping": "Her siparişte ücretsiz kargo",
     "freeGift": "{amount} üzeri siparişlerde ücretsiz mini hediye",
     "original": "Yüksek kaliteli, kalıcı kokular",
-    "shippingFlat": "Türkiye geneli {amount} kargo",
+    "shippingFlat": "Türkiye geneli ürün başı {amount} kargo",
     "sameDayDispatch": "Siparişiniz aynı gün kargoda",
     "offerPair": "İkinci parfüm %{percent} indirimli ({max} ve altı)",
     "offerTrio": "{count} parfüm {price}",
@@ -421,9 +421,10 @@
     "loadingRates": "Güncel ücretler yükleniyor...",
     "notListedNote": "* Ülkeniz listede yoksa, lütfen siparişinizi ödeme sayfasında hesaplayın veya teklif için bizimle iletişime geçin.",
     "free": "Ücretsiz",
-    "introTurkey": "Şu anda Türkiye'nin 81 iline kargo gönderiyoruz. Kargo ücreti ödeme sayfasında gösterilir ve ödeme kapıda nakit olarak yapılır.",
+    "introTurkey": "Şu anda Türkiye'nin 81 iline kargo gönderiyoruz. Kargo ücreti ürün başına alınır ve ödeme sayfasında gösterilir; ödeme kapıda nakit olarak yapılır.",
     "introCountries": "Şu anda {count} ülkeye kargo gönderiyoruz: {regions}. Kargo ücreti ve teslimat süresi ülkeye göre değişir ve ödeme sayfasında gösterilir.",
-    "introNone": "Kargo seçeneklerimiz kısa süre içinde burada olacak. Bu arada sipariş için bizimle iletişime geçebilirsiniz."
+    "introNone": "Kargo seçeneklerimiz kısa süre içinde burada olacak. Bu arada sipariş için bizimle iletişime geçebilirsiniz.",
+    "perItem": "/ ürün"
   },
   "privacy": {
     "metaTitle": "Gizlilik Politikası",
