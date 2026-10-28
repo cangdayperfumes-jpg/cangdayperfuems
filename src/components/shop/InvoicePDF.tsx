@@ -9,6 +9,7 @@ import {
   registerPdfFonts,
 } from '@/lib/pdf-brand';
 import { EditableInvoiceItem } from '@/types/invoice';
+import { offerLineLabel, readOfferLines } from '@/lib/offers';
 
 const styles = StyleSheet.create({
   page: {
@@ -253,7 +254,7 @@ const INVOICE_COPY = {
     item: 'ÜRÜN', qty: 'ADET', unitPrice: 'BİRİM FİYAT', shipping: 'KARGO', total: 'TOPLAM',
     product: 'Ürün', variant: 'Seçenek', size: 'Boyut', color: 'Renk', note: 'Not',
     count: (n: number) => `Toplam: ${n} ürün`,
-    subtotal: 'Ara toplam', discount: 'İndirim', shippingFee: 'Kargo ücreti', grandTotal: 'Genel toplam',
+    subtotal: 'Ara toplam', discount: 'İndirim', offers: 'Kampanya indirimi', shippingFee: 'Kargo ücreti', grandTotal: 'Genel toplam',
     payment: 'Ödeme', cash: 'Kapıda nakit ödeme', thanks: 'Siparişiniz için teşekkür ederiz',
     slogan: 'İzini Bırakan Kokular', dateLocale: 'tr-TR',
   },
@@ -262,7 +263,7 @@ const INVOICE_COPY = {
     item: 'ITEM', qty: 'QTY', unitPrice: 'UNIT PRICE', shipping: 'SHIPPING', total: 'TOTAL',
     product: 'Product', variant: 'Variant', size: 'Size', color: 'Color', note: 'Note',
     count: (n: number) => `Total: ${n} ${n === 1 ? 'Product' : 'Products'}`,
-    subtotal: 'Subtotal', discount: 'Discount', shippingFee: 'Shipping Fee', grandTotal: 'Grand Total',
+    subtotal: 'Subtotal', discount: 'Discount', offers: 'Offer discount', shippingFee: 'Shipping Fee', grandTotal: 'Grand Total',
     payment: 'Payment', cash: 'Cash on delivery', thanks: 'Thank you for your order',
     slogan: 'Wear What Lingers', dateLocale: 'en-GB',
   },
@@ -327,10 +328,14 @@ export default function InvoicePDF({ order, items, hidePrices = false, customIte
   // grand total is always recomputed from subtotal + shippingFee.
   const subtotal = visibleCustomItems
     ? rows.reduce((sum, row) => sum + row.total, 0)
-    : order.total_amount - order.shipping_cost + (order.discount_amount || 0);
+    : order.total_amount - order.shipping_cost + (order.discount_amount || 0) + Number(order.offer_discount || 0);
   const couponDiscount = Number(order.discount_amount || 0);
+  // Offers saved with the order at checkout — the same lines and amounts the
+  // customer saw, whatever the offers are set to today.
+  const offerDiscount = Number(order.offer_discount || 0);
+  const offerLines = readOfferLines(order.offer_lines);
   const shippingFee = shippingOverride ?? order.shipping_cost ?? 0;
-  const grandTotal = Math.max(subtotal - couponDiscount, 0) + shippingFee;
+  const grandTotal = Math.max(subtotal - offerDiscount - couponDiscount, 0) + shippingFee;
   registerPdfFonts();
   const totalQuantity = rows.reduce((sum, row) => sum + row.quantity, 0);
 
@@ -443,6 +448,12 @@ export default function InvoicePDF({ order, items, hidePrices = false, customIte
                 <Text style={styles.totalLabel}>{c.subtotal}</Text>
                 <Text style={styles.totalValue}>{formatPrice(subtotal)}</Text>
               </View>
+              {offerDiscount > 0 && (offerLines.length ? offerLines : [null]).map((l, i) => (
+              <View key={l?.offer ?? i} style={styles.totalRow}>
+                <Text style={styles.totalLabel}>{l ? offerLineLabel(l, lang) : c.offers}</Text>
+                <Text style={styles.discountValue}>-{formatPrice(l ? l.amount : offerDiscount)}</Text>
+              </View>
+              ))}
               {couponDiscount > 0 && (
               <View style={styles.totalRow}>
                 <Text style={styles.totalLabel}>{c.discount}{order.coupon_code ? ` (${order.coupon_code})` : ''}</Text>

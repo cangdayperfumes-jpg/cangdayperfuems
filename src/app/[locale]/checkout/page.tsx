@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { analytics } from '@/lib/analytics';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowLeft, Check, ChevronDown, Loader2, Lock, RotateCcw, ShieldCheck, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, Check, ChevronDown, Loader2, Lock, PackageCheck, ShieldCheck, ShoppingBag } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useCartStore } from '@/hooks/use-cart';
 import { useStore } from '@/hooks/use-store';
@@ -11,6 +11,8 @@ import CheckoutForm, { CHECKOUT_FORM_ID } from '@/components/checkout/checkout-f
 import GiftProgress from '@/components/cart/GiftProgress';
 import CouponField from '@/components/checkout/CouponField';
 import { couponDiscount } from '@/lib/coupons';
+import { useBagOffers } from '@/hooks/use-bag-offers';
+import OfferLines from '@/components/cart/OfferLines';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
 import ImageWithFallback from '@/components/shared/ImageWithFallback';
@@ -46,11 +48,13 @@ function Steps() {
 
 function useTotals() {
   const items = useStore(useCartStore, (state) => state.items);
-  const subtotal = useStore(useCartStore, (state) => state.getTotalPrice()) ?? 0;
+  const { subtotal, lines: offerLines, afterOffers } = useBagOffers(items);
   const { shipping, coupon } = useCheckout();
   const shippingCost = shipping?.available ? shipping.price : 0;
-  const discount = couponDiscount(coupon, subtotal);
-  return { items, subtotal, shipping, discount, total: subtotal - discount + shippingCost };
+  // Offers come off first; a coupon applies to what's left (the database
+  // checks it against the same amount).
+  const discount = couponDiscount(coupon, afterOffers);
+  return { items, subtotal, offerLines, afterOffers, shipping, discount, total: afterOffers - discount + shippingCost };
 }
 
 function ShippingValue() {
@@ -68,7 +72,7 @@ function OrderSummary() {
   const t = useTranslations('checkout');
   const tCommon = useTranslations('common');
   const { hidePrices } = useSettings();
-  const { items, subtotal, discount, total } = useTotals();
+  const { items, subtotal, offerLines, afterOffers, discount, total } = useTotals();
   const { coupon } = useCheckout();
 
   return (
@@ -99,15 +103,16 @@ function OrderSummary() {
         ))}
       </ul>
 
-      {!hidePrices && <GiftProgress subtotal={subtotal} />}
+      {!hidePrices && <GiftProgress subtotal={afterOffers} />}
 
-      {!hidePrices && <CouponField subtotal={subtotal} />}
+      {!hidePrices && <CouponField subtotal={afterOffers} />}
 
       <dl className="space-y-2.5 border-t border-border pt-4 text-sm">
         <div className="flex justify-between">
           <dt className="text-muted-foreground">{t('subtotal')}</dt>
           <dd className="tabular-nums">{hidePrices ? tCommon('contactForPrice') : formatCurrency(subtotal)}</dd>
         </div>
+        {!hidePrices && <OfferLines lines={offerLines} />}
         {!hidePrices && coupon && discount > 0 && (
           <div className="flex justify-between text-sage-deep">
             <dt>{t('couponDiscount', { code: coupon.code })}</dt>
@@ -127,7 +132,7 @@ function OrderSummary() {
       <ul className="grid grid-cols-3 gap-2 border-t border-border pt-4 text-center text-[10px] md:text-[11px] leading-tight text-ink/70">
         <li className="flex flex-col items-center gap-1.5"><Lock className="h-4 w-4 text-gold-deep" strokeWidth={1.5} />{t('secureCheckout')}</li>
         <li className="flex flex-col items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-gold-deep" strokeWidth={1.5} />{t('originalGuaranteed')}</li>
-        <li className="flex flex-col items-center gap-1.5"><RotateCcw className="h-4 w-4 text-gold-deep" strokeWidth={1.5} />{t('easyReturns')}</li>
+        <li className="flex flex-col items-center gap-1.5"><PackageCheck className="h-4 w-4 text-gold-deep" strokeWidth={1.5} />{t('sameDayDispatch')}</li>
       </ul>
     </div>
   );

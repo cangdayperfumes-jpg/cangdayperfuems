@@ -25,6 +25,7 @@ import { Toaster } from "@/components/ui/sonner";
 import NextTopLoader from "nextjs-toploader";
 import { createClient } from "@supabase/supabase-js";
 import { SettingsProvider } from "@/components/providers/SettingsProvider";
+import { parseOffers } from "@/lib/offers";
 import MotionProvider from "@/components/providers/MotionProvider";
 import { unstable_cache } from "next/cache";
 import StorefrontLayoutWrapper from "@/components/shared/StorefrontLayoutWrapper";
@@ -73,8 +74,8 @@ export async function generateMetadata({
     locale === "tr" ? "Cangday | Modern Parfümeri" : "Cangday | Modern Perfumery";
   const description =
     locale === "tr"
-      ? "Cangday, günlük kullanım için yüksek kaliteli ve kalıcı parfümler sunan modern bir koku evidir. Türkiye’ye hızlı kargo, dünya çapında gönderim ve 14 gün kolay iade."
-      : "Cangday is a modern fragrance house offering high-quality, long-lasting perfumes for everyday wear. Fast shipping across Turkey, worldwide delivery and 14-day easy returns.";
+      ? "Cangday, günlük kullanım için yüksek kaliteli ve kalıcı parfümler sunan modern bir koku evidir. Türkiye’ye aynı gün kargo ve kapıda nakit ödeme."
+      : "Cangday is a modern fragrance house offering high-quality, long-lasting perfumes for everyday wear. Same-day dispatch across Turkey and cash on delivery.";
 
   const { gscVerification } = await getAnalyticsSettings();
 
@@ -186,7 +187,7 @@ export default async function LocaleLayout({
         if (!supabaseConfigured) return null;
         const { data } = await supabase
           .from('system_settings')
-          .select('hide_prices, popup_enabled, popup_title, popup_message, popup_button_text, popup_button_link, popup_image_url, popup_show_on, popup_ends_at, popup_show_bar, popup_title_tr, popup_message_tr, popup_button_text_tr, new_badge_days, gift_enabled, gift_threshold, shipping_banner_enabled')
+          .select('hide_prices, popup_enabled, popup_title, popup_message, popup_button_text, popup_button_link, popup_image_url, popup_show_on, popup_ends_at, popup_show_bar, popup_title_tr, popup_message_tr, popup_button_text_tr, new_badge_days, gift_enabled, gift_threshold, shipping_banner_enabled, offers')
           .eq('id', 'global')
           .single();
         return data;
@@ -242,6 +243,7 @@ export default async function LocaleLayout({
     enabled: settingsData?.gift_enabled ?? true,
     threshold: Number(settingsData?.gift_threshold ?? 750),
   };
+  const offers = parseOffers(settingsData?.offers);
   const shippingBanner = {
     enabled: settingsData?.shipping_banner_enabled ?? true,
     domesticPrice: domesticShipping ?? null,
@@ -294,7 +296,7 @@ export default async function LocaleLayout({
         />
         <AuthRecoveryRedirect />
         <NextIntlClientProvider>
-          <SettingsProvider hidePrices={hidePrices} popupSettings={popupSettings} newBadgeDays={newBadgeDays} gift={gift} shippingBanner={shippingBanner}>
+          <SettingsProvider hidePrices={hidePrices} popupSettings={popupSettings} newBadgeDays={newBadgeDays} gift={gift} shippingBanner={shippingBanner} offers={offers}>
           <MotionProvider>
             <Suspense fallback={null}>
               <StorefrontLayoutWrapper>

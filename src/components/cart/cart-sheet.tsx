@@ -10,6 +10,8 @@ import { useCartStore } from '@/hooks/use-cart';
 import { useStore } from '@/hooks/use-store';
 import { useSettings } from '@/components/providers/SettingsProvider';
 import GiftProgress from '@/components/cart/GiftProgress';
+import OfferLines from '@/components/cart/OfferLines';
+import { useBagOffers } from '@/hooks/use-bag-offers';
 import { formatCurrency } from '@/lib/utils';
 
 interface CartSheetProps {
@@ -23,7 +25,7 @@ export default function CartSheet({ open, onOpenChange }: CartSheetProps) {
   const items = useStore(useCartStore, (state) => state.items);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const removeItem = useCartStore((state) => state.removeItem);
-  const subtotal = useCartStore((state) => state.getTotalPrice());
+  const { subtotal, lines: offerLines, discount: offerDiscount, afterOffers } = useBagOffers(items);
   const { hidePrices } = useSettings();
 
   const itemCount = items?.reduce((acc, item) => acc + item.quantity, 0) ?? 0;
@@ -65,7 +67,7 @@ export default function CartSheet({ open, onOpenChange }: CartSheetProps) {
           <>
             {!hidePrices && (
               <div className="px-5 pt-4">
-                <GiftProgress subtotal={subtotal} />
+                <GiftProgress subtotal={afterOffers} />
               </div>
             )}
 
@@ -134,10 +136,19 @@ export default function CartSheet({ open, onOpenChange }: CartSheetProps) {
             </ul>
 
             <div className="space-y-3 border-t border-border bg-secondary/40 px-5 pb-6 pt-4">
+              {!hidePrices && offerDiscount > 0 && (
+                <>
+                  <div className="flex items-baseline justify-between text-sm">
+                    <span className="text-muted-foreground">{t('subtotal')}</span>
+                    <span className="tabular-nums text-muted-foreground line-through">{formatCurrency(subtotal)}</span>
+                  </div>
+                  <OfferLines lines={offerLines} />
+                </>
+              )}
               <div className="flex items-baseline justify-between">
-                <span className="text-sm text-muted-foreground">{t('subtotal')}</span>
+                <span className="text-sm text-muted-foreground">{offerDiscount > 0 ? t('afterOffers') : t('subtotal')}</span>
                 <span className="font-heading text-xl font-semibold tabular-nums">
-                  {hidePrices ? tCommon('contactForPrice') : formatCurrency(subtotal)}
+                  {hidePrices ? tCommon('contactForPrice') : formatCurrency(afterOffers)}
                 </span>
               </div>
               <p className="flex items-center gap-1.5 text-xs text-muted-foreground">

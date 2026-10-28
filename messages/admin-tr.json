@@ -24,7 +24,8 @@
     "subscribers": "Aboneler",
     "viewStore": "Mağazayı görüntüle",
     "expand": "Menüyü genişlet",
-    "collapse": "Menüyü daralt"
+    "collapse": "Menüyü daralt",
+    "offers": "Kampanyalar"
   },
   "common": {
     "save": "Kaydet",
@@ -248,7 +249,8 @@
     "reportPage": "Sayfa",
     "exportPreparing": "Hazırlanıyor…",
     "exportFailed": "Dosya oluşturulamadı. Lütfen tekrar deneyin.",
-    "cashOnDelivery": "Kapıda nakit"
+    "cashOnDelivery": "Kapıda nakit",
+    "offerDiscount": "Kampanya"
   },
   "shipping": {
     "title": "Kargo",
@@ -374,11 +376,6 @@
     "showOfferBarDesc": "Başlığın üstündeki ince çubuk, pop-up kapatıldıktan sonra da son tarihi görünür tutar.",
     "popupTurkishTitle": "Türkçe metin",
     "popupTurkishDesc": "Siteyi Türkçe gezen ziyaretçilere gösterilir. Boş alanlarda İngilizce metin kullanılır.",
-    "giftTitle": "Ücretsiz mini hediye",
-    "giftEnabledLabel": "Ücretsiz mini hediye sun",
-    "giftEnabledDesc": "Hediye üst şeritte, güven rozetlerinde, kampanya kartında ve sepetteki ilerleme çubuğunda görünür. Her yerde gizlemek için kapatın.",
-    "giftThresholdLabel": "Hediye için minimum sipariş (₺)",
-    "giftThresholdDesc": "Bu tutar ve üzerindeki siparişler hediyeyi alır.",
     "tgTitle": "Telegram bildirimleri",
     "tgDescription": "Siteden gelen her yeni siparişi anında Telegram’da alın; her akşam 21:00’de de günün özeti gelsin. İstediğiniz kadar kişi veya grup bağlayabilirsiniz.",
     "tgNotConfigured": "Bot henüz kurulmadı.",
@@ -962,5 +959,35 @@
     "original": "Orijinal",
     "holdToCompare": "Orijinali görmek için basılı tutun",
     "note": "Düzenlenmiş bir kopya kaydeder. Orijinal dosya değişmez, istediğiniz zaman geri dönebilirsiniz."
+  },
+  "offers": {
+    "title": "Kampanyalar",
+    "description": "Sepette otomatik uygulanan indirimler. Her parfüm tek bir kampanyadan yararlanır; birden fazlası uyarsa müşteri her zaman en düşük toplamı öder. Tutarlar siparişe kaydedilir, böylece fatura ve Telegram ödeme sayfasıyla aynı olur.",
+    "notReady": "Kampanyaları kaydetmek için Supabase’de 20261029000000_bag_offers.sql dosyasını çalıştırın.",
+    "on": "Açık",
+    "off": "Kapalı",
+    "pairTitle": "İkinci parfüm indirimi",
+    "pairDesc": "Her biri aşağıdaki fiyata kadar olan iki parfümde, ucuz olana indirim uygulanır.",
+    "pairMax": "Parfüm başına en fazla (₺)",
+    "pairPercent": "Ucuz olana indirim (%)",
+    "trioTitle": "Set fiyatı",
+    "trioDesc": "Her biri aşağıdaki fiyata kadar olan parfümler, birlikte tek fiyata satılır.",
+    "trioMax": "Parfüm başına en fazla (₺)",
+    "trioCount": "Setteki parfüm sayısı",
+    "trioPrice": "Set fiyatı (₺)",
+    "premiumTitle": "Premium indirim",
+    "premiumDesc": "Aşağıdaki fiyatın üzerindeki her parfüme indirim uygulanır.",
+    "premiumMin": "Bu fiyatın üzerindeki parfümler (₺)",
+    "premiumPercent": "İndirim (%)",
+    "giftTitle": "Ücretsiz mini hediye",
+    "giftDesc": "Üst şeritte, ana sayfa kartında ve sepetteki ilerleme çubuğunda görünür.",
+    "giftThreshold": "Hediye için sipariş tutarı (₺)",
+    "example": "Örnek",
+    "save": "Kampanyaları kaydet",
+    "saved": "Kampanyalar kaydedildi",
+    "failed": "Kampanyalar kaydedilemedi",
+    "exPair": "2 × {price} → {save} kazanç",
+    "exTrio": "{count} × {price} → {set}, {save} kazanç",
+    "exPremium": "{price} → {after}"
   }
 }

@@ -52,7 +52,8 @@ export async function GET(request: NextRequest) {
     ];
     const rows = orders.map((o) => {
       const items = o.order_items ?? [];
-      const discount = Number(o.discount_amount) || 0;
+      // Coupon + automatic offers.
+      const discount = (Number(o.discount_amount) || 0) + (Number(o.offer_discount) || 0);
       const shipping = Number(o.shipping_cost) || 0;
       const total = Number(o.total_amount) || 0;
       return [

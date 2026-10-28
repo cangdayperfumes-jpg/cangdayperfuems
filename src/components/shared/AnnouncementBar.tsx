@@ -1,6 +1,6 @@
 'use client';
 
-import { Truck, Gift, ShieldCheck, RotateCcw, X } from 'lucide-react';
+import { Truck, Gift, ShieldCheck, PackageCheck, Percent, Layers, Sparkles, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Fragment, useState } from 'react';
 import { useSettings } from '@/components/providers/SettingsProvider';
@@ -8,10 +8,13 @@ import { formatPromoAmount } from '@/lib/promotions';
 import { shippingBannerLabel } from '@/lib/shipping-banner';
 
 const ITEMS = [
+  { icon: Percent, key: 'offerPair' },
+  { icon: Layers, key: 'offerTrio' },
+  { icon: Sparkles, key: 'offerPremium' },
   { icon: Truck, key: 'freeShipping' },
   { icon: Gift, key: 'freeGift' },
   { icon: ShieldCheck, key: 'original' },
-  { icon: RotateCcw, key: 'easyReturns' },
+  { icon: PackageCheck, key: 'sameDayDispatch' },
 ] as const;
 
 // Repeated several times so a single row's content is always wider than any
@@ -25,14 +28,14 @@ type Item = (typeof ITEMS)[number];
 function Row({ items, label, hidden }: { items: readonly Item[]; label: (key: Item['key']) => string; hidden?: boolean }) {
   const repeated = Array.from({ length: REPEATS }, () => items).flat();
   return (
-    <div aria-hidden={hidden} className="flex items-center gap-10 md:gap-14 px-5 shrink-0 animate-marquee-banner">
+    <div aria-hidden={hidden} className="flex items-center gap-10 md:gap-16 px-6 shrink-0 animate-marquee-banner">
       {repeated.map(({ icon: Icon, key }, index) => (
         <Fragment key={`${key}-${index}`}>
           <div className="flex items-center gap-2 whitespace-nowrap">
-            <Icon className="h-3.5 w-3.5 text-gold shrink-0" strokeWidth={1.75} />
-            <span className="text-[11px] font-medium tracking-wide text-ivory/90">{label(key)}</span>
+            <Icon className="h-4 w-4 text-gold shrink-0" strokeWidth={1.75} />
+            <span className="text-xs md:text-[13px] font-medium tracking-wide text-ivory/90">{label(key)}</span>
           </div>
-          <span aria-hidden="true" className="inline-block h-1 w-1 rotate-45 border border-gold/60 shrink-0" />
+          <span aria-hidden="true" className="inline-block h-1.5 w-1.5 rotate-45 border border-gold/60 shrink-0" />
         </Fragment>
       ))}
     </div>
@@ -50,12 +53,27 @@ export default function AnnouncementBar() {
   const t = useTranslations('trustBar');
   const tNav = useTranslations('nav');
   const [isVisible, setIsVisible] = useState(true);
-  const { gift, shippingBanner } = useSettings();
+  const { gift, shippingBanner, offers } = useSettings();
   const shippingLabel = shippingBannerLabel(shippingBanner, t);
   // The mini-gift item follows Settings → Free mini gift (hidden when off).
-  const items = ITEMS.filter((i) => (i.key !== 'freeGift' || gift.enabled) && (i.key !== 'freeShipping' || !!shippingLabel));
+  const shown: Record<Item['key'], boolean> = {
+    offerPair: offers.pair.enabled,
+    offerTrio: offers.trio.enabled,
+    offerPremium: offers.premium.enabled,
+    freeShipping: !!shippingLabel,
+    freeGift: gift.enabled,
+    original: true,
+    sameDayDispatch: true,
+  };
+  const items = ITEMS.filter((i) => shown[i.key]);
   const label = (key: Item['key']) =>
-    key === 'freeGift'
+    key === 'offerPair'
+      ? t('offerPair', { percent: offers.pair.percent, max: formatPromoAmount(offers.pair.maxPrice) })
+      : key === 'offerTrio'
+      ? t('offerTrio', { count: offers.trio.count, price: formatPromoAmount(offers.trio.price) })
+      : key === 'offerPremium'
+      ? t('offerPremium', { percent: offers.premium.percent, min: formatPromoAmount(offers.premium.minPrice) })
+      : key === 'freeGift'
       ? t('freeGift', { amount: formatPromoAmount(gift.threshold) })
       : key === 'freeShipping'
       ? shippingLabel ?? ''
@@ -66,7 +84,7 @@ export default function AnnouncementBar() {
   return (
     <div className="relative w-full bg-burgundy border-b border-burgundy overflow-hidden">
       <div
-        className="flex whitespace-nowrap h-8 items-center"
+        className="flex whitespace-nowrap h-10 md:h-11 items-center"
         style={{ maskImage: 'linear-gradient(to right, transparent, black 14%, black 86%, transparent)' }}
       >
         <Row items={items} label={label} />
@@ -76,9 +94,9 @@ export default function AnnouncementBar() {
         type="button"
         aria-label={tNav('close')}
         onClick={() => setIsVisible(false)}
-        className="absolute right-0 top-0 h-8 w-8 flex items-center justify-center bg-burgundy text-ivory/60 hover:text-ivory transition-colors"
+        className="absolute right-0 top-0 h-10 w-10 md:h-11 md:w-11 flex items-center justify-center bg-burgundy text-ivory/60 hover:text-ivory transition-colors"
       >
-        <X className="h-3.5 w-3.5" strokeWidth={2} />
+        <X className="h-4 w-4" strokeWidth={2} />
       </button>
     </div>
   );

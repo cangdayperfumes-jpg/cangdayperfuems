@@ -46,19 +46,19 @@ export function productFallbackDescription(p: ProductCopyInput, locale: string):
   const brand = p.brands?.name?.trim();
   if (isGenuineBrand(brand)) {
     return locale === 'tr'
-      ? `${p.name_en} — orijinal ${brand} ${aud ? `${aud.tr} ` : ''}parfümü; yüksek kaliteli ve kalıcı. Cangday’den Türkiye’ye hızlı kargo ve 14 gün kolay iade.`
-      : `${p.name_en} — an original ${brand} ${aud ? `${aud.en} ` : ''}perfume, high-quality and long-lasting. Fast shipping across Turkey from Cangday and 14-day easy returns.`;
+      ? `${p.name_en} — orijinal ${brand} ${aud ? `${aud.tr} ` : ''}parfümü; yüksek kaliteli ve kalıcı. Cangday’den Türkiye’ye aynı gün kargo.`
+      : `${p.name_en} — an original ${brand} ${aud ? `${aud.en} ` : ''}perfume, high-quality and long-lasting. Same-day dispatch across Turkey from Cangday.`;
   }
   if (locale === 'tr') {
     return [
       // No category here: category names are English ("Perfumes").
       `${p.name_en} — yüksek kaliteli, kalıcı ${aud ? `${aud.tr} ` : ''}parfüm.`,
-      'Cangday’den Türkiye’ye hızlı kargo ve 14 gün kolay iade.',
+      'Cangday’den Türkiye’ye aynı gün kargo.',
     ].join(' ');
   }
   return [
     `${p.name_en} — a high-quality, long-lasting ${aud ? `${aud.en} ` : ''}fragrance${category ? ` (${category})` : ''}.`,
-    'Fast shipping across Turkey from Cangday and 14-day easy returns.',
+    'Same-day dispatch across Turkey from Cangday.',
   ].join(' ');
 }
 

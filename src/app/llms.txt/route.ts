@@ -23,7 +23,7 @@ export async function GET() {
   const lines = [
     '# Cangday — Modern Perfumery',
     '',
-    '> Cangday is an online perfume shop based in Turkey selling high-quality, long-lasting perfumes (eau de parfum, extrait de parfum, body mists). Ships across Turkey and internationally; 14-day returns. Site available in Turkish (/tr) and English (/en). Prices in Turkish lira (TRY).',
+    '> Cangday is an online perfume shop based in Turkey selling high-quality, long-lasting perfumes (eau de parfum, extrait de parfum, body mists). Orders ship across Turkey by cargo the same day; cash on delivery. Site available in Turkish (/tr) and English (/en). Prices in Turkish lira (TRY).',
     '',
     '## Shop',
     `- [All perfumes (TR)](${SITE_URL}/tr/shop): Full catalogue with filters by brand, category, gender and price`,
@@ -33,7 +33,7 @@ export async function GET() {
     '',
     '## Customer information',
     `- [Shipping](${SITE_URL}/en/shipping): Destinations and delivery prices`,
-    `- [Terms of service](${SITE_URL}/en/terms-of-service): Returns (14 days), cancellations`,
+    `- [Terms of service](${SITE_URL}/en/terms-of-service): Delivery, cancellations`,
     `- [Privacy policy](${SITE_URL}/en/privacy-policy)`,
     `- [Contact](${SITE_URL}/en/contact)`,
     `- [About Cangday](${SITE_URL}/en/about)`,

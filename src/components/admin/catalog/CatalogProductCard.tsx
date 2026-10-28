@@ -1,9 +1,8 @@
 import { View, Text, Image } from '@react-pdf/renderer';
-import { PDF_FONT_BODY } from '@/lib/pdf-brand';
 import { formatCurrency } from '@/lib/utils';
 import { CARD_GAP, cardImageHeight, cardWidth, catalogStyles as styles } from './catalogStyles';
 import { Product } from '@/types';
-import { CatalogImageWatermarkConfig, CatalogLanguage, CatalogVisibleFields } from './types';
+import { CatalogLanguage, CatalogVisibleFields } from './types';
 import { catalogDescription, catalogPrice, clip, type CatalogLabels } from './catalogLabels';
 
 interface CatalogProductCardProps {
@@ -15,50 +14,6 @@ interface CatalogProductCardProps {
   visibleFields: CatalogVisibleFields;
   language: CatalogLanguage;
   labels: CatalogLabels;
-  imageWatermark: CatalogImageWatermarkConfig;
-  imageWatermarkLogoSrc?: string;
-  /** Used when imageWatermark.text is left blank. */
-  defaultWatermarkText: string;
-}
-
-// react-pdf's Text primitive has no native outline/stroke — fake it by
-// stacking the same string in the outline color at 4 diagonal offsets
-// behind the real (fill-colored) text on top.
-const STROKE_OFFSETS: [number, number][] = [
-  [-1, -1],
-  [-1, 1],
-  [1, -1],
-  [1, 1],
-];
-
-function ImageWatermarkText({ config, text }: { config: CatalogImageWatermarkConfig; text: string }) {
-  const baseTextStyle = {
-    fontSize: config.fontSize,
-    fontFamily: PDF_FONT_BODY,
-    fontWeight: 700 as const,
-    textTransform: 'uppercase' as const,
-    letterSpacing: 1.5,
-    transform: 'rotate(-30deg)',
-  };
-
-  return (
-    <View style={styles.imageWatermarkStack}>
-      {config.strokeWidth > 0 &&
-        STROKE_OFFSETS.map(([dx, dy]) => (
-          <Text
-            key={`${dx}-${dy}`}
-            style={[
-              styles.imageWatermarkStrokeText,
-              baseTextStyle,
-              { color: config.strokeColor, opacity: config.opacity, top: dy * config.strokeWidth, left: dx * config.strokeWidth },
-            ]}
-          >
-            {text}
-          </Text>
-        ))}
-      <Text style={[baseTextStyle, { color: '#120D0A', opacity: config.opacity }]}>{text}</Text>
-    </View>
-  );
 }
 
 export default function CatalogProductCard({
@@ -70,9 +25,6 @@ export default function CatalogProductCard({
   visibleFields,
   language,
   labels,
-  imageWatermark,
-  imageWatermarkLogoSrc,
-  defaultWatermarkText,
 }: CatalogProductCardProps) {
   // discount is a flat amount, not a percentage — see ProductCard.tsx
   const price = visibleFields.price ? catalogPrice(product, visibleFields.discount) : null;
@@ -86,17 +38,6 @@ export default function CatalogProductCard({
       <View style={[styles.cardImageWrap, { height: cardImageHeight(perRow) }]}>
         {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image is not an HTML img, no alt prop exists */}
         <Image src={imageSrc} style={styles.cardImage} />
-        {imageWatermark.mode === 'text' && (
-          <View style={styles.imageWatermarkOverlay}>
-            <ImageWatermarkText config={imageWatermark} text={(imageWatermark.text.trim() || defaultWatermarkText).toUpperCase()} />
-          </View>
-        )}
-        {imageWatermark.mode === 'logo' && imageWatermarkLogoSrc && (
-          <View style={styles.imageWatermarkOverlay}>
-            {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image is not an HTML img, no alt prop exists */}
-            <Image src={imageWatermarkLogoSrc} style={{ width: `${imageWatermark.logoSize}%`, opacity: imageWatermark.opacity }} />
-          </View>
-        )}
         {showPopular || showOutOfStock ? (
           <View style={styles.badgeRow}>
             {showPopular ? <Text style={styles.badgePopular}>{labels.popular}</Text> : <View />}

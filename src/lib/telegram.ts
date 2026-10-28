@@ -1,3 +1,4 @@
+import { offerLineLabel, readOfferLines } from '@/lib/offers';
 /**
  * Telegram Bot API helpers (server only — uses TELEGRAM_BOT_TOKEN).
  *
@@ -107,6 +108,8 @@ export interface ClaimedOrder {
     shipping_cost?: number | null;
     discount_amount?: number | null;
     coupon_code?: string | null;
+    offer_discount?: number | null;
+    offer_lines?: unknown;
   };
   items: { name: string; quantity: number; unit_price: number }[];
   chats: { chat_id: number; lang: string }[];
@@ -120,6 +123,8 @@ export function orderMessage(p: ClaimedOrder, lang: string) {
   const subtotal = p.items.reduce((s, i) => s + i.quantity * Number(i.unit_price), 0);
   const ship = Number(o.shipping_cost || 0);
   const disc = Number(o.discount_amount || 0);
+  const offerDisc = Number(o.offer_discount || 0);
+  const offerLines = offerDisc > 0 ? readOfferLines(o.offer_lines) : [];
   const when = new Date(o.created_at).toLocaleString(lang === 'en' ? 'en-GB' : 'tr-TR', {
     day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Istanbul',
   });
@@ -138,6 +143,8 @@ export function orderMessage(p: ClaimedOrder, lang: string) {
     ...p.items.map((i) => `• ${escapeHtml(i.name)} × ${i.quantity} — ${money(i.quantity * Number(i.unit_price))}`),
     '',
     `${t.subtotal}: ${money(subtotal)}`,
+    ...offerLines.map((l) => `🏷 ${escapeHtml(offerLineLabel(l, lang))}: −${money(l.amount)}`),
+    offerDisc > 0 && !offerLines.length ? `🏷 ${t.discount}: −${money(offerDisc)}` : null,
     disc > 0 ? `${t.discount}${o.coupon_code ? ` (${escapeHtml(o.coupon_code)})` : ''}: −${money(disc)}` : null,
     `${t.shipping}: ${ship > 0 ? money(ship) : t.free}`,
     `<b>${t.total}: ${money(Number(o.total_amount))}</b>`,

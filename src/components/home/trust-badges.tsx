@@ -1,6 +1,6 @@
 'use client';
 
-import { Truck, Gift, ShieldCheck, RotateCcw } from 'lucide-react';
+import { Truck, Gift, ShieldCheck, PackageCheck } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useSettings } from '@/components/providers/SettingsProvider';
 import { formatPromoAmount } from '@/lib/promotions';
@@ -11,7 +11,7 @@ const ITEMS = [
   { icon: Truck, key: 'freeShipping' },
   { icon: Gift, key: 'freeGift' },
   { icon: ShieldCheck, key: 'original' },
-  { icon: RotateCcw, key: 'easyReturns' },
+  { icon: PackageCheck, key: 'sameDayDispatch' },
 ] as const;
 
 /**

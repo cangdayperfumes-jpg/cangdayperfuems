@@ -59,27 +59,6 @@ export interface CatalogWatermarkLine {
   opacity: number;
 }
 
-export type CatalogImageWatermarkMode = 'none' | 'text' | 'logo';
-
-/** The small watermark stamped on top of each individual product photo (separate from the page-wide diagonal CatalogWatermarkLine bands). */
-export interface CatalogImageWatermarkConfig {
-  mode: CatalogImageWatermarkMode;
-  /** Used when mode === 'text'. Empty string falls back to the cover company name. */
-  text: string;
-  /** 0–1 */
-  opacity: number;
-  /** Font size in pt, text mode only. */
-  fontSize: number;
-  /** Outline color around the text, text mode only. */
-  strokeColor: string;
-  /** Outline thickness in pt, text mode only — 0 disables the outline. */
-  strokeWidth: number;
-  /** Logo image URL, logo mode only. */
-  logoUrl: string;
-  /** Logo width as a % of the photo's width, logo mode only. */
-  logoSize: number;
-}
-
 export interface CatalogConfig {
   language: CatalogLanguage;
   groupBy: CatalogGroupBy;
@@ -107,7 +86,6 @@ export interface CatalogConfig {
   headerFooter: CatalogHeaderFooterConfig;
   banners: CatalogBanner[];
   watermarkLines: CatalogWatermarkLine[];
-  imageWatermark: CatalogImageWatermarkConfig;
 }
 
 export const UNCATEGORIZED_GROUP_KEY = 'uncategorized';
@@ -139,7 +117,6 @@ export interface CatalogModel {
   /** Banners to render immediately after the group with this key; null = before the first group. */
   bannersByGroupId: Map<string | null, CatalogBanner[]>;
   watermarkLines: CatalogWatermarkLine[];
-  imageWatermark: CatalogImageWatermarkConfig;
 }
 
 // Empty = the built-in Cangday logo (gold, transparent) is used.
@@ -225,20 +202,6 @@ export function defaultWatermarkLines(): CatalogWatermarkLine[] {
   ];
 }
 
-/** A light "CANGDAY" stamp on each photo — enough to mark the images without spoiling them. */
-export function defaultImageWatermark(): CatalogImageWatermarkConfig {
-  return {
-    mode: 'text',
-    text: '',
-    opacity: 0.1,
-    fontSize: 10,
-    strokeColor: '#FFFFFF',
-    strokeWidth: 0,
-    logoUrl: '',
-    logoSize: 40,
-  };
-}
-
 export function defaultCatalogConfig(language: CatalogLanguage = 'tr'): CatalogConfig {
   return {
     language,
@@ -257,6 +220,5 @@ export function defaultCatalogConfig(language: CatalogLanguage = 'tr'): CatalogC
     headerFooter: defaultHeaderFooterConfig(),
     banners: [],
     watermarkLines: defaultWatermarkLines(),
-    imageWatermark: defaultImageWatermark(),
   };
 }

@@ -21,6 +21,7 @@ import { useCheckout } from '@/contexts/checkout-context';
 import { useSettings } from '@/components/providers/SettingsProvider';
 import { TURKEY_PROVINCES } from '@/lib/turkey-provinces';
 import { couponDiscount, couponProblemFromError } from '@/lib/coupons';
+import { useBagOffers } from '@/hooks/use-bag-offers';
 import { analytics } from '@/lib/analytics';
 import {
   DOMESTIC_COUNTRY_CODE,
@@ -50,7 +51,7 @@ export default function CheckoutForm() {
   const router = useRouter();
   const { setShipping, shipping, coupon, setCoupon, isSubmitting, setIsSubmitting } = useCheckout();
   const items = useCartStore((state) => state.items);
-  const subtotal = useCartStore((state) => state.getTotalPrice());
+  const { lines: offerLines, discount: offerDiscount, afterOffers } = useBagOffers(items);
   const { hidePrices } = useSettings();
 
   const [zones, setZones] = useState<ShippingZone[]>([]);
@@ -144,11 +145,13 @@ export default function CheckoutForm() {
     try {
       setIsSubmitting(true);
       const shippingCost = hidePrices ? 0 : quote.price;
-      // The database re-validates the coupon and recomputes this discount
-      // (and the total) when the order row is inserted.
-      const activeCoupon = !hidePrices && coupon && subtotal >= coupon.min_order ? coupon : null;
-      const discount = couponDiscount(activeCoupon, subtotal);
-      const total = hidePrices ? 0 : subtotal - discount + shippingCost;
+      // Offers come off first and are saved with the order (offer_discount /
+      // offer_lines), so every later view shows these exact amounts. The
+      // database re-validates the coupon against what's left and recomputes
+      // its discount (and the total) when the order row is inserted.
+      const activeCoupon = !hidePrices && coupon && afterOffers >= coupon.min_order ? coupon : null;
+      const discount = couponDiscount(activeCoupon, afterOffers);
+      const total = hidePrices ? 0 : afterOffers - discount + shippingCost;
       const countryZone = zones.find((z) => z.country_code === values.country_code && !z.city);
       const domestic = values.country_code === DOMESTIC_COUNTRY_CODE;
 
@@ -173,6 +176,8 @@ export default function CheckoutForm() {
         shipping_cost: shippingCost,
         coupon_code: activeCoupon?.code ?? null,
         discount_amount: discount,
+        offer_discount: hidePrices ? 0 : offerDiscount,
+        offer_lines: !hidePrices && offerLines.length ? offerLines : null,
         status: 'pending',
       };
 

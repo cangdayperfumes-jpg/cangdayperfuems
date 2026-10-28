@@ -1,7 +1,6 @@
 import { View, Text } from '@react-pdf/renderer';
 import { catalogStyles as styles } from './catalogStyles';
 import {
-  CatalogImageWatermarkConfig,
   CatalogLanguage,
   CatalogModelGroup,
   CatalogVisibleFields,
@@ -24,9 +23,6 @@ interface CatalogProductGroupProps {
   imagesByProductId: Map<string, string>;
   categoryNameById: Map<string, string>;
   brandNameById: Map<string, string>;
-  imageWatermark: CatalogImageWatermarkConfig;
-  imageWatermarkLogoSrc?: string;
-  defaultWatermarkText: string;
 }
 
 function chunk<T>(items: T[], size: number): T[][] {
@@ -53,9 +49,6 @@ export default function CatalogProductGroup({
   imagesByProductId,
   categoryNameById,
   brandNameById,
-  imageWatermark,
-  imageWatermarkLogoSrc,
-  defaultWatermarkText,
 }: CatalogProductGroupProps) {
   const rows = chunk(group.products, productsPerRow);
 
@@ -79,9 +72,6 @@ export default function CatalogProductGroup({
             visibleFields={visibleFields}
             language={language}
             labels={labels}
-            imageWatermark={imageWatermark}
-            imageWatermarkLogoSrc={imageWatermarkLogoSrc}
-            defaultWatermarkText={defaultWatermarkText}
           />
         );
       })}

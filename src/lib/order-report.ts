@@ -83,6 +83,7 @@ export interface ReportOrder {
   shipping_cost: number | null;
   discount_amount?: number | null;
   coupon_code?: string | null;
+  offer_discount?: number | null;
   customer_name?: string;
   customer_email?: string | null;
   customer_phone?: string;
@@ -124,7 +125,7 @@ export function computeStats(orders: ReportOrder[], range: ResolvedRange): Order
       counted++;
       revenue += Number(o.total_amount) || 0;
       shipping += Number(o.shipping_cost) || 0;
-      discounts += Number(o.discount_amount) || 0;
+      discounts += (Number(o.discount_amount) || 0) + (Number(o.offer_discount) || 0);
       if (o.coupon_code) couponOrders++;
       bucket.revenue += Number(o.total_amount) || 0;
       for (const it of o.order_items ?? []) {
@@ -169,4 +170,4 @@ export function computeStats(orders: ReportOrder[], range: ResolvedRange): Order
 }
 
 export const REPORT_SELECT =
-  'id, created_at, status, total_amount, shipping_cost, discount_amount, coupon_code, customer_name, customer_email, customer_phone, customer_address, order_items(quantity, unit_price, products(name_en))';
+  'id, created_at, status, total_amount, shipping_cost, discount_amount, coupon_code, offer_discount, customer_name, customer_email, customer_phone, customer_address, order_items(quantity, unit_price, products(name_en))';

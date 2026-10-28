@@ -33,8 +33,6 @@ const settingsSchema = z.object({
   newBadgeDays: z.coerce.number().int().min(0).max(365).default(30),
   nicheMinPrice: z.coerce.number().min(0).default(3000),
   shippingBannerEnabled: z.boolean().default(true),
-  giftEnabled: z.boolean().default(true),
-  giftThreshold: z.coerce.number().positive().default(750),
   gaMeasurementId: z.string().trim().toUpperCase().regex(/^(G-[A-Z0-9]{4,16})?$/, 'G-XXXXXXXXXX').default(''),
   gscVerification: z.string().trim().regex(/^[A-Za-z0-9_-]{0,100}$/).default(''),
   seasonalCollectionsMultiActive: z.boolean().default(false),
@@ -60,8 +58,6 @@ export interface SettingsInitialData {
   new_badge_days?: number | null;
   niche_min_price?: number | null;
   shipping_banner_enabled?: boolean | null;
-  gift_enabled?: boolean | null;
-  gift_threshold?: number | null;
   ga_measurement_id?: string | null;
   gsc_verification?: string | null;
   seasonal_collections_multi_active: boolean | null;
@@ -106,8 +102,6 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
       newBadgeDays: initialData?.new_badge_days ?? 30,
       nicheMinPrice: Number(initialData?.niche_min_price ?? 3000),
       shippingBannerEnabled: initialData?.shipping_banner_enabled ?? true,
-      giftEnabled: initialData?.gift_enabled ?? true,
-      giftThreshold: Number(initialData?.gift_threshold ?? 750),
       gaMeasurementId: initialData?.ga_measurement_id ?? '',
       gscVerification: initialData?.gsc_verification ?? '',
       seasonalCollectionsMultiActive: initialData?.seasonal_collections_multi_active ?? false,
@@ -117,7 +111,6 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
 
   const popupEnabled = form.watch('popupEnabled');
   const popupEndsAt = form.watch('popupEndsAt');
-  const giftEnabled = form.watch('giftEnabled');
   const offerExpired = !!popupEndsAt && new Date(popupEndsAt).getTime() <= Date.now();
 
   const onSubmit = async (data: SettingsFormValues) => {
@@ -143,8 +136,6 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
           new_badge_days: data.newBadgeDays,
           niche_min_price: data.nicheMinPrice,
           shipping_banner_enabled: data.shippingBannerEnabled,
-          gift_enabled: data.giftEnabled,
-          gift_threshold: data.giftThreshold,
           ga_measurement_id: data.gaMeasurementId,
           gsc_verification: data.gscVerification,
           seasonal_collections_multi_active: data.seasonalCollectionsMultiActive,
@@ -272,41 +263,6 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
               </FormItem>
             )}
           />
-        </div>
-
-        {/* ── Free mini gift ───────────────────────────────── */}
-        <div className="mb-6 break-inside-avoid bg-white p-6 rounded-lg border shadow-sm">
-          <h2 className="text-lg font-semibold mb-4">{t('giftTitle')}</h2>
-          <FormField
-            control={form.control}
-            name="giftEnabled"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between gap-4 rounded-lg border p-4">
-                <div className="space-y-0.5">
-                  <FormLabel className="text-base text-black">{t('giftEnabledLabel')}</FormLabel>
-                  <FormDescription>{t('giftEnabledDesc')}</FormDescription>
-                </div>
-                <FormControl>
-                  <Switch checked={field.value} onCheckedChange={field.onChange} />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          {giftEnabled && (
-            <FormField
-              control={form.control}
-              name="giftThreshold"
-              render={({ field }) => (
-                <FormItem className="mt-4">
-                  <FormLabel>{t('giftThresholdLabel')}</FormLabel>
-                  <FormControl>
-                    <Input type="number" min={1} step="1" className="max-w-[180px]" {...field} />
-                  </FormControl>
-                  <FormDescription>{t('giftThresholdDesc')}</FormDescription>
-                </FormItem>
-              )}
-            />
-          )}
         </div>
 
         {/* ── Popup Settings ───────────────────────────────── */}

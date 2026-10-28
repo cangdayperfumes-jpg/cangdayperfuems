@@ -74,7 +74,6 @@ function loadSavedConfig(): CatalogConfig | null {
       cover: { ...base.cover, ...saved.cover },
       headerFooter: { ...base.headerFooter, ...saved.headerFooter },
       visibleFields: { ...base.visibleFields, ...saved.visibleFields },
-      imageWatermark: { ...base.imageWatermark, ...saved.imageWatermark },
       watermarkLines: saved.watermarkLines?.length ? saved.watermarkLines : base.watermarkLines,
     };
   } catch {
@@ -318,10 +317,6 @@ export default function CatalogGeneratorPage() {
     }));
   }
 
-  function updateImageWatermark(patch: Partial<CatalogConfig['imageWatermark']>) {
-    setConfig((prev) => ({ ...prev, imageWatermark: { ...prev.imageWatermark, ...patch } }));
-  }
-
   function toggleFilterCategory(id: string, checked: boolean) {
     setConfig((prev) => ({
       ...prev,
@@ -378,11 +373,11 @@ export default function CatalogGeneratorPage() {
       return;
     }
     setDownloadingPdf(true);
-    const toastId = toast.loading(`Building the PDF (${model.totalProductCount} products)… large catalogs take a moment.`);
+    const total = model.totalProductCount;
+    const toastId = toast.loading(`Preparing photos… 0 / ${total}`);
 
     try {
       const allProducts = model.groups.flatMap((g) => g.products);
-      const wantsLogoWatermark = model.imageWatermark.mode === 'logo' && !!model.imageWatermark.logoUrl;
       const logoOpts = { format: 'png' as const, maxDimension: 900 };
       const photoOpts = { maxDimension: 1600 };
       const [
@@ -391,16 +386,16 @@ export default function CatalogGeneratorPage() {
         normalizedCoverImage,
         normalizedHeaderLogo,
         bannerEntries,
-        normalizedImageWatermarkLogo,
       ] = await Promise.all([
-        prepareCatalogImages(allProducts),
+        prepareCatalogImages(allProducts, (done) => {
+          if (done % 5 === 0 || done === total) toast.loading(`Preparing photos… ${done} / ${total}`, { id: toastId });
+        }),
         model.cover.logoUrl ? normalizeImageForPdf(model.cover.logoUrl, logoOpts) : Promise.resolve(''),
         model.cover.coverImageUrl ? normalizeImageForPdf(model.cover.coverImageUrl, photoOpts) : Promise.resolve(''),
         model.headerFooter.logoUrl ? normalizeImageForPdf(model.headerFooter.logoUrl, logoOpts) : Promise.resolve(''),
         Promise.all(
           config.banners.map(async (b) => [b.id, b.imageUrl ? await normalizeImageForPdf(b.imageUrl, photoOpts) : ''] as const)
         ),
-        wantsLogoWatermark ? normalizeImageForPdf(model.imageWatermark.logoUrl, logoOpts) : Promise.resolve(''),
       ]);
 
       const bannerImagesById = new Map(bannerEntries.filter(([, src]) => src));
@@ -411,6 +406,9 @@ export default function CatalogGeneratorPage() {
         headerFooter: { ...model.headerFooter, logoUrl: normalizedHeaderLogo },
       };
 
+      toast.loading(`Building the PDF (${total} products)…`, { id: toastId });
+      // Let the toast paint before the (blocking) PDF layout starts.
+      await new Promise((resolve) => setTimeout(resolve, 50));
       const [{ pdf }, { default: CatalogPDF }] = await Promise.all([
         import('@react-pdf/renderer'),
         import('@/components/admin/catalog/CatalogPDF'),
@@ -423,7 +421,6 @@ export default function CatalogGeneratorPage() {
           bannerImagesById={bannerImagesById}
           categoryNameById={categoryNameById}
           brandNameById={brandNameById}
-          imageWatermarkLogoSrc={normalizedImageWatermarkLogo}
         />
       ).toBlob();
 
@@ -863,7 +860,7 @@ export default function CatalogGeneratorPage() {
                       <Input
                         value={banner.subtitle}
                         onChange={(e) => updateBanner(banner.id, { subtitle: e.target.value })}
-                        placeholder={tr ? 'İlk siparişte CANGDAY10 kodu ile' : 'Use code CANGDAY10 on your first order'}
+                        placeholder={tr ? '3 parfüm ₺5.999' : '3 perfumes for ₺5,999'}
                       />
                     </div>
                   </div>
@@ -894,7 +891,7 @@ export default function CatalogGeneratorPage() {
                 <span>
                   <span className="block font-heading text-lg font-semibold leading-tight">Watermarks</span>
                   <span className="mt-0.5 block text-xs text-muted-foreground">
-                    Advanced · a light “CANGDAY” stamp on photos is on by default.
+                    Photos always carry the “CANGDAY” stamp · optional page text.
                   </span>
                 </span>
               </span>
@@ -902,88 +899,11 @@ export default function CatalogGeneratorPage() {
             </summary>
 
             <div className="space-y-6 border-t p-5 sm:p-6">
+              <p className="rounded-md bg-secondary/60 px-3 py-2 text-xs text-ink/80">
+                Every product photo always carries the “CANGDAY” stamp.
+              </p>
+
               <div>
-                <h3 className="mb-1 text-sm font-semibold">Photo watermark</h3>
-                <p className="mb-3 text-xs text-muted-foreground">A small stamp on each product photo.</p>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <Segmented<CatalogConfig['imageWatermark']['mode']>
-                      value={config.imageWatermark.mode}
-                      onChange={(v) => updateImageWatermark({ mode: v })}
-                      options={[
-                        { value: 'none', label: 'None' },
-                        { value: 'text', label: 'Text' },
-                        { value: 'logo', label: 'Logo' },
-                      ]}
-                    />
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Label className="w-16 shrink-0 text-xs text-muted-foreground">Opacity</Label>
-                    <Slider
-                      value={[Math.round(config.imageWatermark.opacity * 100)]}
-                      onValueChange={([val]) => updateImageWatermark({ opacity: val / 100 })}
-                      min={1}
-                      max={80}
-                      step={1}
-                      disabled={config.imageWatermark.mode === 'none'}
-                      className="flex-1"
-                    />
-                    <span className="w-9 shrink-0 text-right text-xs text-muted-foreground">{Math.round(config.imageWatermark.opacity * 100)}%</span>
-                  </div>
-                </div>
-
-                {config.imageWatermark.mode === 'text' && (
-                  <div className="mt-4 grid gap-4 md:grid-cols-2">
-                    <div className="grid gap-2">
-                      <Label>Text</Label>
-                      <Input
-                        value={config.imageWatermark.text}
-                        onChange={(e) => updateImageWatermark({ text: e.target.value })}
-                        placeholder={config.cover.companyName || 'CANGDAY'}
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <div className="flex items-center justify-between">
-                        <Label>Size</Label>
-                        <span className="text-xs text-muted-foreground">{config.imageWatermark.fontSize}pt</span>
-                      </div>
-                      <Slider value={[config.imageWatermark.fontSize]} onValueChange={([val]) => updateImageWatermark({ fontSize: val })} min={6} max={24} step={1} />
-                    </div>
-                    <ColorInput label="Outline colour" value={config.imageWatermark.strokeColor} onChange={(val) => updateImageWatermark({ strokeColor: val })} />
-                    <div className="grid gap-2">
-                      <div className="flex items-center justify-between">
-                        <Label>Outline width</Label>
-                        <span className="text-xs text-muted-foreground">
-                          {config.imageWatermark.strokeWidth === 0 ? 'None' : `${config.imageWatermark.strokeWidth}pt`}
-                        </span>
-                      </div>
-                      <Slider value={[config.imageWatermark.strokeWidth]} onValueChange={([val]) => updateImageWatermark({ strokeWidth: val })} min={0} max={3} step={0.5} />
-                    </div>
-                  </div>
-                )}
-
-                {config.imageWatermark.mode === 'logo' && (
-                  <div className="mt-4 grid gap-4 md:grid-cols-2">
-                    <ImageUploadField
-                      label="Watermark logo"
-                      value={config.imageWatermark.logoUrl || null}
-                      onChange={(url) => updateImageWatermark({ logoUrl: url || '' })}
-                      uploadPrefix="catalog-watermarks/"
-                      aspectClassName="h-24"
-                      spec={IMAGE_SPECS.brand}
-                    />
-                    <div className="grid gap-2">
-                      <div className="flex items-center justify-between">
-                        <Label>Logo size</Label>
-                        <span className="text-xs text-muted-foreground">{config.imageWatermark.logoSize}% of photo width</span>
-                      </div>
-                      <Slider value={[config.imageWatermark.logoSize]} onValueChange={([val]) => updateImageWatermark({ logoSize: val })} min={10} max={100} step={5} />
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="border-t pt-5">
                 <h3 className="mb-1 text-sm font-semibold">Page watermark</h3>
                 <p className="mb-3 text-xs text-muted-foreground">
                   Faint diagonal text across every page. Leave the text blank to use the company name.

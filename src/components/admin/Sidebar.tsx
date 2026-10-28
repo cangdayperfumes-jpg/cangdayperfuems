@@ -17,6 +17,7 @@ import {
   Menu,
   Newspaper,
   Package,
+  Percent,
   Settings,
   ShoppingBag,
   Sparkles,
@@ -56,6 +57,7 @@ function useNavGroups(): NavGroup[] {
       label: t('marketing'),
       items: [
         { href: '/admin/blog', label: t('blog'), icon: Newspaper },
+        { href: '/admin/offers', label: t('offers'), icon: Percent },
         { href: '/admin/coupons', label: t('coupons'), icon: Ticket },
         { href: '/admin/subscribers', label: t('subscribers'), icon: Mail },
         { href: '/admin/marketing/hero-slides', label: t('heroSlides'), icon: GalleryHorizontal },

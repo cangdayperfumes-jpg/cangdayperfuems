@@ -13,7 +13,7 @@ import ExportButtons from './ExportButtons';
 import { fetchReportOrders } from './report-data';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Search, ChevronLeft, ChevronRight, Tag } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, Tag, Percent } from 'lucide-react';
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -226,6 +226,11 @@ export default async function OrdersPage(props: { searchParams: Promise<{ [key: 
                 <TableCell className="whitespace-nowrap">
                   <span className="font-medium tabular-nums">{formatCurrency(Number(order.total_amount))}</span>
                   <span className="mt-0.5 block text-[11px] text-slate-500">{t('cashOnDelivery')}</span>
+                  {Number(order.offer_discount) > 0 && (
+                    <span className="mt-0.5 flex items-center gap-1 text-[11px] text-emerald-700">
+                      <Percent className="h-3 w-3" /> {t('offerDiscount')} (−{formatCurrency(Number(order.offer_discount))})
+                    </span>
+                  )}
                   {order.coupon_code && (
                     <span className="mt-0.5 flex items-center gap-1 text-[11px] text-emerald-700">
                       <Tag className="h-3 w-3" /> {order.coupon_code} (−{formatCurrency(Number(order.discount_amount))})

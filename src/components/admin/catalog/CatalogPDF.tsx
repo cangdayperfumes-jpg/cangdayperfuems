@@ -18,7 +18,6 @@ interface CatalogPDFProps {
   bannerImagesById: Map<string, string>;
   categoryNameById: Map<string, string>;
   brandNameById: Map<string, string>;
-  imageWatermarkLogoSrc?: string;
 }
 
 /** Cover → contents → products (auto-paginated, fixed header/footer) → back cover. */
@@ -28,7 +27,6 @@ export default function CatalogPDF({
   bannerImagesById,
   categoryNameById,
   brandNameById,
-  imageWatermarkLogoSrc,
 }: CatalogPDFProps) {
   registerPdfFonts();
   const labels = catalogLabels(model.language);
@@ -85,9 +83,6 @@ export default function CatalogPDF({
                 imagesByProductId={imagesByProductId}
                 categoryNameById={categoryNameById}
                 brandNameById={brandNameById}
-                imageWatermark={model.imageWatermark}
-                imageWatermarkLogoSrc={imageWatermarkLogoSrc}
-                defaultWatermarkText={defaultWatermarkText}
               />
               {trailingBanners.map((banner) => (
                 <CatalogPromoBanner key={banner.id} banner={banner} imageSrc={bannerImagesById.get(banner.id)} />

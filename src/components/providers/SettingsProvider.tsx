@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, ReactNode } from 'react';
+import { DEFAULT_OFFERS, type OffersConfig } from '@/lib/offers';
 
 export interface PopupSettings {
   popup_enabled: boolean;
@@ -32,11 +33,13 @@ interface SettingsContextType {
    * `enabled` is the Settings switch to hide the message entirely.
    */
   shippingBanner: { enabled: boolean; domesticPrice: number | null };
+  /** Automatic bag offers (Admin → Offers). */
+  offers: OffersConfig;
 }
 
 const DEFAULT_SHIPPING_BANNER = { enabled: true, domesticPrice: null };
 
-const SettingsContext = createContext<SettingsContextType>({ hidePrices: false, popupSettings: null, newBadgeDays: 30, gift: { enabled: true, threshold: 750 }, shippingBanner: DEFAULT_SHIPPING_BANNER });
+const SettingsContext = createContext<SettingsContextType>({ hidePrices: false, popupSettings: null, newBadgeDays: 30, gift: { enabled: true, threshold: 750 }, shippingBanner: DEFAULT_SHIPPING_BANNER, offers: DEFAULT_OFFERS });
 
 export const useSettings = () => useContext(SettingsContext);
 
@@ -47,6 +50,7 @@ export const SettingsProvider = ({
   newBadgeDays = 30,
   gift = { enabled: true, threshold: 750 },
   shippingBanner = DEFAULT_SHIPPING_BANNER,
+  offers = DEFAULT_OFFERS,
 }: {
   children: ReactNode;
   hidePrices: boolean;
@@ -54,9 +58,10 @@ export const SettingsProvider = ({
   newBadgeDays?: number;
   gift?: { enabled: boolean; threshold: number };
   shippingBanner?: { enabled: boolean; domesticPrice: number | null };
+  offers?: OffersConfig;
 }) => {
   return (
-    <SettingsContext.Provider value={{ hidePrices, popupSettings, newBadgeDays, gift, shippingBanner }}>
+    <SettingsContext.Provider value={{ hidePrices, popupSettings, newBadgeDays, gift, shippingBanner, offers }}>
       {children}
     </SettingsContext.Provider>
   );

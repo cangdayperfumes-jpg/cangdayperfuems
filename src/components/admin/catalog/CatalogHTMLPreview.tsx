@@ -119,6 +119,15 @@ export default function CatalogHTMLPreview({ model, categoryNameById, brandNameB
                             sizes="(max-width: 768px) 50vw, 25vw"
                             className="object-contain p-3"
                           />
+                          {/* Same fixed stamp the PDF bakes into each photo (normalize-image-for-pdf). */}
+                          {product.images?.[0] && (
+                            <span
+                              aria-hidden="true"
+                              className="pointer-events-none absolute inset-0 flex items-center justify-center text-lg font-bold tracking-[0.14em] text-white/50 [-webkit-text-stroke:0.6px_rgba(18,13,10,0.3)] [transform:rotate(-30deg)] sm:text-xl"
+                            >
+                              CANGDAY
+                            </span>
+                          )}
                           <div className="absolute inset-x-2 top-2 flex justify-between">
                             {model.visibleFields.popular && product.is_popular ? (
                               <span className="bg-gold px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-[#120D0A]">{labels.popular}</span>

@@ -158,27 +158,6 @@ const getCachedRelatedProducts = (productId: string, categoryId: string | null, 
     { revalidate: 300 }
   )();
 
-/**
- * Cached list of real shipping-destination country codes — same source
- * table /shipping renders from. Used for MerchantReturnPolicy.applicableCountry
- * so the schema states actual verified destinations instead of a guess.
- */
-const getCachedShippingCountries = unstable_cache(
-  async () => {
-    if (!isSupabaseConfigured()) return [];
-    const supabase = getSupabase();
-    const { data } = await supabase
-      .from('shipping_zones')
-      .select('country_code')
-      .eq('is_enabled', true)
-      .not('country_code', 'is', null);
-    const codes = Array.from(new Set((data || []).map((z: any) => z.country_code).filter(Boolean)));
-    return codes as string[];
-  },
-  ['shipping-zone-countries'],
-  { revalidate: 300 }
-);
-
 /** Ensure an image URL is always absolute */
 function toAbsoluteUrl(url: string | undefined | null, siteUrl: string): string | undefined {
   if (!url) return undefined;
@@ -234,7 +213,6 @@ export default async function ProductPage({ params }: PageProps) {
 
   const settings = await getCachedSettings();
   const hidePrices = settings?.hide_prices || false;
-  const shippingCountries = await getCachedShippingCountries();
   const relatedProducts = await getCachedRelatedProducts(
     product.id,
     (product as any).category_id,
@@ -261,24 +239,14 @@ export default async function ProductPage({ params }: PageProps) {
   // visible page (a real Google structured-data policy violation, not a
   // cosmetic one). Shipping cost is quoted per order, so it is never a fixed
   // $0/free rate and OfferShippingDetails is omitted rather than inventing a
-  // number. The 14-day mail return policy matches /terms-of-service.
+  // number. No return policy is declared: the store no longer offers
+  // returns (see /terms-of-service → Delivery).
   const offers: Record<string, any> = {
     '@type': 'Offer',
     url: `${siteUrl}${localePath}/shop/${canonicalSlug}`,
     seller: {
       '@type': 'Organization',
       name: 'Cangday',
-    },
-    hasMerchantReturnPolicy: {
-      '@type': 'MerchantReturnPolicy',
-      // Real destination list from shipping_zones (same table /shipping
-      // renders from) — omitted entirely if that table is ever empty,
-      // rather than guessing a country Cangday may not actually ship from.
-      ...(shippingCountries.length > 0 ? { applicableCountry: shippingCountries } : {}),
-      returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
-      merchantReturnDays: 14,
-      returnMethod: 'https://schema.org/ReturnByMail',
-      returnFees: 'https://schema.org/FreeReturn',
     },
   };
 

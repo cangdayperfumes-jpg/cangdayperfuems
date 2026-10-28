@@ -24,7 +24,8 @@
     "subscribers": "Subscribers",
     "viewStore": "View store",
     "expand": "Expand sidebar",
-    "collapse": "Collapse sidebar"
+    "collapse": "Collapse sidebar",
+    "offers": "Offers"
   },
   "common": {
     "save": "Save",
@@ -248,7 +249,8 @@
     "reportPage": "Page",
     "exportPreparing": "Preparing…",
     "exportFailed": "Couldn't create the file. Please try again.",
-    "cashOnDelivery": "Cash on delivery"
+    "cashOnDelivery": "Cash on delivery",
+    "offerDiscount": "Offers"
   },
   "shipping": {
     "title": "Shipping",
@@ -374,11 +376,6 @@
     "showOfferBarDesc": "A thin bar above the header keeps the deadline visible after the pop-up is closed.",
     "popupTurkishTitle": "Turkish text",
     "popupTurkishDesc": "Shown to visitors browsing in Turkish. Empty fields fall back to the English text.",
-    "giftTitle": "Free mini gift",
-    "giftEnabledLabel": "Offer a free mini gift",
-    "giftEnabledDesc": "Shows the gift in the top strip, trust badges, the promo card and the cart progress bar. Turn off to hide it everywhere.",
-    "giftThresholdLabel": "Minimum order for the gift (₺)",
-    "giftThresholdDesc": "Orders at or above this amount get the gift.",
     "tgTitle": "Telegram notifications",
     "tgDescription": "Get every new website order instantly in Telegram, plus a summary every evening at 21:00. Connect as many people or groups as you like.",
     "tgNotConfigured": "The bot is not set up yet.",
@@ -962,5 +959,35 @@
     "original": "Original",
     "holdToCompare": "Hold to see the original",
     "note": "Saves an adjusted copy. The original file stays untouched, so you can always go back."
+  },
+  "offers": {
+    "title": "Offers",
+    "description": "Automatic discounts applied in the cart. Each perfume gets one offer, and when several fit the customer always gets the lowest total. Orders save the amounts, so the invoice and Telegram match the checkout.",
+    "notReady": "Run the 20261029000000_bag_offers.sql migration in Supabase to save offers.",
+    "on": "On",
+    "off": "Off",
+    "pairTitle": "Second perfume discount",
+    "pairDesc": "Two perfumes that each cost up to the price below: the cheaper one gets the discount.",
+    "pairMax": "Each perfume up to (₺)",
+    "pairPercent": "Discount on the cheaper one (%)",
+    "trioTitle": "Set price",
+    "trioDesc": "A set of perfumes that each cost up to the price below, sold together for one price.",
+    "trioMax": "Each perfume up to (₺)",
+    "trioCount": "Perfumes in the set",
+    "trioPrice": "Set price (₺)",
+    "premiumTitle": "Premium discount",
+    "premiumDesc": "Every perfume above the price below gets the discount.",
+    "premiumMin": "Perfumes above (₺)",
+    "premiumPercent": "Discount (%)",
+    "giftTitle": "Free mini gift",
+    "giftDesc": "Shown in the top strip, the homepage card and the cart progress bar.",
+    "giftThreshold": "Order amount for the gift (₺)",
+    "example": "Example",
+    "save": "Save offers",
+    "saved": "Offers saved",
+    "failed": "Could not save offers",
+    "exPair": "2 × {price} → you save {save}",
+    "exTrio": "{count} × {price} → {set}, you save {save}",
+    "exPremium": "{price} → {after}"
   }
 }
