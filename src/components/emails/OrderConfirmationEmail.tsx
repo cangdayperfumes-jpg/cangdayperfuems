@@ -9,18 +9,23 @@ import {
   Text,
 } from '@react-email/components';
 import * as React from 'react';
+import { EMAIL_COPY, type EmailLocale } from './copy';
 
 interface OrderConfirmationEmailProps {
   customerName: string;
   orderId: string;
+  locale?: EmailLocale;
 }
 
 export const OrderConfirmationEmail = ({
   customerName,
   orderId,
+  locale = 'tr',
 }: OrderConfirmationEmailProps) => {
+  const c = EMAIL_COPY[locale];
+  const ref = orderId.slice(0, 8);
   return (
-    <Html>
+    <Html lang={locale}>
       <Head>
         <style>
           {`
@@ -28,7 +33,7 @@ export const OrderConfirmationEmail = ({
           `}
         </style>
       </Head>
-      <Preview>Thank you for your order from Cangday.</Preview>
+      <Preview>{c.confirmationPreview}</Preview>
       <Body style={main}>
         <Container style={container}>
           <Section style={headerSection}>
@@ -36,19 +41,16 @@ export const OrderConfirmationEmail = ({
           </Section>
 
           <Section style={contentSection}>
-            <Heading style={heading}>Order Received.</Heading>
-            <Text style={text}>Dear {customerName},</Text>
-            <Text style={text}>
-              Thank you for your order. We are currently reviewing your request for Order #{orderId.slice(0, 8)}.
-            </Text>
-            <Text style={text}>
-              We&apos;ll follow up by email shortly to confirm shipping details.
-            </Text>
+            <Heading style={heading}>{c.confirmationHeading}</Heading>
+            <Text style={text}>{c.dear(customerName)}</Text>
+            <Text style={text}>{c.confirmationBody(ref)}</Text>
+            <Text style={text}>{c.payment}</Text>
+            <Text style={text}>{c.confirmationNext}</Text>
 
             <div style={footerDivider} />
             <Text style={footerText}>
-              Wear What Lingers.<br/>
-              © {new Date().getFullYear()} Cangday. All rights reserved.
+              {c.slogan}<br/>
+              © {new Date().getFullYear()} Cangday. {c.rights}
             </Text>
           </Section>
         </Container>

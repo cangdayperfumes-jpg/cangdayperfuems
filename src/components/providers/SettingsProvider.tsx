@@ -26,9 +26,17 @@ interface SettingsContextType {
   newBadgeDays: number;
   /** Free mini gift promotion (Settings → General). */
   gift: { enabled: boolean; threshold: number };
+  /**
+   * Shipping message in the announcement bar / trust badges. `domesticPrice`
+   * is Turkey's rate from Admin → Shipping (null when Turkey is switched off);
+   * `enabled` is the Settings switch to hide the message entirely.
+   */
+  shippingBanner: { enabled: boolean; domesticPrice: number | null };
 }
 
-const SettingsContext = createContext<SettingsContextType>({ hidePrices: false, popupSettings: null, newBadgeDays: 30, gift: { enabled: true, threshold: 750 } });
+const DEFAULT_SHIPPING_BANNER = { enabled: true, domesticPrice: null };
+
+const SettingsContext = createContext<SettingsContextType>({ hidePrices: false, popupSettings: null, newBadgeDays: 30, gift: { enabled: true, threshold: 750 }, shippingBanner: DEFAULT_SHIPPING_BANNER });
 
 export const useSettings = () => useContext(SettingsContext);
 
@@ -38,15 +46,17 @@ export const SettingsProvider = ({
   popupSettings = null,
   newBadgeDays = 30,
   gift = { enabled: true, threshold: 750 },
+  shippingBanner = DEFAULT_SHIPPING_BANNER,
 }: {
   children: ReactNode;
   hidePrices: boolean;
   popupSettings?: PopupSettings | null;
   newBadgeDays?: number;
   gift?: { enabled: boolean; threshold: number };
+  shippingBanner?: { enabled: boolean; domesticPrice: number | null };
 }) => {
   return (
-    <SettingsContext.Provider value={{ hidePrices, popupSettings, newBadgeDays, gift }}>
+    <SettingsContext.Provider value={{ hidePrices, popupSettings, newBadgeDays, gift, shippingBanner }}>
       {children}
     </SettingsContext.Provider>
   );

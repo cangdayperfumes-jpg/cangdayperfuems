@@ -167,7 +167,7 @@ export default async function LocaleLayout({
   );
 
   // Run all three in parallel + cache results for 60s
-  const [rawCategories, settings, theme, analytics] = await Promise.all([
+  const [rawCategories, settings, theme, analytics, domesticShipping] = await Promise.all([
     unstable_cache(
       async () => {
         if (!supabaseConfigured) return null;
@@ -186,7 +186,7 @@ export default async function LocaleLayout({
         if (!supabaseConfigured) return null;
         const { data } = await supabase
           .from('system_settings')
-          .select('hide_prices, popup_enabled, popup_title, popup_message, popup_button_text, popup_button_link, popup_image_url, popup_show_on, popup_ends_at, popup_show_bar, popup_title_tr, popup_message_tr, popup_button_text_tr, new_badge_days, gift_enabled, gift_threshold')
+          .select('hide_prices, popup_enabled, popup_title, popup_message, popup_button_text, popup_button_link, popup_image_url, popup_show_on, popup_ends_at, popup_show_bar, popup_title_tr, popup_message_tr, popup_button_text_tr, new_badge_days, gift_enabled, gift_threshold, shipping_banner_enabled')
           .eq('id', 'global')
           .single();
         return data;
@@ -197,6 +197,21 @@ export default async function LocaleLayout({
     )(),
     getSiteTheme(),
     getAnalyticsSettings(),
+    // Turkey's flat rate — the shipping banner shows it (or "free" at ₺0).
+    unstable_cache(
+      async () => {
+        if (!supabaseConfigured) return null;
+        const { data } = await supabase
+          .from('shipping_zones')
+          .select('price, is_enabled')
+          .eq('country_code', 'TR')
+          .is('city', null)
+          .maybeSingle();
+        return data?.is_enabled ? Number(data.price) : null;
+      },
+      ['layout-domestic-shipping'],
+      { revalidate: 300, tags: ['shipping-zones'] }
+    )(),
   ]);
 
   const categories = rawCategories?.map((item: any) => {
@@ -226,6 +241,10 @@ export default async function LocaleLayout({
   const gift = {
     enabled: settingsData?.gift_enabled ?? true,
     threshold: Number(settingsData?.gift_threshold ?? 750),
+  };
+  const shippingBanner = {
+    enabled: settingsData?.shipping_banner_enabled ?? true,
+    domesticPrice: domesticShipping ?? null,
   };
 
   return (
@@ -275,7 +294,7 @@ export default async function LocaleLayout({
         />
         <AuthRecoveryRedirect />
         <NextIntlClientProvider>
-          <SettingsProvider hidePrices={hidePrices} popupSettings={popupSettings} newBadgeDays={newBadgeDays} gift={gift}>
+          <SettingsProvider hidePrices={hidePrices} popupSettings={popupSettings} newBadgeDays={newBadgeDays} gift={gift} shippingBanner={shippingBanner}>
           <MotionProvider>
             <Suspense fallback={null}>
               <StorefrontLayoutWrapper>

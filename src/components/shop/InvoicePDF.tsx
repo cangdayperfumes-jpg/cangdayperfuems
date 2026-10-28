@@ -231,6 +231,8 @@ interface InvoicePDFProps {
    *  replaces `order.shipping_cost` for the PDF only — never written back to
    *  the order. Omit to use the order's saved shipping cost. */
   shippingOverride?: number;
+  /** Overrides the language; by default the order's own checkout language (Turkish for older orders). */
+  locale?: 'tr' | 'en';
 }
 
 const formatPrice = formatPdfMoney;
@@ -243,6 +245,39 @@ const formatPhone = (phone: string) => {
   return phone.startsWith('+') ? phone : `+${phone}`;
 };
 
+/** Invoice wording per language — the order's saved checkout language picks it. */
+const INVOICE_COPY = {
+  tr: {
+    // Written in capitals: the PDF's uppercase transform turns i into I, not İ.
+    title: 'Fatura', order: 'Sipariş', billedTo: 'FATURA BİLGİLERİ', deliverTo: 'TESLİMAT ADRESİ',
+    item: 'ÜRÜN', qty: 'ADET', unitPrice: 'BİRİM FİYAT', shipping: 'KARGO', total: 'TOPLAM',
+    product: 'Ürün', variant: 'Seçenek', size: 'Boyut', color: 'Renk', note: 'Not',
+    count: (n: number) => `Toplam: ${n} ürün`,
+    subtotal: 'Ara toplam', discount: 'İndirim', shippingFee: 'Kargo ücreti', grandTotal: 'Genel toplam',
+    payment: 'Ödeme', cash: 'Kapıda nakit ödeme', thanks: 'Siparişiniz için teşekkür ederiz',
+    slogan: 'İzini Bırakan Kokular', dateLocale: 'tr-TR',
+  },
+  en: {
+    title: 'Invoice', order: 'Order', billedTo: 'Billed to', deliverTo: 'Deliver to',
+    item: 'ITEM', qty: 'QTY', unitPrice: 'UNIT PRICE', shipping: 'SHIPPING', total: 'TOTAL',
+    product: 'Product', variant: 'Variant', size: 'Size', color: 'Color', note: 'Note',
+    count: (n: number) => `Total: ${n} ${n === 1 ? 'Product' : 'Products'}`,
+    subtotal: 'Subtotal', discount: 'Discount', shippingFee: 'Shipping Fee', grandTotal: 'Grand Total',
+    payment: 'Payment', cash: 'Cash on delivery', thanks: 'Thank you for your order',
+    slogan: 'Wear What Lingers', dateLocale: 'en-GB',
+  },
+} as const;
+
+/** Country name in the invoice language (the order stores the English name + ISO code). */
+function countryName(code: string | undefined, fallback: string, lang: 'tr' | 'en') {
+  if (!code) return fallback;
+  try {
+    return new Intl.DisplayNames([lang], { type: 'region' }).of(code) || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 interface InvoiceRow {
   key: string;
   name: string;
@@ -253,7 +288,9 @@ interface InvoiceRow {
   subLines: string[];
 }
 
-export default function InvoicePDF({ order, items, hidePrices = false, customItems, shippingOverride }: InvoicePDFProps) {
+export default function InvoicePDF({ order, items, hidePrices = false, customItems, shippingOverride, locale }: InvoicePDFProps) {
+  const lang: 'tr' | 'en' = locale ?? ((order.customer_address as { locale?: string } | null)?.locale === 'en' ? 'en' : 'tr');
+  const c = INVOICE_COPY[lang];
   const visibleCustomItems = customItems?.filter((i) => !i.hidden);
   // Per-product shipping is only known when a customItems breakdown is
   // supplied (the Customize PDF flow) — the plain order.items path has no
@@ -263,21 +300,21 @@ export default function InvoicePDF({ order, items, hidePrices = false, customIte
   const rows: InvoiceRow[] = visibleCustomItems
     ? visibleCustomItems.map((item) => ({
         key: item._key,
-        name: item.name || 'Product',
+        name: item.name || c.product,
         quantity: item.quantity,
         unitPrice: item.unitPrice,
         total: item.totalPrice,
         shipping: item.shippingTotal,
         subLines: [
-          item.variant && `Variant: ${item.variant}`,
-          item.size && `Size: ${item.size}`,
-          item.color && `Color: ${item.color}`,
-          item.notes && `Note: ${item.notes}`,
+          item.variant && `${c.variant}: ${item.variant}`,
+          item.size && `${c.size}: ${item.size}`,
+          item.color && `${c.color}: ${item.color}`,
+          item.notes && `${c.note}: ${item.notes}`,
         ].filter(Boolean) as string[],
       }))
     : items.map((item, index) => ({
         key: String(index),
-        name: (item.products?.name_en || item.product?.name_en || 'Product'),
+        name: (item.products?.name_en || item.product?.name_en || c.product),
         quantity: item.quantity,
         unitPrice: item.unit_price,
         total: item.unit_price * item.quantity,
@@ -298,7 +335,7 @@ export default function InvoicePDF({ order, items, hidePrices = false, customIte
   const totalQuantity = rows.reduce((sum, row) => sum + row.quantity, 0);
 
   return (
-    <Document>
+    <Document language={lang}>
       <Page size="A4" style={styles.page}>
         
         {/* Header */}
@@ -306,10 +343,10 @@ export default function InvoicePDF({ order, items, hidePrices = false, customIte
           {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image has no alt */}
           <Image src={PDF_LOGO_SRC} style={styles.logo} />
           <View>
-            <Text style={styles.docTitle}>Invoice</Text>
-            <Text style={styles.docSub}>Order #{order.id.replace(/-/g, '').slice(0, 15).toUpperCase()}</Text>
+            <Text style={styles.docTitle}>{c.title}</Text>
+            <Text style={styles.docSub}>{c.order} #{order.id.replace(/-/g, '').slice(0, 15).toUpperCase()}</Text>
             <Text style={styles.docSub}>
-              {new Date(order.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+              {new Date(order.created_at).toLocaleDateString(c.dateLocale, { day: 'numeric', month: 'long', year: 'numeric' })}
             </Text>
           </View>
         </View>
@@ -318,14 +355,14 @@ export default function InvoicePDF({ order, items, hidePrices = false, customIte
         {/* Customer + delivery */}
         <View style={styles.infoRow}>
           <View style={styles.infoBox}>
-            <Text style={styles.eyebrow}>Billed to</Text>
+            <Text style={styles.eyebrow}>{c.billedTo}</Text>
             <Text style={styles.strongText}>{order.customer_name}</Text>
             {order.customer_email && <Text style={styles.customerText}>{order.customer_email}</Text>}
             <Text style={styles.customerText}>{formatPhone(order.customer_phone)}</Text>
           </View>
           <View style={styles.infoGap} />
           <View style={styles.infoBox}>
-            <Text style={styles.eyebrow}>Deliver to</Text>
+            <Text style={styles.eyebrow}>{c.deliverTo}</Text>
             {order.customer_address?.line1 && <Text style={styles.customerText}>{order.customer_address.line1}</Text>}
             {(order.customer_address?.district || order.customer_address?.city) && (
               <Text style={styles.customerText}>
@@ -334,7 +371,7 @@ export default function InvoicePDF({ order, items, hidePrices = false, customIte
             )}
             {order.customer_address?.country && (
               <Text style={styles.customerText}>
-                {order.customer_address.country} {order.customer_address.postal_code || ''}
+                {countryName(order.customer_address.country_code, order.customer_address.country, lang)} {order.customer_address.postal_code || ''}
               </Text>
             )}
           </View>
@@ -349,18 +386,18 @@ export default function InvoicePDF({ order, items, hidePrices = false, customIte
                 hidePrices ? { width: '85%' } : showShippingColumn ? styles.colItemWithShipping : styles.colItem,
               ]}
             >
-              ITEM
+              {c.item}
             </Text>
-            <Text style={[styles.tableHeaderCol, styles.colQty]}>QTY</Text>
+            <Text style={[styles.tableHeaderCol, styles.colQty]}>{c.qty}</Text>
             {!hidePrices && (
               <Text style={[styles.tableHeaderCol, showShippingColumn ? styles.colPriceSm : styles.colPrice]}>
-                UNIT PRICE
+                {c.unitPrice}
               </Text>
             )}
-            {showShippingColumn && <Text style={[styles.tableHeaderCol, styles.colShipping]}>SHIPPING</Text>}
+            {showShippingColumn && <Text style={[styles.tableHeaderCol, styles.colShipping]}>{c.shipping}</Text>}
             {!hidePrices && (
               <Text style={[styles.tableHeaderCol, showShippingColumn ? styles.colTotalSm : styles.colTotal]}>
-                TOTAL
+                {c.total}
               </Text>
             )}
           </View>
@@ -394,7 +431,7 @@ export default function InvoicePDF({ order, items, hidePrices = false, customIte
         {/* Item Count */}
         <View style={styles.itemCountRow}>
           <Text style={styles.itemCountText}>
-            Total: {totalQuantity} {totalQuantity === 1 ? 'Product' : 'Products'}
+            {c.count(totalQuantity)}
           </Text>
         </View>
 
@@ -403,23 +440,27 @@ export default function InvoicePDF({ order, items, hidePrices = false, customIte
         <View style={styles.totalsContainer}>
            <View style={styles.totalsBox}>
               <View style={styles.totalRow}>
-                <Text style={styles.totalLabel}>Subtotal</Text>
+                <Text style={styles.totalLabel}>{c.subtotal}</Text>
                 <Text style={styles.totalValue}>{formatPrice(subtotal)}</Text>
               </View>
               {couponDiscount > 0 && (
               <View style={styles.totalRow}>
-                <Text style={styles.totalLabel}>Discount{order.coupon_code ? ` (${order.coupon_code})` : ''}</Text>
+                <Text style={styles.totalLabel}>{c.discount}{order.coupon_code ? ` (${order.coupon_code})` : ''}</Text>
                 <Text style={styles.discountValue}>-{formatPrice(couponDiscount)}</Text>
               </View>
               )}
               <View style={styles.totalRow}>
-                <Text style={styles.totalLabel}>Shipping Fee</Text>
+                <Text style={styles.totalLabel}>{c.shippingFee}</Text>
                 <Text style={styles.totalValue}>{formatPrice(shippingFee)}</Text>
               </View>
 
               <View style={styles.grandTotalDivider}>
-                <Text style={styles.grandTotalLabel}>Grand Total</Text>
+                <Text style={styles.grandTotalLabel}>{c.grandTotal}</Text>
                 <Text style={styles.grandTotalValue}>{formatPrice(grandTotal)}</Text>
+              </View>
+              <View style={[styles.totalRow, { marginTop: 6 }]}>
+                <Text style={styles.totalLabel}>{c.payment}</Text>
+                <Text style={styles.totalValue}>{c.cash}</Text>
               </View>
            </View>
         </View>
@@ -427,8 +468,8 @@ export default function InvoicePDF({ order, items, hidePrices = false, customIte
 
         {/* Footer */}
         <View style={styles.footer} fixed>
-          <Text style={styles.footerThanks}>Thank you for your order</Text>
-          <Text style={styles.footerText}>Cangday · Wear What Lingers · cangdayperfume.com</Text>
+          <Text style={styles.footerThanks}>{c.thanks}</Text>
+          <Text style={styles.footerText}>Cangday · {c.slogan} · cangdayperfume.com</Text>
         </View>
 
       </Page>

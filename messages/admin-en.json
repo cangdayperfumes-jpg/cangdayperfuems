@@ -247,7 +247,8 @@
     "reportOrderList": "Orders",
     "reportPage": "Page",
     "exportPreparing": "Preparing…",
-    "exportFailed": "Couldn't create the file. Please try again."
+    "exportFailed": "Couldn't create the file. Please try again.",
+    "cashOnDelivery": "Cash on delivery"
   },
   "shipping": {
     "title": "Shipping",
@@ -409,7 +410,9 @@
     "gscLabel": "Search Console verification code",
     "gscDesc": "Only if you verify with the \"HTML tag\" method: paste just the content=\"…\" value. Not needed if you verified with DNS.",
     "nicheMinPriceLabel": "Niche collection — minimum price",
-    "nicheMinPriceDesc": "Perfumes priced at or above this (including any size) appear in the Niche collection at /shop?niche=true and on the homepage Niche tile."
+    "nicheMinPriceDesc": "Perfumes priced at or above this (including any size) appear in the Niche collection at /shop?niche=true and on the homepage Niche tile.",
+    "shippingBannerLabel": "Show shipping message",
+    "shippingBannerDesc": "The shipping line in the announcement bar and homepage badges. It follows the Turkey shipping rate automatically: \"free shipping\" at ₺0, otherwise the rate."
   },
   "login": {
     "title": "Admin Access",

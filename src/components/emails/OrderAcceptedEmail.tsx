@@ -9,18 +9,23 @@ import {
   Text,
 } from '@react-email/components';
 import * as React from 'react';
+import { EMAIL_COPY, type EmailLocale } from './copy';
 
 interface OrderAcceptedEmailProps {
   customerName: string;
   orderId: string;
+  locale?: EmailLocale;
 }
 
 export const OrderAcceptedEmail = ({
   customerName,
   orderId,
+  locale = 'tr',
 }: OrderAcceptedEmailProps) => {
+  const c = EMAIL_COPY[locale];
+  const ref = orderId.slice(0, 8);
   return (
-    <Html>
+    <Html lang={locale}>
       <Head>
         <style>
           {`
@@ -28,7 +33,7 @@ export const OrderAcceptedEmail = ({
           `}
         </style>
       </Head>
-      <Preview>Your package is ready for shipment.</Preview>
+      <Preview>{c.acceptedPreview}</Preview>
       <Body style={main}>
         <Container style={container}>
           <Section style={headerSection}>
@@ -36,19 +41,16 @@ export const OrderAcceptedEmail = ({
           </Section>
 
           <Section style={contentSection}>
-            <Heading style={heading}>Order Accepted.</Heading>
-            <Text style={text}>Dear {customerName},</Text>
-            <Text style={text}>
-              Your package for Order #{orderId.slice(0, 8)} is ready for shipment.
-            </Text>
-            <Text style={text}>
-              If you have any questions, please reach out through our contact page.
-            </Text>
+            <Heading style={heading}>{c.acceptedHeading}</Heading>
+            <Text style={text}>{c.dear(customerName)}</Text>
+            <Text style={text}>{c.acceptedBody(ref)}</Text>
+            <Text style={text}>{c.payment}</Text>
+            <Text style={text}>{c.acceptedNext}</Text>
 
             <div style={footerDivider} />
             <Text style={footerText}>
-              Wear What Lingers.<br/>
-              © {new Date().getFullYear()} Cangday. All rights reserved.
+              {c.slogan}<br/>
+              © {new Date().getFullYear()} Cangday. {c.rights}
             </Text>
           </Section>
         </Container>

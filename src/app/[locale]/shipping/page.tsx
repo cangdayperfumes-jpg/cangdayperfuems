@@ -44,6 +44,16 @@ export default async function ShippingPage() {
     .order('continent', { ascending: true })
     .order('country', { ascending: true });
 
+  // Intro follows what's actually switched on in Admin → Shipping.
+  const enabledCount = zones?.length ?? 0;
+  const turkeyOnly = enabledCount === 1 && zones?.[0]?.country_code === 'TR';
+  const continents = Array.from(new Set((zones || []).map((z) => z.continent).filter(Boolean)));
+  const intro = enabledCount === 0
+    ? t('introNone')
+    : turkeyOnly
+    ? t('introTurkey')
+    : t('introCountries', { count: enabledCount, regions: continents.join(' • ') });
+
   // Group by continent
   const groupedZones = zones?.reduce((acc: any, zone) => {
       const continent = zone.continent || 'Other';
@@ -62,7 +72,7 @@ export default async function ShippingPage() {
             {t('title')}
           </h1>
           <p className="text-lg text-gray-500 font-light max-w-2xl mx-auto leading-relaxed">
-            {t('intro')}
+            {intro}
           </p>
         </div>
 

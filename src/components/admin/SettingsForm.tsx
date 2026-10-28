@@ -32,6 +32,7 @@ const settingsSchema = z.object({
   popupButtonTextTr: z.string().default(''),
   newBadgeDays: z.coerce.number().int().min(0).max(365).default(30),
   nicheMinPrice: z.coerce.number().min(0).default(3000),
+  shippingBannerEnabled: z.boolean().default(true),
   giftEnabled: z.boolean().default(true),
   giftThreshold: z.coerce.number().positive().default(750),
   gaMeasurementId: z.string().trim().toUpperCase().regex(/^(G-[A-Z0-9]{4,16})?$/, 'G-XXXXXXXXXX').default(''),
@@ -58,6 +59,7 @@ export interface SettingsInitialData {
   popup_button_text_tr?: string | null;
   new_badge_days?: number | null;
   niche_min_price?: number | null;
+  shipping_banner_enabled?: boolean | null;
   gift_enabled?: boolean | null;
   gift_threshold?: number | null;
   ga_measurement_id?: string | null;
@@ -103,6 +105,7 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
       popupButtonTextTr: initialData?.popup_button_text_tr ?? '',
       newBadgeDays: initialData?.new_badge_days ?? 30,
       nicheMinPrice: Number(initialData?.niche_min_price ?? 3000),
+      shippingBannerEnabled: initialData?.shipping_banner_enabled ?? true,
       giftEnabled: initialData?.gift_enabled ?? true,
       giftThreshold: Number(initialData?.gift_threshold ?? 750),
       gaMeasurementId: initialData?.ga_measurement_id ?? '',
@@ -139,6 +142,7 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
           popup_button_text_tr: data.popupButtonTextTr,
           new_badge_days: data.newBadgeDays,
           niche_min_price: data.nicheMinPrice,
+          shipping_banner_enabled: data.shippingBannerEnabled,
           gift_enabled: data.giftEnabled,
           gift_threshold: data.giftThreshold,
           ga_measurement_id: data.gaMeasurementId,
@@ -198,6 +202,21 @@ export default function SettingsForm({ initialData }: { initialData: SettingsIni
                   <Input type="number" min={0} max={365} className="max-w-[140px]" {...field} />
                 </FormControl>
                 <FormDescription>{t('newBadgeDaysDesc')}</FormDescription>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="shippingBannerEnabled"
+            render={({ field }) => (
+              <FormItem className="mt-4 flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base text-black">{t('shippingBannerLabel')}</FormLabel>
+                  <FormDescription>{t('shippingBannerDesc')}</FormDescription>
+                </div>
+                <FormControl>
+                  <Switch checked={field.value} onCheckedChange={field.onChange} />
+                </FormControl>
               </FormItem>
             )}
           />

@@ -1,10 +1,11 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, updateTag } from 'next/cache';
 import { createClient } from '@/utils/supabase/server';
 import { DOMESTIC_COUNTRY_CODE } from '@/lib/shipping';
 
 function revalidateShipping() {
+  updateTag('shipping-zones');
   revalidatePath('/admin/shipping');
   revalidatePath('/[locale]/shipping', 'page');
 }

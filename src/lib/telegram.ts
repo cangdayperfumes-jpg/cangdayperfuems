@@ -50,6 +50,7 @@ const L = {
     shipping: 'Kargo',
     free: 'Ücretsiz',
     total: 'Toplam',
+    payment: '💵 Ödeme: Kapıda nakit',
     open: 'Siparişi panelde aç',
     daily: '📊 <b>Günlük özet</b>',
     orders: 'Sipariş',
@@ -75,6 +76,7 @@ const L = {
     shipping: 'Shipping',
     free: 'Free',
     total: 'Total',
+    payment: '💵 Payment: cash on delivery',
     open: 'Open order in dashboard',
     daily: '📊 <b>Daily summary</b>',
     orders: 'Orders',
@@ -139,6 +141,7 @@ export function orderMessage(p: ClaimedOrder, lang: string) {
     disc > 0 ? `${t.discount}${o.coupon_code ? ` (${escapeHtml(o.coupon_code)})` : ''}: −${money(disc)}` : null,
     `${t.shipping}: ${ship > 0 ? money(ship) : t.free}`,
     `<b>${t.total}: ${money(Number(o.total_amount))}</b>`,
+    t.payment,
   ];
   return lines.filter((l) => l !== null).join('\n');
 }

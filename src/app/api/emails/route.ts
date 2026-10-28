@@ -3,6 +3,7 @@ import { Resend } from 'resend';
 import { render } from '@react-email/components';
 import OrderConfirmationEmail from '@/components/emails/OrderConfirmationEmail';
 import OrderAcceptedEmail from '@/components/emails/OrderAcceptedEmail';
+import { EMAIL_SUBJECTS, type EmailLocale } from '@/components/emails/copy';
 
 // Note: No Next.js Edge runtime declarations are used here to guarantee Netlify compatibility.
 
@@ -19,6 +20,8 @@ export async function POST(req: Request) {
     const resend = new Resend(process.env.RESEND_API_KEY);
     const body = await req.json();
     const { type, email, orderId, customerName } = body;
+    // Turkish unless the customer ordered on the English site.
+    const locale: EmailLocale = body.locale === 'en' ? 'en' : 'tr';
 
     // Validate request
     if (!type || !email || !orderId || !customerName) {
@@ -33,11 +36,11 @@ export async function POST(req: Request) {
 
     // Determine template based on type
     if (type === 'confirmation') {
-      subjectLine = 'Cangday: Order Received';
-      reactEmailTemplate = OrderConfirmationEmail({ customerName, orderId });
+      subjectLine = EMAIL_SUBJECTS[locale].confirmation;
+      reactEmailTemplate = OrderConfirmationEmail({ customerName, orderId, locale });
     } else if (type === 'accepted') {
-      subjectLine = 'Cangday: Order Accepted & Ready for Shipment';
-      reactEmailTemplate = OrderAcceptedEmail({ customerName, orderId });
+      subjectLine = EMAIL_SUBJECTS[locale].accepted;
+      reactEmailTemplate = OrderAcceptedEmail({ customerName, orderId, locale });
     } else {
       return NextResponse.json({ error: 'Invalid email type' }, { status: 400 });
     }

@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Fragment, useState } from 'react';
 import { useSettings } from '@/components/providers/SettingsProvider';
 import { formatPromoAmount } from '@/lib/promotions';
+import { shippingBannerLabel } from '@/lib/shipping-banner';
 
 const ITEMS = [
   { icon: Truck, key: 'freeShipping' },
@@ -49,11 +50,16 @@ export default function AnnouncementBar() {
   const t = useTranslations('trustBar');
   const tNav = useTranslations('nav');
   const [isVisible, setIsVisible] = useState(true);
-  const { gift } = useSettings();
+  const { gift, shippingBanner } = useSettings();
+  const shippingLabel = shippingBannerLabel(shippingBanner, t);
   // The mini-gift item follows Settings → Free mini gift (hidden when off).
-  const items = ITEMS.filter((i) => i.key !== 'freeGift' || gift.enabled);
+  const items = ITEMS.filter((i) => (i.key !== 'freeGift' || gift.enabled) && (i.key !== 'freeShipping' || !!shippingLabel));
   const label = (key: Item['key']) =>
-    key === 'freeGift' ? t('freeGift', { amount: formatPromoAmount(gift.threshold) }) : t(key);
+    key === 'freeGift'
+      ? t('freeGift', { amount: formatPromoAmount(gift.threshold) })
+      : key === 'freeShipping'
+      ? shippingLabel ?? ''
+      : t(key);
 
   if (!isVisible) return null;
 

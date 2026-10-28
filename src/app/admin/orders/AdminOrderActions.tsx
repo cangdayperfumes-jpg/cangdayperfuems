@@ -45,6 +45,8 @@ export default function AdminOrderActions({ order, items }: AdminOrderActionsPro
             email: order.customer_email,
             orderId: order.id,
             customerName: order.customer_name,
+            // Language the customer ordered in (saved at checkout).
+            locale: (order.customer_address as { locale?: string } | null)?.locale,
           }),
         });
 

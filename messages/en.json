@@ -27,7 +27,8 @@
     "freeShipping": "Free shipping on every order",
     "freeGift": "Free mini gift over {amount}",
     "original": "High-quality, long-lasting scents",
-    "easyReturns": "14-day easy returns"
+    "easyReturns": "14-day easy returns",
+    "shippingFlat": "{amount} shipping across Turkey"
   },
   "footer": {
     "brandTagline": "Modern Perfumery",
@@ -250,7 +251,10 @@
     "coupon_used_up": "This coupon has been fully used.",
     "coupon_min_order": "Your order doesn't reach this coupon's minimum.",
     "coupon_already_used": "You've already used this coupon.",
-    "couponRemovedRetry": "The coupon was removed — you can place the order again."
+    "couponRemovedRetry": "The coupon was removed — you can place the order again.",
+    "paymentSection": "Payment",
+    "cashOnDelivery": "Cash on delivery",
+    "cashOnDeliveryDesc": "You pay the courier in cash when your order arrives. No card details needed now."
   },
   "home": {
     "shopByCategory": "Shop by Category",
@@ -381,9 +385,9 @@
   },
   "shipping": {
     "metaTitle": "Shipping & Delivery",
-    "metaDescription": "View our shipping rates and delivery policies. We provide secure, express shipping for luxury fragrances worldwide.",
+    "metaDescription": "See our shipping fees and delivery policy. Every bottle is carefully packed and shipped safely.",
     "title": "Shipping & Delivery",
-    "globalCoverage": "Global Shipping Coverage",
+    "globalCoverage": "Where We Ship",
     "intro": "We currently ship to 35+ countries worldwide, covering: Europe • Africa • Middle East. Shipping options, delivery times, and costs may vary depending on the destination and order quantity.",
     "shippingPolicy": "Shipping Policy",
     "policy1Title": "Fast & Secure Delivery",
@@ -408,7 +412,10 @@
     "noCountriesMatch": "No countries match \"{query}\".",
     "loadingRates": "Loading latest rates...",
     "notListedNote": "* If your country is not listed, please calculate your order at checkout or contact us for a quote.",
-    "free": "Free"
+    "free": "Free",
+    "introTurkey": "We currently ship to all 81 provinces of Turkey. The shipping fee is shown at checkout and you pay in cash on delivery.",
+    "introCountries": "We currently ship to {count} countries: {regions}. Shipping fees and delivery times vary by country and are shown at checkout.",
+    "introNone": "Our shipping options will be listed here soon. In the meantime, contact us to place an order."
   },
   "privacy": {
     "metaTitle": "Privacy Policy",

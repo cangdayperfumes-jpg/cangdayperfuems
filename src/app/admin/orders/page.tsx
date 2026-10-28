@@ -225,6 +225,7 @@ export default async function OrdersPage(props: { searchParams: Promise<{ [key: 
                 </TableCell>
                 <TableCell className="whitespace-nowrap">
                   <span className="font-medium tabular-nums">{formatCurrency(Number(order.total_amount))}</span>
+                  <span className="mt-0.5 block text-[11px] text-slate-500">{t('cashOnDelivery')}</span>
                   {order.coupon_code && (
                     <span className="mt-0.5 flex items-center gap-1 text-[11px] text-emerald-700">
                       <Tag className="h-3 w-3" /> {order.coupon_code} (−{formatCurrency(Number(order.discount_amount))})

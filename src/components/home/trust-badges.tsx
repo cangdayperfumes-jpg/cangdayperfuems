@@ -4,6 +4,7 @@ import { Truck, Gift, ShieldCheck, RotateCcw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useSettings } from '@/components/providers/SettingsProvider';
 import { formatPromoAmount } from '@/lib/promotions';
+import { shippingBannerLabel } from '@/lib/shipping-banner';
 import { cn } from '@/lib/utils';
 
 const ITEMS = [
@@ -28,12 +29,13 @@ const ITEMS = [
  */
 export default function TrustBadges() {
   const t = useTranslations('trustBar');
-  const { gift } = useSettings();
-  const items = ITEMS.filter((i) => i.key !== 'freeGift' || gift.enabled);
+  const { gift, shippingBanner } = useSettings();
+  const shippingLabel = shippingBannerLabel(shippingBanner, t);
+  const items = ITEMS.filter((i) => (i.key !== 'freeGift' || gift.enabled) && (i.key !== 'freeShipping' || !!shippingLabel));
   return (
     <section className="w-full bg-ivory border-b border-border">
       <div className="max-w-[1400px] mx-auto md:px-6 lg:px-8">
-        <div className={cn('grid gap-px bg-border', items.length === 4 ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-3')}>
+        <div className={cn('grid gap-px bg-border', items.length === 4 ? 'grid-cols-2 md:grid-cols-4' : items.length === 2 ? 'grid-cols-2' : 'grid-cols-3')}>
           {items.map(({ icon: Icon, key }) => (
             <div
               key={key}
@@ -43,7 +45,11 @@ export default function TrustBadges() {
                 <Icon className="h-[18px] w-[18px] md:h-5 md:w-5 text-gold-deep" strokeWidth={1.5} />
               </span>
               <span className="text-[11px] md:text-sm font-medium text-ink/80 leading-snug max-w-[14ch] md:max-w-none">
-                {key === 'freeGift' ? t('freeGift', { amount: formatPromoAmount(gift.threshold) }) : t(key)}
+                {key === 'freeGift'
+                  ? t('freeGift', { amount: formatPromoAmount(gift.threshold) })
+                  : key === 'freeShipping'
+                  ? shippingLabel
+                  : t(key)}
               </span>
             </div>
           ))}

@@ -10,7 +10,7 @@ import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
 import { toast } from 'sonner';
-import { Loader2, Lock } from 'lucide-react';
+import { Loader2, Lock, Banknote } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -166,6 +166,8 @@ export default function CheckoutForm() {
           city: domestic ? values.province : values.city?.trim(),
           district: domestic ? values.district?.trim() || null : null,
           postal_code: values.postal_code?.trim() || '',
+          // Site language at checkout — order emails are sent in it.
+          locale,
         },
         total_amount: total,
         shipping_cost: shippingCost,
@@ -225,7 +227,7 @@ export default function CheckoutForm() {
         await fetch('/api/emails', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'confirmation', email: values.email, orderId, customerName: values.name }),
+          body: JSON.stringify({ type: 'confirmation', email: values.email, orderId, customerName: values.name, locale }),
         });
       } catch (emailError) {
         console.error('Non-fatal error: Failed to send confirmation email', emailError);
@@ -451,6 +453,22 @@ export default function CheckoutForm() {
               {t('shippingNotAvailable')}
             </p>
           )}
+        </section>
+
+        {/* ── 3. Payment ── */}
+        <section>
+          <SectionHeading step={3} title={t('paymentSection')} />
+          <div className="flex items-start gap-3 rounded-sm border-2 border-ink bg-white p-4" role="radio" aria-checked="true">
+            <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 border-ink">
+              <span className="h-2 w-2 rounded-full bg-ink" />
+            </span>
+            <span className="flex-1">
+              <span className="flex items-center gap-2 text-sm font-semibold text-ink">
+                <Banknote className="h-4 w-4 text-gold-deep" /> {t('cashOnDelivery')}
+              </span>
+              <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">{t('cashOnDeliveryDesc')}</span>
+            </span>
+          </div>
         </section>
 
         {/* Desktop submit — mobile uses the sticky bar in the checkout page, which submits this form via form="checkout-form". */}

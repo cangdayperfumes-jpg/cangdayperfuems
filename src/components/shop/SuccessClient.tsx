@@ -46,6 +46,11 @@ export default function SuccessClient({ order, items }: SuccessClientProps) {
         <DownloadInvoiceMenu order={order} items={items} variant="default" showPricedOption={!hidePrices} />
       </div>
 
+      <div className="w-full rounded-sm border border-gold/40 bg-gold/5 px-4 py-3 text-center">
+        <p className="text-sm font-semibold text-ink">{t('cashOnDelivery')}</p>
+        <p className="mt-1 text-xs text-muted-foreground">{t('cashOnDeliveryDesc')}</p>
+      </div>
+
       <div className="w-full text-center space-y-2 border-t pt-6">
         <h3 className="font-heading text-lg font-medium">{t('step2')}</h3>
         <p className="text-sm text-muted-foreground">

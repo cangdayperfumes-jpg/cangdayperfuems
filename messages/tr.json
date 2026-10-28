@@ -27,7 +27,8 @@
     "freeShipping": "Her siparişte ücretsiz kargo",
     "freeGift": "{amount} üzeri siparişlerde ücretsiz mini hediye",
     "original": "Yüksek kaliteli, kalıcı kokular",
-    "easyReturns": "14 gün içinde kolay iade"
+    "easyReturns": "14 gün içinde kolay iade",
+    "shippingFlat": "Türkiye geneli {amount} kargo"
   },
   "footer": {
     "brandTagline": "Modern Parfümeri",
@@ -250,7 +251,10 @@
     "coupon_used_up": "Bu kuponun kullanım hakkı dolmuş.",
     "coupon_min_order": "Siparişiniz bu kuponun alt limitine ulaşmıyor.",
     "coupon_already_used": "Bu kuponu daha önce kullandınız.",
-    "couponRemovedRetry": "Kupon kaldırıldı — siparişi yeniden verebilirsiniz."
+    "couponRemovedRetry": "Kupon kaldırıldı — siparişi yeniden verebilirsiniz.",
+    "paymentSection": "Ödeme",
+    "cashOnDelivery": "Kapıda nakit ödeme",
+    "cashOnDeliveryDesc": "Ödemeyi siparişiniz teslim edildiğinde kuryeye nakit olarak yaparsınız. Şimdi kart bilgisi gerekmez."
   },
   "home": {
     "shopByCategory": "Kategoriye Göre Alışveriş",
@@ -381,9 +385,9 @@
   },
   "shipping": {
     "metaTitle": "Kargo ve Teslimat",
-    "metaDescription": "Kargo ücretlerimizi ve teslimat politikalarımızı görüntüleyin. Dünya çapında lüks parfümler için güvenli, hızlı kargo sağlıyoruz.",
+    "metaDescription": "Kargo ücretlerimizi ve teslimat politikalarımızı görüntüleyin. Parfümleriniz özenle paketlenir ve güvenle gönderilir.",
     "title": "Kargo ve Teslimat",
-    "globalCoverage": "Dünya Çapında Kargo Kapsamı",
+    "globalCoverage": "Kargo Yapılan Yerler",
     "intro": "Şu anda dünya çapında 35'ten fazla ülkeye kargo gönderiyoruz: Avrupa • Afrika • Orta Doğu. Kargo seçenekleri, teslimat süreleri ve ücretler hedef ülkeye ve sipariş miktarına göre değişebilir.",
     "shippingPolicy": "Kargo Politikası",
     "policy1Title": "Hızlı ve Güvenli Teslimat",
@@ -408,7 +412,10 @@
     "noCountriesMatch": "\"{query}\" ile eşleşen ülke bulunamadı.",
     "loadingRates": "Güncel ücretler yükleniyor...",
     "notListedNote": "* Ülkeniz listede yoksa, lütfen siparişinizi ödeme sayfasında hesaplayın veya teklif için bizimle iletişime geçin.",
-    "free": "Ücretsiz"
+    "free": "Ücretsiz",
+    "introTurkey": "Şu anda Türkiye'nin 81 iline kargo gönderiyoruz. Kargo ücreti ödeme sayfasında gösterilir ve ödeme kapıda nakit olarak yapılır.",
+    "introCountries": "Şu anda {count} ülkeye kargo gönderiyoruz: {regions}. Kargo ücreti ve teslimat süresi ülkeye göre değişir ve ödeme sayfasında gösterilir.",
+    "introNone": "Kargo seçeneklerimiz kısa süre içinde burada olacak. Bu arada sipariş için bizimle iletişime geçebilirsiniz."
   },
   "privacy": {
     "metaTitle": "Gizlilik Politikası",
