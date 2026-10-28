@@ -25,7 +25,8 @@
     "viewStore": "Mağazayı görüntüle",
     "expand": "Menüyü genişlet",
     "collapse": "Menüyü daralt",
-    "offers": "Kampanyalar"
+    "offers": "Kampanyalar",
+    "reviews": "Müşteri Yorumları"
   },
   "common": {
     "save": "Kaydet",
@@ -993,5 +994,26 @@
     "photo": "Kart fotoğrafı",
     "photoHint": "Boş bırakırsanız hazır fotoğraf kullanılır.",
     "cropSaved": "Özel kırpma kaydedildi."
+  },
+  "testimonials": {
+    "title": "Müşteri yorumları",
+    "description": "Ana sayfadaki “Müşterilerimiz Ne Diyor” bölümünde görünen müşteri mesajı ekran görüntüleri (WhatsApp, Instagram…). Değişiklikler sitede hemen görünür.",
+    "count": "{shown} görünür · toplam {total}",
+    "add": "Ekran görüntüsü ekle",
+    "uploading": "Yükleniyor {done} / {total}…",
+    "tip": "İpucu: aynı anda birden fazla ekran görüntüsü seçebilirsiniz. Telefon ekran görüntüleri en iyi sonucu verir; kartta 3:4 çerçevede görünür, dokununca tamamı açılır. Yüklemeden önce görünmesini istemediğiniz telefon numaralarını veya isimleri gizleyin.",
+    "emptyTitle": "Henüz yorum yok",
+    "emptyBody": "İlk müşteri ekran görüntülerinizi eklemek için tıklayın.",
+    "added": "{count} ekran görüntüsü eklendi",
+    "uploadFailed": "Yükleme başarısız. Lütfen tekrar deneyin.",
+    "failed": "Değişiklik kaydedilemedi",
+    "hidden": "Gizli",
+    "hide": "Sitede gizle",
+    "show": "Sitede göster",
+    "moveLeft": "Öne al",
+    "moveRight": "Geriye al",
+    "delete": "Sil",
+    "confirmDelete": "Bu ekran görüntüsü silinsin mi?",
+    "deleted": "Ekran görüntüsü silindi"
   }
 }

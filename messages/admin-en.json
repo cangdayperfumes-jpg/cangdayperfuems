@@ -25,7 +25,8 @@
     "viewStore": "View store",
     "expand": "Expand sidebar",
     "collapse": "Collapse sidebar",
-    "offers": "Offers"
+    "offers": "Offers",
+    "reviews": "Reviews"
   },
   "common": {
     "save": "Save",
@@ -993,5 +994,26 @@
     "photo": "Card photo",
     "photoHint": "Leave empty to keep the built-in photo.",
     "cropSaved": "Custom crop saved."
+  },
+  "testimonials": {
+    "title": "Customer reviews",
+    "description": "Screenshots of customer messages (WhatsApp, Instagram…) shown in “What Our Customers Say” on the homepage. Changes show on the site right away.",
+    "count": "{shown} shown · {total} total",
+    "add": "Add screenshots",
+    "uploading": "Uploading {done} / {total}…",
+    "tip": "Tip: you can pick several screenshots at once. Phone screenshots work best; the card shows them in a 3:4 frame and the full image opens when tapped. Hide customers’ phone numbers or names you don’t want public before uploading.",
+    "emptyTitle": "No reviews yet",
+    "emptyBody": "Click to add your first customer screenshots.",
+    "added": "{count, plural, one {# screenshot added} other {# screenshots added}}",
+    "uploadFailed": "Upload failed. Please try again.",
+    "failed": "Could not save the change",
+    "hidden": "Hidden",
+    "hide": "Hide from the site",
+    "show": "Show on the site",
+    "moveLeft": "Move earlier",
+    "moveRight": "Move later",
+    "delete": "Delete",
+    "confirmDelete": "Delete this screenshot?",
+    "deleted": "Screenshot deleted"
   }
 }

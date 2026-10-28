@@ -30,5 +30,6 @@ export const getActiveTestimonials = unstable_cache(
     return data || [];
   },
   ['active-testimonials'],
-  { revalidate: 60 }
+  // Tagged so Admin → Reviews changes show on the homepage at once.
+  { revalidate: 60, tags: ['testimonials'] }
 );
