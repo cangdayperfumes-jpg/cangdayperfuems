@@ -56,7 +56,9 @@
     "legal": "Legal",
     "privacyPolicy": "Privacy Policy",
     "termsOfService": "Terms of Service",
-    "copyright": "© {year} Cangday. All rights reserved."
+    "copyright": "© {year} Cangday. All rights reserved.",
+    "madeBy": "Website by",
+    "madeByLabel": "Website made by Bludora Software — opens their Instagram"
   },
   "common": {
     "noThanks": "No thanks",

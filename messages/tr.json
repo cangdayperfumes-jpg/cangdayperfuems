@@ -56,7 +56,9 @@
     "legal": "Yasal",
     "privacyPolicy": "Gizlilik Politikası",
     "termsOfService": "Kullanım Şartları",
-    "copyright": "© {year} Cangday. Tüm hakları saklıdır."
+    "copyright": "© {year} Cangday. Tüm hakları saklıdır.",
+    "madeBy": "Web sitesi tasarımı",
+    "madeByLabel": "Bu site Bludora Software tarafından yapıldı — Instagram sayfasını açar"
   },
   "common": {
     "noThanks": "Hayır, teşekkürler",

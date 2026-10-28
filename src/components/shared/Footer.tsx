@@ -8,7 +8,7 @@ import { createClient } from '@/utils/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
+import { ArrowUpRight, Instagram, Loader2 } from 'lucide-react';
 
 const SHOP_LINKS = [
   { href: '/shop', key: 'allPerfumes' },
@@ -120,10 +120,29 @@ export default function Footer() {
         <div className="h-px w-full bg-border" />
 
         <div className="grid grid-cols-3 md:grid-cols-4 gap-x-3 gap-y-5 md:gap-8 py-5 md:py-12 text-xs md:text-sm">
-          <div className="col-span-3 md:col-span-1 order-first md:order-none">
+          <div className="col-span-3 md:col-span-1 order-first md:order-none flex flex-col items-center md:items-start">
             <p className="text-ink/60 leading-relaxed max-w-[26ch] text-center md:text-left">
               {t('tagline')}
             </p>
+            {/* Developer credit — opens Bludora Software's Instagram. */}
+            <a
+              href="https://www.instagram.com/bludorasoftware/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={t('madeByLabel')}
+              className="group mt-4 inline-flex md:mt-5 items-center gap-3 rounded-sm border border-border bg-background px-3 py-2.5 text-left transition-colors hover:border-gold/60"
+            >
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-ink text-gold transition-colors group-hover:bg-gold-deep group-hover:text-ivory">
+                <Instagram className="h-4 w-4" strokeWidth={1.75} />
+              </span>
+              <span className="leading-tight">
+                <span className="block text-[9px] md:text-[10px] uppercase tracking-[0.2em] text-ink/50">{t('madeBy')}</span>
+                <span className="mt-0.5 flex items-center gap-1 text-xs md:text-sm font-semibold text-ink">
+                  Bludora Software
+                  <ArrowUpRight className="h-3.5 w-3.5 text-ink/40 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-gold-deep" />
+                </span>
+              </span>
+            </a>
           </div>
 
           <div className="space-y-2 md:space-y-3">
