@@ -938,7 +938,8 @@
       "seasonalPattern": "Bannerın üzerine düşük opaklıkla serilen doku. Oran fark etmez.",
       "seasonalDecorative": "Banner köşesindeki küçük süs. Şeffaf arka planlı PNG en iyisidir.",
       "blogCover": "Blog yazısı kapağı ve blog kartları (16:9).",
-      "catalog": "PDF katalogda kullanılır."
+      "catalog": "PDF katalogda kullanılır.",
+      "offerCard": "Ana sayfa kampanya kartı — masaüstünde dikey 4:5, telefonda geniş bant. İkisini de “Kırpmayı düzenle” ile ayarlayın; yazı alt kısımda (telefonda solda) durur."
     }
   },
   "imageAdjust": {
@@ -988,6 +989,9 @@
     "failed": "Kampanyalar kaydedilemedi",
     "exPair": "2 × {price} → {save} kazanç",
     "exTrio": "{count} × {price} → {set}, {save} kazanç",
-    "exPremium": "{price} → {after}"
+    "exPremium": "{price} → {after}",
+    "photo": "Kart fotoğrafı",
+    "photoHint": "Boş bırakırsanız hazır fotoğraf kullanılır.",
+    "cropSaved": "Özel kırpma kaydedildi."
   }
 }

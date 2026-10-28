@@ -9,6 +9,7 @@ import { resolveUniqueProductSlug } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Upload, Loader2, FileSpreadsheet, Download, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { refreshStorefrontProducts } from '@/app/admin/actions';
 
 export default function BulkImport() {
   const t = useTranslations('bulkImport');
@@ -260,6 +261,7 @@ export default function BulkImport() {
       }
 
       setSummary({ created, updated, failed });
+      await refreshStorefrontProducts().catch((e) => console.error('Storefront refresh failed:', e));
       router.refresh();
 
     } catch (error) {

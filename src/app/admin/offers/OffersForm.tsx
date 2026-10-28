@@ -11,7 +11,10 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
 import { refreshStorefrontSettings } from '@/app/admin/settings/actions';
-import { applyOffers, type OffersConfig } from '@/lib/offers';
+import { applyOffers, type OfferCardImage, type OfferCardKey, type OffersConfig, type OfferKind } from '@/lib/offers';
+import ImageUploadField from '@/components/admin/ImageUploadField';
+import ImageCropEditorModal from '@/components/admin/ImageCropEditorModal';
+import { IMAGE_SPECS } from '@/lib/image-specs';
 import { formatPromoAmount } from '@/lib/promotions';
 
 interface Initial {
@@ -27,6 +30,7 @@ function OfferCard({
   onToggle,
   example,
   children,
+  photo,
 }: {
   icon: ReactNode;
   title: string;
@@ -35,6 +39,8 @@ function OfferCard({
   onToggle: (v: boolean) => void;
   example?: string;
   children: ReactNode;
+  /** Homepage card photo field. */
+  photo?: ReactNode;
 }) {
   const t = useTranslations('offers');
   return (
@@ -56,7 +62,48 @@ function OfferCard({
           <span className="font-semibold">{t('example')}:</span> {example}
         </p>
       )}
+      {photo && <div className="mt-5 border-t pt-4">{photo}</div>}
     </section>
+  );
+}
+
+/** Frame shapes of the homepage offer card (promo-banners.tsx): 4:5 from md up, a ~1.6:1 banner on phones. */
+const CARD_ASPECT = { desktop: 4 / 5, mobile: 1.6 };
+
+/** Upload + Adjust + per-breakpoint crop for one offer's homepage card, like the category tiles. */
+function OfferPhotoField({ value, onChange, title }: { value: OfferCardImage; onChange: (v: OfferCardImage) => void; title: string }) {
+  const t = useTranslations('offers');
+  const [cropOpen, setCropOpen] = useState(false);
+  return (
+    <div className="space-y-2">
+      <ImageUploadField
+        label={t('photo')}
+        value={value.image}
+        onChange={(url, reason) =>
+          // A new photo invalidates the old crop; an adjusted copy keeps it.
+          onChange(reason === 'adjust' ? { ...value, image: url } : { image: url, cropDesktop: null, cropMobile: null })
+        }
+        uploadPrefix="offer-cards/"
+        aspectClassName="h-44"
+        spec={IMAGE_SPECS.offerCard}
+        hint={t('photoHint')}
+        onEditCrop={value.image ? () => setCropOpen(true) : undefined}
+      />
+      {value.image && (value.cropDesktop || value.cropMobile) && <p className="text-xs text-emerald-700">{t('cropSaved')}</p>}
+      {value.image && (
+        <ImageCropEditorModal
+          open={cropOpen}
+          onOpenChange={setCropOpen}
+          imageUrl={value.image}
+          title={title}
+          desktopAspect={CARD_ASPECT.desktop}
+          mobileAspect={CARD_ASPECT.mobile}
+          initialDesktopCrop={value.cropDesktop}
+          initialMobileCrop={value.cropMobile}
+          onSave={({ desktop, mobile }) => onChange({ ...value, cropDesktop: desktop, cropMobile: mobile })}
+        />
+      )}
+    </div>
   );
 }
 
@@ -84,12 +131,20 @@ export default function OffersForm({ initial, ready }: { initial: Initial; ready
   const [gift, setGift] = useState(initial.gift);
   const [saving, setSaving] = useState(false);
 
-  const set = <K extends keyof OffersConfig>(key: K, patch: Partial<OffersConfig[K]>) =>
+  const set = <K extends OfferKind>(key: K, patch: Partial<OffersConfig[K]>) =>
     setOffers((o) => ({ ...o, [key]: { ...o[key], ...patch } }));
+  const photo = (key: OfferCardKey, title: string) => (
+    <OfferPhotoField
+      title={title}
+      value={offers.cards[key]}
+      onChange={(v) => setOffers((o) => ({ ...o, cards: { ...o.cards, [key]: v } }))}
+    />
+  );
 
   const money = (n: number) => formatPromoAmount(Math.max(0, Math.round(n * 100) / 100));
   // Live examples use the offer's own limit as the bottle price.
-  const solo = (key: keyof OffersConfig): OffersConfig => ({
+  const solo = (key: OfferKind): OffersConfig => ({
+    ...offers,
     pair: { ...offers.pair, enabled: key === 'pair' },
     trio: { ...offers.trio, enabled: key === 'trio' },
     premium: { ...offers.premium, enabled: key === 'premium' },
@@ -147,6 +202,7 @@ export default function OffersForm({ initial, ready }: { initial: Initial; ready
           enabled={offers.pair.enabled}
           onToggle={(v) => set('pair', { enabled: v })}
           example={t('exPair', { price: money(offers.pair.maxPrice), save: money(pairSave) })}
+          photo={photo('pair', t('pairTitle'))}
         >
           <NumberField label={t('pairMax')} value={offers.pair.maxPrice} onChange={(n) => set('pair', { maxPrice: n })} />
           <NumberField label={t('pairPercent')} value={offers.pair.percent} max={100} onChange={(n) => set('pair', { percent: n })} />
@@ -159,6 +215,7 @@ export default function OffersForm({ initial, ready }: { initial: Initial; ready
           enabled={offers.trio.enabled}
           onToggle={(v) => set('trio', { enabled: v })}
           example={t('exTrio', { count: offers.trio.count, price: money(offers.trio.maxPrice), set: money(offers.trio.price), save: money(trioSave) })}
+          photo={photo('trio', t('trioTitle'))}
         >
           <NumberField label={t('trioMax')} value={offers.trio.maxPrice} onChange={(n) => set('trio', { maxPrice: n })} />
           <NumberField label={t('trioCount')} value={offers.trio.count} min={2} onChange={(n) => set('trio', { count: n })} />
@@ -172,6 +229,7 @@ export default function OffersForm({ initial, ready }: { initial: Initial; ready
           enabled={offers.premium.enabled}
           onToggle={(v) => set('premium', { enabled: v })}
           example={t('exPremium', { price: money(premiumPrice), after: money(premiumPrice - premiumSave) })}
+          photo={photo('premium', t('premiumTitle'))}
         >
           <NumberField label={t('premiumMin')} value={offers.premium.minPrice} onChange={(n) => set('premium', { minPrice: n })} />
           <NumberField label={t('premiumPercent')} value={offers.premium.percent} max={100} onChange={(n) => set('premium', { percent: n })} />
@@ -183,6 +241,7 @@ export default function OffersForm({ initial, ready }: { initial: Initial; ready
           description={t('giftDesc')}
           enabled={gift.enabled}
           onToggle={(v) => setGift((g) => ({ ...g, enabled: v }))}
+          photo={photo('gift', t('giftTitle'))}
         >
           <NumberField label={t('giftThreshold')} value={gift.threshold} min={1} onChange={(n) => setGift((g) => ({ ...g, threshold: n }))} />
         </OfferCard>

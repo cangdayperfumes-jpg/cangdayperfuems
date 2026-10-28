@@ -40,7 +40,7 @@ const getCachedCategories = unstable_cache(
     }));
   },
   ['shop-categories'],
-  { revalidate: 60 }
+  { revalidate: 60, tags: ['products'] }
 );
 
 // Cache brands with active products (changes rarely)
@@ -62,7 +62,7 @@ const getCachedBrands = unstable_cache(
     }));
   },
   ['shop-brands'],
-  { revalidate: 60 }
+  { revalidate: 60, tags: ['products'] }
 );
 
 // Cache all product category_ids for sidebar counts (changes rarely)
@@ -92,7 +92,7 @@ const getCachedProductCounts = unstable_cache(
     }
   },
   ['shop-product-counts'],
-  { revalidate: 60 }
+  { revalidate: 60, tags: ['products'] }
 );
 
 /** Minimum price for the Niche collection (Settings → General). Tagged so saving Settings refreshes it. */

@@ -1,7 +1,7 @@
 'use server';
 
 import { createClient } from '@/utils/supabase/server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, updateTag } from 'next/cache';
 
 export async function getOrders({
   status,
@@ -68,6 +68,26 @@ export async function toggleOrderVerification(orderId: string, currentStatus: bo
   revalidatePath('/admin');
 }
 
+/**
+ * Called after any product create/update/delete. Storefront product data is
+ * cached (tag 'products') and pages are statically re-rendered every 60s, so
+ * without this a new price or a new product took up to two minutes to show.
+ */
+export async function refreshStorefrontProducts() {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getClaims();
+  if (!data?.claims?.sub) return { success: false as const };
+
+  updateTag('products');
+  revalidatePath('/[locale]', 'layout');
+  return { success: true as const };
+}
+
+function expireProductPages() {
+  updateTag('products');
+  revalidatePath('/[locale]', 'layout');
+}
+
 export async function deleteProduct(productId: string) {
   const supabase = await createClient();
   
@@ -81,6 +101,7 @@ export async function deleteProduct(productId: string) {
   }
 
   revalidatePath('/admin/products');
+  expireProductPages();
 }
 
 export async function updateProductFields(productId: string, data: Record<string, string | number | boolean>) {
@@ -96,6 +117,7 @@ export async function updateProductFields(productId: string, data: Record<string
   }
 
   revalidatePath('/admin/products');
+  expireProductPages();
 }
 
 export async function bulkUpdatePrice(productIds: string[], price: number) {
@@ -111,6 +133,7 @@ export async function bulkUpdatePrice(productIds: string[], price: number) {
   }
 
   revalidatePath('/admin/products');
+  expireProductPages();
 }
 
 export async function deleteShippingZone(zoneId: string) {

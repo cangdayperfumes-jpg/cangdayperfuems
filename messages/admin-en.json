@@ -938,7 +938,8 @@
       "seasonalPattern": "Texture laid over the banner at low opacity. Any shape.",
       "seasonalDecorative": "Small decoration in the banner corner. A PNG with a transparent background works best.",
       "blogCover": "Blog post cover and blog cards (16:9).",
-      "catalog": "Used in the PDF catalog."
+      "catalog": "Used in the PDF catalog.",
+      "offerCard": "Homepage offer card — tall 4:5 on desktop, a wide banner on phones. Use “Edit crop” to frame both; text sits over the bottom (left on phones)."
     }
   },
   "imageAdjust": {
@@ -988,6 +989,9 @@
     "failed": "Could not save offers",
     "exPair": "2 × {price} → you save {save}",
     "exTrio": "{count} × {price} → {set}, you save {save}",
-    "exPremium": "{price} → {after}"
+    "exPremium": "{price} → {after}",
+    "photo": "Card photo",
+    "photoHint": "Leave empty to keep the built-in photo.",
+    "cropSaved": "Custom crop saved."
   }
 }

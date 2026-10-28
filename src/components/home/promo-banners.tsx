@@ -3,7 +3,7 @@
 import { Link } from '@/i18n/navigation';
 import { ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import ImageWithFallback from '@/components/shared/ImageWithFallback';
+import ResponsiveCroppedImage from '@/components/shared/ResponsiveCroppedImage';
 import { useSettings } from '@/components/providers/SettingsProvider';
 import { formatPromoAmount } from '@/lib/promotions';
 import { cn } from '@/lib/utils';
@@ -12,11 +12,13 @@ import Reveal from '@/components/shared/Reveal';
 // Moody, low-key photography so ivory copy over the bottom gradient always
 // has contrast — one per offer. Swap for the site's own shoot when available.
 const IMG = (id: string) => `https://images.unsplash.com/${id}?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=900`;
+// `offer` names the photo slot in Admin → Offers (offers.cards); the stock
+// photo is used until the admin uploads one.
 const CARDS = [
-  { key: 'offerPair', href: '/shop', image: IMG('photo-1557170334-a9632e77c6e4') },
-  { key: 'offerTrio', href: '/shop', image: IMG('photo-1588405748880-12d1d2a59f75') },
-  { key: 'offerPremium', href: '/shop', image: IMG('photo-1643797517590-c44cb552ddcc') },
-  { key: 'promo3', href: '/shop', image: IMG('photo-1770301410072-f6ef6dad65b2') },
+  { key: 'offerPair', offer: 'pair', href: '/shop', image: IMG('photo-1557170334-a9632e77c6e4') },
+  { key: 'offerTrio', offer: 'trio', href: '/shop', image: IMG('photo-1588405748880-12d1d2a59f75') },
+  { key: 'offerPremium', offer: 'premium', href: '/shop', image: IMG('photo-1643797517590-c44cb552ddcc') },
+  { key: 'promo3', offer: 'gift', href: '/shop', image: IMG('photo-1770301410072-f6ef6dad65b2') },
 ] as const;
 
 /**
@@ -48,14 +50,18 @@ export default function PromoBanners() {
     <section className="w-full bg-ivory">
       <div className="max-w-[1400px] mx-auto px-4 py-10 md:px-6 md:py-20 lg:px-8">
         <div className={cn("grid grid-cols-1 gap-3 sm:gap-4 md:gap-5", cards.length >= 2 && "md:grid-cols-2", cards.length === 3 && "lg:grid-cols-3", cards.length === 4 && "lg:grid-cols-4")}>
-          {cards.map(({ key, href, image }, i) => (
+          {cards.map(({ key, offer, href, image }, i) => {
+            const photo = offers.cards[offer];
+            return (
             <Reveal key={key} delay={i * 0.1}>
             <Link
               href={href}
               className="group relative block min-h-[210px] sm:min-h-[240px] md:min-h-0 md:aspect-[4/5] overflow-hidden rounded-sm bg-ink"
             >
-              <ImageWithFallback
-                src={image}
+              <ResponsiveCroppedImage
+                src={photo.image || image}
+                cropDesktop={photo.image ? photo.cropDesktop : null}
+                cropMobile={photo.image ? photo.cropMobile : null}
                 alt=""
                 fill
                 loading="lazy"
@@ -87,7 +93,8 @@ export default function PromoBanners() {
               </div>
             </Link>
             </Reveal>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

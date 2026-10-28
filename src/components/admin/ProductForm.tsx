@@ -55,6 +55,7 @@ import {
 import { cn } from '@/lib/utils';
 import { resolveUniqueProductSlug } from '@/lib/utils';
 import { Product, Category, Brand } from '@/types';
+import { refreshStorefrontProducts } from '@/app/admin/actions';
 
 // Zod Schema — built from a translate function so validation messages follow the
 // active admin locale (see useMemo below where it's instantiated with `t`).
@@ -292,6 +293,8 @@ export default function ProductForm({ initialData, categories: initialCategories
           }
       }
 
+      // Show the new price/product on the storefront now, not after its cache expires.
+      await refreshStorefrontProducts().catch((e) => console.error('Storefront refresh failed:', e));
       toast.success(t('productSavedSuccessfully'));
       
       startTransition(() => {

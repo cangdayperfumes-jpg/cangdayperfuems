@@ -180,7 +180,7 @@ export default async function LocaleLayout({
         return data;
       },
       ['layout-categories'],
-      { revalidate: 60 }
+      { revalidate: 60, tags: ['products'] }
     )(),
     unstable_cache(
       async () => {

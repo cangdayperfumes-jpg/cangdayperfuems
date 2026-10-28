@@ -30,6 +30,7 @@ export type ImageSpecKey =
   | 'seasonalPattern'
   | 'seasonalDecorative'
   | 'blogCover'
+  | 'offerCard'
   | 'catalog';
 
 export const IMAGE_SPECS: Record<Exclude<ImageSpecKey, 'categoryTile'>, ImageSpec> = {
@@ -49,6 +50,8 @@ export const IMAGE_SPECS: Record<Exclude<ImageSpecKey, 'categoryTile'>, ImageSpe
   seasonalPattern: { key: 'seasonalPattern', width: 1600, height: 1600, anyShape: true },
   seasonalDecorative: { key: 'seasonalDecorative', width: 600, height: 600, anyShape: true },
   blogCover: { key: 'blogCover', width: 1600, height: 900 },
+  // Homepage offer card: 4:5 portrait from tablets up, a wide ~1.6:1 banner on phones.
+  offerCard: { key: 'offerCard', width: 1280, height: 1600 },
   catalog: { key: 'catalog', width: 1600, height: 1600, anyShape: true },
 };
 

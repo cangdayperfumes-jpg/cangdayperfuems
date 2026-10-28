@@ -12,19 +12,34 @@
  * everywhere even after the admin changes the offers.
  */
 
+import type { CropMeta } from '@/lib/image-crop';
+
+export type OfferCardKey = 'pair' | 'trio' | 'premium' | 'gift';
+
+/** Homepage card photo for one offer; `image: null` keeps the built-in photo. */
+export interface OfferCardImage {
+  image: string | null;
+  cropDesktop: CropMeta | null;
+  cropMobile: CropMeta | null;
+}
+
 export interface OffersConfig {
   pair: { enabled: boolean; maxPrice: number; percent: number };
   trio: { enabled: boolean; maxPrice: number; count: number; price: number };
   premium: { enabled: boolean; minPrice: number; percent: number };
+  cards: Record<OfferCardKey, OfferCardImage>;
 }
+
+const NO_CARD_IMAGE: OfferCardImage = { image: null, cropDesktop: null, cropMobile: null };
 
 export const DEFAULT_OFFERS: OffersConfig = {
   pair: { enabled: true, maxPrice: 2500, percent: 30 },
   trio: { enabled: true, maxPrice: 2500, count: 3, price: 5999 },
   premium: { enabled: true, minPrice: 2750, percent: 20 },
+  cards: { pair: NO_CARD_IMAGE, trio: NO_CARD_IMAGE, premium: NO_CARD_IMAGE, gift: NO_CARD_IMAGE },
 };
 
-export type OfferKind = keyof OffersConfig;
+export type OfferKind = 'pair' | 'trio' | 'premium';
 
 /** One applied offer as saved on the order — with the numbers it used, so the label never changes later. */
 export interface OfferLine {
@@ -49,6 +64,24 @@ const num = (v: unknown, fallback: number) => {
 };
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
+function parseCrop(raw: unknown): CropMeta | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const c = raw as Record<string, unknown>;
+  const keys = ['x', 'y', 'width', 'height', 'zoom'] as const;
+  return keys.every((k) => Number.isFinite(Number(c[k])))
+    ? { x: Number(c.x), y: Number(c.y), width: Number(c.width), height: Number(c.height), zoom: Number(c.zoom) }
+    : null;
+}
+
+function parseCard(raw: unknown): OfferCardImage {
+  const c = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
+  return {
+    image: typeof c.image === 'string' && c.image ? c.image : null,
+    cropDesktop: parseCrop(c.cropDesktop),
+    cropMobile: parseCrop(c.cropMobile),
+  };
+}
+
 /** Reads the stored JSON, filling anything missing or invalid with the defaults. */
 export function parseOffers(raw: unknown): OffersConfig {
   const r = (raw && typeof raw === 'object' ? raw : {}) as Record<string, Record<string, unknown> | undefined>;
@@ -69,6 +102,12 @@ export function parseOffers(raw: unknown): OffersConfig {
       enabled: (r.premium?.enabled as boolean | undefined) ?? d.premium.enabled,
       minPrice: num(r.premium?.minPrice, d.premium.minPrice),
       percent: Math.min(num(r.premium?.percent, d.premium.percent), 100),
+    },
+    cards: {
+      pair: parseCard(r.cards?.pair),
+      trio: parseCard(r.cards?.trio),
+      premium: parseCard(r.cards?.premium),
+      gift: parseCard(r.cards?.gift),
     },
   };
 }

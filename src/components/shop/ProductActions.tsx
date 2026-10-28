@@ -47,27 +47,47 @@ export default function ProductActions({ product, initialVariants = [] }: Produc
   // the fold), showing a redundant bar right above the real one.
   const addToCartButtonRef = useRef<HTMLDivElement>(null);
   const [isButtonOffscreen, setIsButtonOffscreen] = useState(false);
+  // Once the shopper reaches "You may also like" (#related-products) and
+  // below, the bar would only cover those cards — hide it there.
+  const [pastDetails, setPastDetails] = useState(false);
   const setStickyBarVisible = useStickyBarStore((s) => s.setVisible);
+  const showStickyBar = isButtonOffscreen && !pastDetails;
 
   useEffect(() => {
     const el = addToCartButtonRef.current;
     if (!el) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        const scrolledPast = !entry.isIntersecting && entry.boundingClientRect.top < 0;
-        setIsButtonOffscreen(scrolledPast);
-        setStickyBarVisible(scrolledPast);
+        setIsButtonOffscreen(!entry.isIntersecting && entry.boundingClientRect.top < 0);
       },
       { threshold: 0 }
     );
     observer.observe(el);
-    // Reset on unmount (navigating away) so ScrollToTop doesn't stay
-    // shifted up on pages that never show this bar.
+
+    const related = document.getElementById('related-products');
+    const relatedObserver = related
+      ? new IntersectionObserver(
+          // Hidden while the section is on screen or already scrolled past (footer).
+          ([entry]) => setPastDetails(entry.isIntersecting || entry.boundingClientRect.top < 0),
+          // Trigger when the section's top enters the area above the bar + bottom nav.
+          { rootMargin: '0px 0px -140px 0px', threshold: 0 }
+        )
+      : null;
+    if (related) relatedObserver?.observe(related);
+
     return () => {
       observer.disconnect();
-      setStickyBarVisible(false);
+      relatedObserver?.disconnect();
     };
-  }, [setStickyBarVisible]);
+  }, []);
+
+  useEffect(() => {
+    setStickyBarVisible(showStickyBar);
+  }, [showStickyBar, setStickyBarVisible]);
+
+  // Reset on unmount (navigating away) so ScrollToTop doesn't stay
+  // shifted up on pages that never show this bar.
+  useEffect(() => () => setStickyBarVisible(false), [setStickyBarVisible]);
 
   useEffect(() => {
     async function fetchVariants() {
@@ -270,7 +290,7 @@ export default function ProductActions({ product, initialVariants = [] }: Produc
       {/* Mobile sticky bar — appears once the in-page Add to Cart button
           above scrolls out of view, so the buy action is always reachable
           while reading the description or browsing related products. */}
-      {isButtonOffscreen && (
+      {showStickyBar && (
         <div className="md:hidden fixed bottom-16 left-0 right-0 z-40 bg-background border-t shadow-[0_-2px_12px_rgba(0,0,0,0.08)] px-4 py-2.5 flex items-center gap-3">
           <div className="flex-1 min-w-0">
             <p className="text-xs text-muted-foreground truncate">{product.name}</p>

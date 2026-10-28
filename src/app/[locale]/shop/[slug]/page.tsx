@@ -68,13 +68,31 @@ async function getProduct(slugOrId: string) {
   return null;
 }
 
-/** Cached version of getProduct — reuses data across generateMetadata + page render */
-const getCachedProduct = (slugOrId: string) =>
-  unstable_cache(
-    () => getProduct(slugOrId),
-    [`product-${slugOrId}`],
-    { revalidate: 60 }
-  )();
+const NOT_FOUND = 'PRODUCT_NOT_FOUND';
+
+/**
+ * Cached version of getProduct — reuses data across generateMetadata + page
+ * render. Tagged 'products' so admin saves refresh it at once (see
+ * refreshStorefrontProducts). A miss is thrown rather than returned so it is
+ * never cached: a product opened moments before it was saved/activated
+ * would otherwise keep showing 404 until the cache expired.
+ */
+const getCachedProduct = async (slugOrId: string) => {
+  try {
+    return await unstable_cache(
+      async () => {
+        const product = await getProduct(slugOrId);
+        if (!product) throw new Error(NOT_FOUND);
+        return product;
+      },
+      [`product-${slugOrId}`],
+      { revalidate: 60, tags: ['products'] }
+    )();
+  } catch (e) {
+    if (e instanceof Error && e.message === NOT_FOUND) return null;
+    throw e;
+  }
+};
 
 /**
  * Cached system_settings row — shares the same cache key (and must select the
@@ -155,7 +173,7 @@ const getCachedRelatedProducts = (productId: string, categoryId: string | null, 
   unstable_cache(
     () => getRelatedProducts(productId, categoryId, brandId),
     [`related-products-${productId}`],
-    { revalidate: 300 }
+    { revalidate: 300, tags: ['products'] }
   )();
 
 /** Ensure an image URL is always absolute */
@@ -308,7 +326,7 @@ export default async function ProductPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
-      <div className="container py-5 md:py-10">
+      <div className="container pt-5 pb-8 md:py-10">
         <nav aria-label="Breadcrumb" className="mb-4 md:mb-6 overflow-x-auto">
           <ol className="flex items-center gap-1.5 whitespace-nowrap text-xs text-muted-foreground">
             {breadcrumbItems.map((item, index) => {
@@ -419,7 +437,7 @@ export default async function ProductPage({ params }: PageProps) {
         </div>
 
         {relatedProducts.length > 0 && (
-          <div className="mt-10 md:mt-14 pt-6 md:pt-8 border-t">
+          <div id="related-products" className="mt-10 md:mt-14 pt-6 md:pt-8 border-t">
             <h2 className="text-lg md:text-2xl font-heading font-medium mb-4 md:mb-6">
               {t('relatedProducts')}
             </h2>
