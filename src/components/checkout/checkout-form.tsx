@@ -209,6 +209,9 @@ export default function CheckoutForm() {
         product_id: item.id,
         quantity: item.quantity,
         unit_price: item.price,
+        // The chosen size/option, so invoices and the dashboard can show it.
+        variant_id: item.variantId ?? null,
+        variant_name: item.variantName ?? null,
       }));
 
       const { error: itemsError } = await supabase.from('order_items').insert(orderItems);

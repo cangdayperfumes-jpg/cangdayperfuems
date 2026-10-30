@@ -319,7 +319,7 @@ export default function InvoicePDF({ order, items, hidePrices = false, customIte
         quantity: item.quantity,
         unitPrice: item.unit_price,
         total: item.unit_price * item.quantity,
-        subLines: [],
+        subLines: item.variant_name ? [`${c.variant}: ${item.variant_name}`] : [],
       }));
 
   // When customizing, totals reflect the edited item prices rather than the
