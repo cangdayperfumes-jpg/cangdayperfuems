@@ -8,6 +8,7 @@ import { motion, type Variants } from 'framer-motion';
 import { HeroSlide } from '@/types';
 import ResponsiveCroppedImage from '@/components/shared/ResponsiveCroppedImage';
 import type { CropMeta } from '@/lib/image-crop';
+import HeroOffers, { useHeroOffersVisible } from '@/components/shared/HeroOffers';
 import { HERO_DESKTOP_ASPECT, HERO_MOBILE_ASPECT, HERO_MAX_WIDTH_PX } from '@/lib/hero-aspect';
 
 // Legacy focal-point presets, kept as the fallback for slides with no
@@ -37,7 +38,7 @@ const FALLBACK_SLIDE: HeroSlide = {
   subheading:
     'An edited collection of designer and niche fragrances — chosen for how they feel hours after you stop noticing them.',
   image_url:
-    'https://images.unsplash.com/photo-1774682060997-f8959850a7d4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920',
+    '/images/stock/photo-1774682060997-f8959850a7d4.jpg',
   image_position: 'center',
   button_text: 'Shop the Collection',
   button_link: '/shop',
@@ -98,7 +99,7 @@ const textItem: Variants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } },
 };
 
-function Slide({ slide, priority, active }: { slide: HeroSlide; priority: boolean; active: boolean }) {
+function Slide({ slide, priority, active, roomForOffers }: { slide: HeroSlide; priority: boolean; active: boolean; roomForOffers: boolean }) {
   return (
     <motion.div
       className={`absolute inset-0 overflow-hidden bg-ivory text-ink ${active ? 'z-10' : 'z-0 pointer-events-none'}`}
@@ -156,7 +157,7 @@ function Slide({ slide, priority, active }: { slide: HeroSlide; priority: boolea
       {/* Same max-w-[1400px] + gutters as every section below, so the hero
           copy lines up with the page's content column instead of hugging the
           viewport's left edge on wide screens. */}
-      <div className="relative z-10 h-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center py-4">
+      <div className={`relative z-10 h-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center py-4 ${roomForOffers ? 'pb-[4.5rem] md:pb-20 lg:pb-24' : ''}`}>
         <motion.div
           className="max-w-xl"
           variants={textContainer}
@@ -178,7 +179,7 @@ function Slide({ slide, priority, active }: { slide: HeroSlide; priority: boolea
           </motion.h1>
 
           {slide.subheading && (
-            <motion.p variants={textItem} className="mt-3 md:mt-4 text-sm md:text-base text-ink/70 font-light max-w-md leading-snug line-clamp-2">
+            <motion.p variants={textItem} className={`mt-3 md:mt-4 text-sm md:text-base text-ink/70 font-light max-w-md leading-snug line-clamp-2 ${roomForOffers ? 'md:max-lg:hidden' : ''}`}>
               {slide.subheading}
             </motion.p>
           )}
@@ -216,6 +217,8 @@ export default function Hero({ slides }: HeroProps) {
     localizeSlide(slide, locale)
   );
   const isMulti = activeSlides.length > 1;
+  // Offers sit along the bottom of the frame; the slide dots move to the top-right corner.
+  const offersInHero = useHeroOffersVisible();
 
   const [selected, setSelected] = useState(0);
   // Autoplay pauses while hovered and restarts its full delay on mouse
@@ -279,12 +282,13 @@ export default function Hero({ slides }: HeroProps) {
       >
         {/* All slides stacked in place; only opacity changes between them. */}
         {activeSlides.map((slide, index) => (
-          <Slide key={slide.id} slide={slide} priority={index === 0} active={index === selected} />
+          <Slide key={slide.id} slide={slide} priority={index === 0} active={index === selected} roomForOffers={offersInHero} />
         ))}
+        <HeroOffers />
       </div>
 
       {isMulti && (
-        <div className="absolute bottom-3 md:bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+        <div className={`absolute z-20 flex items-center gap-2 ${offersInHero ? 'top-3 right-4 md:top-4 md:right-6 lg:right-8' : 'bottom-3 md:bottom-4 left-1/2 -translate-x-1/2'}`}>
           {activeSlides.map((slide, index) => (
             <button
               key={slide.id}

@@ -993,7 +993,11 @@
     "exPremium": "{price} → {after}",
     "photo": "Card photo",
     "photoHint": "Leave empty to keep the built-in photo.",
-    "cropSaved": "Custom crop saved."
+    "cropSaved": "Custom crop saved.",
+    "heroTitle": "Show offers in the hero",
+    "heroDesc": "The active offers appear as cards inside the homepage's main banner, over the photo. Switching it saves right away.",
+    "heroOn": "Offers are now shown in the hero",
+    "heroOff": "Offers are hidden from the hero"
   },
   "testimonials": {
     "title": "Customer reviews",

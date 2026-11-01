@@ -123,10 +123,10 @@ export default async function Home() {
   // these four link patterns to localized copy; any other admin-added tile
   // falls back to its own label.
   const FALLBACK_TILES: CategoryTile[] = [
-    { id: 'fallback-1', label: "Women's", link_href: '/shop?audience=Women', image_url: 'https://images.unsplash.com/photo-1784215118418-1c1ff08edac1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=900', col_span: 2, row_span: 2, display_order: 0, is_active: true, created_at: '', updated_at: '' },
-    { id: 'fallback-2', label: "Men's", link_href: '/shop?audience=Men', image_url: 'https://images.unsplash.com/photo-1770193349323-efd1c5492a83?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=900', col_span: 2, row_span: 1, display_order: 1, is_active: true, created_at: '', updated_at: '' },
-    { id: 'fallback-3', label: 'Gift Sets', link_href: '/shop?category=gift-sets', image_url: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=700', col_span: 1, row_span: 1, display_order: 2, is_active: true, created_at: '', updated_at: '' },
-    { id: 'fallback-4', label: 'Body Mists', link_href: '/shop?category=body-mists', image_url: 'https://images.unsplash.com/photo-1780811070739-faa3b575b669?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=700', col_span: 1, row_span: 1, display_order: 3, is_active: true, created_at: '', updated_at: '' },
+    { id: 'fallback-1', label: "Women's", link_href: '/shop?audience=Women', image_url: '/images/stock/photo-1784215118418-1c1ff08edac1.jpg', col_span: 2, row_span: 2, display_order: 0, is_active: true, created_at: '', updated_at: '' },
+    { id: 'fallback-2', label: "Men's", link_href: '/shop?audience=Men', image_url: '/images/stock/photo-1770193349323-efd1c5492a83.jpg', col_span: 2, row_span: 1, display_order: 1, is_active: true, created_at: '', updated_at: '' },
+    { id: 'fallback-3', label: 'Gift Sets', link_href: '/shop?category=gift-sets', image_url: '/images/stock/photo-1588405748880-12d1d2a59f75.jpg', col_span: 1, row_span: 1, display_order: 2, is_active: true, created_at: '', updated_at: '' },
+    { id: 'fallback-4', label: 'Body Mists', link_href: '/shop?category=body-mists', image_url: '/images/stock/photo-1780811070739-faa3b575b669.jpg', col_span: 1, row_span: 1, display_order: 3, is_active: true, created_at: '', updated_at: '' },
   ];
   const collections = categoryTiles.length > 0 ? categoryTiles : FALLBACK_TILES;
 

@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { SITE_URL } from '@/lib/seo';
 import { Suspense } from "react";
-import { preconnect } from "react-dom";
 import { Fraunces, Manrope } from "next/font/google";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
@@ -146,11 +145,6 @@ export default async function LocaleLayout({
   if (!hasLocale(routing.locales, locale)) notFound();
 
   setRequestLocale(locale);
-  // Editorial/fallback photography (hero fallback, category tiles, promo
-  // cards) is served from Unsplash's CDN — open that connection early so
-  // those images don't wait on DNS + TLS after the HTML arrives.
-  preconnect("https://images.unsplash.com");
-
   const supabaseConfigured = isSupabaseConfigured();
 
   // Cookie-free client: the storefront layout only reads public data (categories,

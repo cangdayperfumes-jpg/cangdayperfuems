@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
-import { Gift, Layers, Loader2, Percent, Sparkles } from 'lucide-react';
+import { Gift, Layers, LayoutTemplate, Loader2, Percent, Sparkles } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -130,6 +130,10 @@ export default function OffersForm({ initial, ready }: { initial: Initial; ready
   const [offers, setOffers] = useState<OffersConfig>(initial.offers);
   const [gift, setGift] = useState(initial.gift);
   const [saving, setSaving] = useState(false);
+  const [heroSaving, setHeroSaving] = useState(false);
+  // Last offers written to the DB — the hero switch saves on its own, without
+  // also publishing whatever else is still being edited in the form.
+  const savedOffers = useRef(initial.offers);
 
   const set = <K extends OfferKind>(key: K, patch: Partial<OffersConfig[K]>) =>
     setOffers((o) => ({ ...o, [key]: { ...o[key], ...patch } }));
@@ -173,6 +177,7 @@ export default function OffersForm({ initial, ready }: { initial: Initial; ready
         .update({ offers, gift_enabled: gift.enabled, gift_threshold: gift.threshold })
         .eq('id', 'global');
       if (error) throw error;
+      savedOffers.current = offers;
       await refreshStorefrontSettings().catch((e) => console.error('Storefront refresh failed:', e));
       toast.success(t('saved'));
     } catch (e) {
@@ -180,6 +185,26 @@ export default function OffersForm({ initial, ready }: { initial: Initial; ready
       toast.error(t('failed'));
     } finally {
       setSaving(false);
+    }
+  };
+
+  const toggleHero = async (hero: boolean) => {
+    const previous = offers.hero;
+    setOffers((o) => ({ ...o, hero }));
+    setHeroSaving(true);
+    try {
+      const next = { ...savedOffers.current, hero };
+      const { error } = await createClient().from('system_settings').update({ offers: next }).eq('id', 'global');
+      if (error) throw error;
+      savedOffers.current = next;
+      await refreshStorefrontSettings().catch((e) => console.error('Storefront refresh failed:', e));
+      toast.success(hero ? t('heroOn') : t('heroOff'));
+    } catch (e) {
+      console.error('Error saving hero offers switch:', e);
+      setOffers((o) => ({ ...o, hero: previous }));
+      toast.error(t('failed'));
+    } finally {
+      setHeroSaving(false);
     }
   };
 
@@ -193,6 +218,20 @@ export default function OffersForm({ initial, ready }: { initial: Initial; ready
       {!ready && (
         <p className="mb-6 rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">{t('notReady')}</p>
       )}
+
+      <section className="mb-5 flex items-center gap-3 rounded-lg border bg-white p-5 shadow-sm">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-ink text-gold">
+          <LayoutTemplate className="h-4 w-4" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <h2 className="text-base font-semibold text-black">{t('heroTitle')}</h2>
+          <p className="mt-0.5 text-sm text-muted-foreground">{t('heroDesc')}</p>
+        </div>
+        <label className="flex shrink-0 items-center gap-2 text-xs font-medium text-muted-foreground">
+          {heroSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : offers.hero ? t('on') : t('off')}
+          <Switch checked={offers.hero} onCheckedChange={toggleHero} disabled={heroSaving || !ready} />
+        </label>
+      </section>
 
       <div className="grid gap-5 xl:grid-cols-2">
         <OfferCard

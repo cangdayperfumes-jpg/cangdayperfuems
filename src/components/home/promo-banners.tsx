@@ -10,8 +10,8 @@ import { cn } from '@/lib/utils';
 import Reveal from '@/components/shared/Reveal';
 
 // Moody, low-key photography so ivory copy over the bottom gradient always
-// has contrast — one per offer. Swap for the site's own shoot when available.
-const IMG = (id: string) => `https://images.unsplash.com/${id}?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=900`;
+// has contrast — one per offer, served from /public/images/stock.
+const IMG = (id: string) => `/images/stock/${id}.jpg`;
 // `offer` names the photo slot in Admin → Offers (offers.cards); the stock
 // photo is used until the admin uploads one.
 const CARDS = [

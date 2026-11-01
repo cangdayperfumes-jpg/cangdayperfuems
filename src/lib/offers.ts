@@ -28,6 +28,8 @@ export interface OffersConfig {
   trio: { enabled: boolean; maxPrice: number; count: number; price: number };
   premium: { enabled: boolean; minPrice: number; percent: number };
   cards: Record<OfferCardKey, OfferCardImage>;
+  /** Show the active offers as a strip in the homepage hero. */
+  hero: boolean;
 }
 
 const NO_CARD_IMAGE: OfferCardImage = { image: null, cropDesktop: null, cropMobile: null };
@@ -37,6 +39,7 @@ export const DEFAULT_OFFERS: OffersConfig = {
   trio: { enabled: true, maxPrice: 2500, count: 3, price: 5999 },
   premium: { enabled: true, minPrice: 2750, percent: 20 },
   cards: { pair: NO_CARD_IMAGE, trio: NO_CARD_IMAGE, premium: NO_CARD_IMAGE, gift: NO_CARD_IMAGE },
+  hero: true,
 };
 
 export type OfferKind = 'pair' | 'trio' | 'premium';
@@ -109,6 +112,7 @@ export function parseOffers(raw: unknown): OffersConfig {
       premium: parseCard(r.cards?.premium),
       gift: parseCard(r.cards?.gift),
     },
+    hero: typeof (r as Record<string, unknown>).hero === 'boolean' ? ((r as Record<string, unknown>).hero as boolean) : d.hero,
   };
 }
 
