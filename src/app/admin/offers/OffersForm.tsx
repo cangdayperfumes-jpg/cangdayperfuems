@@ -100,7 +100,7 @@ function OfferPhotoField({ value, onChange, title }: { value: OfferCardImage; on
           open={cropOpen}
           onOpenChange={setCropOpen}
           imageUrl={value.image}
-          title={title}
+          title={`${title} — ${t('photo')}`}
           desktopAspect={CARD_ASPECT.desktop}
           mobileAspect={CARD_ASPECT.mobile}
           initialDesktopCrop={value.cropDesktop}
@@ -165,7 +165,7 @@ function OfferHeroSlideField({ value, onChange, title }: { value: OfferHeroSlide
               open={cropOpen}
               onOpenChange={setCropOpen}
               imageUrl={value.image}
-              title={title}
+              title={`${title} — ${t('slideTitle')}`}
               desktopAspect={HERO_DESKTOP_ASPECT}
               mobileAspect={HERO_MOBILE_ASPECT}
               initialDesktopCrop={value.cropDesktop}
