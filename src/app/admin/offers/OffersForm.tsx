@@ -3,7 +3,7 @@
 import { useRef, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
-import { Gift, Layers, LayoutTemplate, Loader2, Percent, Sparkles } from 'lucide-react';
+import { ChevronDown, Gift, Layers, LayoutTemplate, Loader2, Percent, Sparkles } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,7 +11,8 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
 import { refreshStorefrontSettings } from '@/app/admin/settings/actions';
-import { applyOffers, type OfferCardImage, type OfferCardKey, type OffersConfig, type OfferKind } from '@/lib/offers';
+import { applyOffers, type OfferCardImage, type OfferCardKey, type OfferHeroSlide, type OfferHeroText, type OffersConfig, type OfferKind } from '@/lib/offers';
+import { HERO_DESKTOP_ASPECT, HERO_MOBILE_ASPECT } from '@/lib/hero-aspect';
 import ImageUploadField from '@/components/admin/ImageUploadField';
 import ImageCropEditorModal from '@/components/admin/ImageCropEditorModal';
 import { IMAGE_SPECS } from '@/lib/image-specs';
@@ -31,6 +32,7 @@ function OfferCard({
   example,
   children,
   photo,
+  heroSlide,
 }: {
   icon: ReactNode;
   title: string;
@@ -41,6 +43,8 @@ function OfferCard({
   children: ReactNode;
   /** Homepage card photo field. */
   photo?: ReactNode;
+  /** Hero slide editor. */
+  heroSlide?: ReactNode;
 }) {
   const t = useTranslations('offers');
   return (
@@ -63,6 +67,7 @@ function OfferCard({
         </p>
       )}
       {photo && <div className="mt-5 border-t pt-4">{photo}</div>}
+      {heroSlide && <div className="mt-5 border-t pt-4">{heroSlide}</div>}
     </section>
   );
 }
@@ -107,6 +112,118 @@ function OfferPhotoField({ value, onChange, title }: { value: OfferCardImage; on
   );
 }
 
+const HERO_TEXT_FIELDS: { key: keyof OfferHeroText; long?: boolean }[] = [
+  { key: 'eyebrow' },
+  { key: 'headline' },
+  { key: 'accent' },
+  { key: 'subheading', long: true },
+  { key: 'button' },
+];
+
+/** The offer's full-screen hero slide: show/hide, photo + crop, TR/EN text, button link. */
+function OfferHeroSlideField({ value, onChange, title }: { value: OfferHeroSlide; onChange: (v: OfferHeroSlide) => void; title: string }) {
+  const t = useTranslations('offers');
+  const [open, setOpen] = useState(false);
+  const [lang, setLang] = useState<'tr' | 'en'>('tr');
+  const [cropOpen, setCropOpen] = useState(false);
+  const text = value[lang];
+  const setText = (key: keyof OfferHeroText, v: string) => onChange({ ...value, [lang]: { ...text, [key]: v } });
+  return (
+    <div>
+      <div className="flex items-center gap-3">
+        <button type="button" onClick={() => setOpen((o) => !o)} className="flex min-w-0 flex-1 items-center gap-2 text-left">
+          <ChevronDown className={cn('h-4 w-4 shrink-0 text-muted-foreground transition-transform', open && 'rotate-180')} />
+          <span>
+            <span className="block text-sm font-semibold text-black">{t('slideTitle')}</span>
+            <span className="block text-xs text-muted-foreground">{t('slideDesc')}</span>
+          </span>
+        </button>
+        <label className="flex shrink-0 items-center gap-2 text-xs font-medium text-muted-foreground">
+          {value.show ? t('slideShown') : t('slideHidden')}
+          <Switch checked={value.show} onCheckedChange={(show) => onChange({ ...value, show })} />
+        </label>
+      </div>
+
+      {open && (
+        <div className="mt-4 space-y-4">
+          <ImageUploadField
+            label={t('slidePhoto')}
+            value={value.image}
+            onChange={(url, reason) =>
+              // A new photo invalidates the old crop; an adjusted copy keeps it.
+              onChange(reason === 'adjust' ? { ...value, image: url } : { ...value, image: url, cropDesktop: null, cropMobile: null })
+            }
+            uploadPrefix="offer-hero/"
+            aspectClassName="h-36"
+            spec={IMAGE_SPECS.hero}
+            hint={t('slidePhotoHint')}
+            onEditCrop={value.image ? () => setCropOpen(true) : undefined}
+          />
+          {value.image && (value.cropDesktop || value.cropMobile) && <p className="text-xs text-emerald-700">{t('cropSaved')}</p>}
+          {value.image && (
+            <ImageCropEditorModal
+              open={cropOpen}
+              onOpenChange={setCropOpen}
+              imageUrl={value.image}
+              title={title}
+              desktopAspect={HERO_DESKTOP_ASPECT}
+              mobileAspect={HERO_MOBILE_ASPECT}
+              initialDesktopCrop={value.cropDesktop}
+              initialMobileCrop={value.cropMobile}
+              onSave={({ desktop, mobile }) => onChange({ ...value, cropDesktop: desktop, cropMobile: mobile })}
+            />
+          )}
+
+          <div>
+            <div className="mb-3 inline-flex rounded-md border p-0.5">
+              {(['tr', 'en'] as const).map((l) => (
+                <button
+                  key={l}
+                  type="button"
+                  onClick={() => setLang(l)}
+                  className={cn('rounded px-3 py-1 text-xs font-semibold', lang === l ? 'bg-ink text-ivory' : 'text-muted-foreground hover:text-ink')}
+                >
+                  {l === 'tr' ? 'Türkçe' : 'English'}
+                </button>
+              ))}
+            </div>
+            <p className="mb-3 text-xs text-muted-foreground">{t('slideTextHint')}</p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {HERO_TEXT_FIELDS.map(({ key, long }) => (
+                <div key={key} className={cn('space-y-1.5', long && 'sm:col-span-2')}>
+                  <Label className="text-sm">{t(`slide_${key}`)}</Label>
+                  {long ? (
+                    <textarea
+                      value={text[key]}
+                      onChange={(e) => setText(key, e.target.value)}
+                      placeholder={t('slideAuto')}
+                      rows={2}
+                      maxLength={300}
+                      className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    />
+                  ) : (
+                    <Input
+                      value={text[key]}
+                      onChange={(e) => setText(key, e.target.value)}
+                      placeholder={key === 'accent' ? t('slideOptional') : t('slideAuto')}
+                      maxLength={120}
+                      className="h-10"
+                    />
+                  )}
+                </div>
+              ))}
+              <div className="space-y-1.5">
+                <Label className="text-sm">{t('slideLink')}</Label>
+                <Input value={value.link} onChange={(e) => onChange({ ...value, link: e.target.value })} placeholder="/shop" className="h-10" />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function NumberField({ label, value, onChange, min = 0, max }: { label: string; value: number; onChange: (n: number) => void; min?: number; max?: number }) {
   return (
     <div className="space-y-1.5">
@@ -142,6 +259,14 @@ export default function OffersForm({ initial, ready }: { initial: Initial; ready
       title={title}
       value={offers.cards[key]}
       onChange={(v) => setOffers((o) => ({ ...o, cards: { ...o.cards, [key]: v } }))}
+    />
+  );
+
+  const heroSlide = (key: OfferCardKey, title: string) => (
+    <OfferHeroSlideField
+      title={title}
+      value={offers.heroSlides[key]}
+      onChange={(v) => setOffers((o) => ({ ...o, heroSlides: { ...o.heroSlides, [key]: v } }))}
     />
   );
 
@@ -242,6 +367,7 @@ export default function OffersForm({ initial, ready }: { initial: Initial; ready
           onToggle={(v) => set('pair', { enabled: v })}
           example={t('exPair', { price: money(offers.pair.maxPrice), save: money(pairSave) })}
           photo={photo('pair', t('pairTitle'))}
+          heroSlide={heroSlide('pair', t('pairTitle'))}
         >
           <NumberField label={t('pairMax')} value={offers.pair.maxPrice} onChange={(n) => set('pair', { maxPrice: n })} />
           <NumberField label={t('pairPercent')} value={offers.pair.percent} max={100} onChange={(n) => set('pair', { percent: n })} />
@@ -255,6 +381,7 @@ export default function OffersForm({ initial, ready }: { initial: Initial; ready
           onToggle={(v) => set('trio', { enabled: v })}
           example={t('exTrio', { count: offers.trio.count, price: money(offers.trio.maxPrice), set: money(offers.trio.price), save: money(trioSave) })}
           photo={photo('trio', t('trioTitle'))}
+          heroSlide={heroSlide('trio', t('trioTitle'))}
         >
           <NumberField label={t('trioMax')} value={offers.trio.maxPrice} onChange={(n) => set('trio', { maxPrice: n })} />
           <NumberField label={t('trioCount')} value={offers.trio.count} min={2} onChange={(n) => set('trio', { count: n })} />
@@ -269,6 +396,7 @@ export default function OffersForm({ initial, ready }: { initial: Initial; ready
           onToggle={(v) => set('premium', { enabled: v })}
           example={t('exPremium', { price: money(premiumPrice), after: money(premiumPrice - premiumSave) })}
           photo={photo('premium', t('premiumTitle'))}
+          heroSlide={heroSlide('premium', t('premiumTitle'))}
         >
           <NumberField label={t('premiumMin')} value={offers.premium.minPrice} onChange={(n) => set('premium', { minPrice: n })} />
           <NumberField label={t('premiumPercent')} value={offers.premium.percent} max={100} onChange={(n) => set('premium', { percent: n })} />
@@ -281,6 +409,7 @@ export default function OffersForm({ initial, ready }: { initial: Initial; ready
           enabled={gift.enabled}
           onToggle={(v) => setGift((g) => ({ ...g, enabled: v }))}
           photo={photo('gift', t('giftTitle'))}
+          heroSlide={heroSlide('gift', t('giftTitle'))}
         >
           <NumberField label={t('giftThreshold')} value={gift.threshold} min={1} onChange={(n) => setGift((g) => ({ ...g, threshold: n }))} />
         </OfferCard>

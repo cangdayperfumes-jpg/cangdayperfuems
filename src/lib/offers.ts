@@ -23,23 +23,49 @@ export interface OfferCardImage {
   cropMobile: CropMeta | null;
 }
 
+/** One language's copy for an offer's hero slide; blank fields use the automatic text. */
+export interface OfferHeroText {
+  eyebrow: string;
+  headline: string;
+  accent: string;
+  subheading: string;
+  button: string;
+}
+
+/** An offer's full-screen hero slide (shown when `OffersConfig.hero` is on). */
+export interface OfferHeroSlide {
+  show: boolean;
+  /** null → the offer's card photo, then the built-in photo. */
+  image: string | null;
+  cropDesktop: CropMeta | null;
+  cropMobile: CropMeta | null;
+  link: string;
+  en: OfferHeroText;
+  tr: OfferHeroText;
+}
+
 export interface OffersConfig {
   pair: { enabled: boolean; maxPrice: number; percent: number };
   trio: { enabled: boolean; maxPrice: number; count: number; price: number };
   premium: { enabled: boolean; minPrice: number; percent: number };
   cards: Record<OfferCardKey, OfferCardImage>;
-  /** Show the active offers as a strip in the homepage hero. */
+  /** When on, the homepage hero shows the offer slides instead of the normal hero slides. */
   hero: boolean;
+  heroSlides: Record<OfferCardKey, OfferHeroSlide>;
 }
 
 const NO_CARD_IMAGE: OfferCardImage = { image: null, cropDesktop: null, cropMobile: null };
+const BLANK_TEXT: OfferHeroText = { eyebrow: '', headline: '', accent: '', subheading: '', button: '' };
+const DEFAULT_HERO_SLIDE: OfferHeroSlide = { show: true, ...NO_CARD_IMAGE, link: '/shop', en: BLANK_TEXT, tr: BLANK_TEXT };
+export const OFFER_CARD_KEYS: OfferCardKey[] = ['pair', 'trio', 'premium', 'gift'];
 
 export const DEFAULT_OFFERS: OffersConfig = {
   pair: { enabled: true, maxPrice: 2500, percent: 30 },
   trio: { enabled: true, maxPrice: 2500, count: 3, price: 5999 },
   premium: { enabled: true, minPrice: 2750, percent: 20 },
   cards: { pair: NO_CARD_IMAGE, trio: NO_CARD_IMAGE, premium: NO_CARD_IMAGE, gift: NO_CARD_IMAGE },
-  hero: true,
+  hero: false,
+  heroSlides: { pair: DEFAULT_HERO_SLIDE, trio: DEFAULT_HERO_SLIDE, premium: DEFAULT_HERO_SLIDE, gift: DEFAULT_HERO_SLIDE },
 };
 
 export type OfferKind = 'pair' | 'trio' | 'premium';
@@ -85,6 +111,26 @@ function parseCard(raw: unknown): OfferCardImage {
   };
 }
 
+const str = (v: unknown) => (typeof v === 'string' ? v.slice(0, 300) : '');
+
+function parseHeroText(raw: unknown): OfferHeroText {
+  const t = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
+  return { eyebrow: str(t.eyebrow), headline: str(t.headline), accent: str(t.accent), subheading: str(t.subheading), button: str(t.button) };
+}
+
+function parseHeroSlide(raw: unknown): OfferHeroSlide {
+  const c = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
+  const link = str(c.link).trim();
+  return {
+    ...parseCard(c),
+    show: typeof c.show === 'boolean' ? c.show : true,
+    // Same-site paths or full URLs only.
+    link: link.startsWith('/') || /^https?:\/\//.test(link) ? link : '/shop',
+    en: parseHeroText(c.en),
+    tr: parseHeroText(c.tr),
+  };
+}
+
 /** Reads the stored JSON, filling anything missing or invalid with the defaults. */
 export function parseOffers(raw: unknown): OffersConfig {
   const r = (raw && typeof raw === 'object' ? raw : {}) as Record<string, Record<string, unknown> | undefined>;
@@ -113,6 +159,12 @@ export function parseOffers(raw: unknown): OffersConfig {
       gift: parseCard(r.cards?.gift),
     },
     hero: typeof (r as Record<string, unknown>).hero === 'boolean' ? ((r as Record<string, unknown>).hero as boolean) : d.hero,
+    heroSlides: {
+      pair: parseHeroSlide(r.heroSlides?.pair),
+      trio: parseHeroSlide(r.heroSlides?.trio),
+      premium: parseHeroSlide(r.heroSlides?.premium),
+      gift: parseHeroSlide(r.heroSlides?.gift),
+    },
   };
 }
 
