@@ -940,7 +940,7 @@
       "seasonalDecorative": "Small decoration in the banner corner. A PNG with a transparent background works best.",
       "blogCover": "Blog post cover and blog cards (16:9).",
       "catalog": "Used in the PDF catalog.",
-      "offerCard": "Homepage offer card — tall 4:5 on desktop, a wide banner on phones. Use “Edit crop” to frame both; text sits over the bottom (left on phones)."
+      "offerCard": "Homepage offer card — a wide 1.6:1 banner on desktop, a tall 4:5 card on phones. Use “Edit crop” to frame both; text sits on the left (at the bottom on phones)."
     }
   },
   "imageAdjust": {
@@ -992,7 +992,7 @@
     "exTrio": "{count} × {price} → {set}, you save {save}",
     "exPremium": "{price} → {after}",
     "photo": "Homepage card photo",
-    "photoHint": "For the offer card further down the homepage (tall on desktop, wide on phones), not the hero. Leave empty to keep the built-in photo.",
+    "photoHint": "For the offer card further down the homepage (wide on desktop, tall on phones), not the hero. Leave empty to keep the built-in photo.",
     "cropSaved": "Custom crop saved.",
     "heroTitle": "Show offers as the hero",
     "heroDesc": "When on, the big banner at the top of the homepage shows one slide per active offer instead of your normal hero slides. Edit each slide under its offer below. Switching saves right away.",

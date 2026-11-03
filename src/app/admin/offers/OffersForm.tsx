@@ -72,8 +72,8 @@ function OfferCard({
   );
 }
 
-/** Frame shapes of the homepage offer card (promo-banners.tsx): 4:5 from md up, a ~1.6:1 banner on phones. */
-const CARD_ASPECT = { desktop: 4 / 5, mobile: 1.6 };
+/** Frame shapes of the homepage offer card (promo-banners.tsx): a 1.6:1 banner from md up, 4:5 on phones. */
+const CARD_ASPECT = { desktop: 1.6, mobile: 4 / 5 };
 
 /** Upload + Adjust + per-breakpoint crop for one offer's homepage card, like the category tiles. */
 function OfferPhotoField({ value, onChange, title }: { value: OfferCardImage; onChange: (v: OfferCardImage) => void; title: string }) {

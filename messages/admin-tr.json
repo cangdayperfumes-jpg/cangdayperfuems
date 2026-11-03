@@ -940,7 +940,7 @@
       "seasonalDecorative": "Banner köşesindeki küçük süs. Şeffaf arka planlı PNG en iyisidir.",
       "blogCover": "Blog yazısı kapağı ve blog kartları (16:9).",
       "catalog": "PDF katalogda kullanılır.",
-      "offerCard": "Ana sayfa kampanya kartı — masaüstünde dikey 4:5, telefonda geniş bant. İkisini de “Kırpmayı düzenle” ile ayarlayın; yazı alt kısımda (telefonda solda) durur."
+      "offerCard": "Ana sayfa kampanya kartı — masaüstünde geniş 1.6:1 bant, telefonda dikey 4:5 kart. İkisini de “Kırpmayı düzenle” ile ayarlayın; yazı solda (telefonda altta) durur."
     }
   },
   "imageAdjust": {
@@ -992,7 +992,7 @@
     "exTrio": "{count} × {price} → {set}, {save} kazanç",
     "exPremium": "{price} → {after}",
     "photo": "Ana sayfa kartı fotoğrafı",
-    "photoHint": "Ana sayfanın aşağısındaki kampanya kartı içindir (masaüstünde dikey, telefonda yatay), banner için değil. Boş bırakırsanız hazır fotoğraf kullanılır.",
+    "photoHint": "Ana sayfanın aşağısındaki kampanya kartı içindir (masaüstünde yatay, telefonda dikey), banner için değil. Boş bırakırsanız hazır fotoğraf kullanılır.",
     "cropSaved": "Özel kırpma kaydedildi.",
     "heroTitle": "Kampanyaları ana banner olarak göster",
     "heroDesc": "Açıkken ana sayfanın en üstündeki büyük banner, normal slaytlarınız yerine her aktif kampanya için bir slayt gösterir. Her slaytı aşağıda ilgili kampanyanın altından düzenleyin. Anahtar değiştirildiğinde hemen kaydedilir.",
