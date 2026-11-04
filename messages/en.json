@@ -70,7 +70,9 @@
     "decline": "Decline",
     "acceptAll": "Accept All",
     "cookieTitle": "We value your privacy",
-    "cookieMessage": "We use Google Analytics cookies to understand how the site is used and improve it — only if you accept. Essential storage (your bag and favourites) works either way. We don’t use advertising cookies."
+    "cookieMessage": "We use Google Analytics cookies to understand how the site is used and improve it — only if you accept. Essential storage (your bag and favourites) works either way. We don’t use advertising cookies.",
+    "whatsappLabel": "Chat with us on WhatsApp",
+    "whatsappMessage": "Hello Cangday, I have a question."
   },
   "cart": {
     "title": "Your Bag",

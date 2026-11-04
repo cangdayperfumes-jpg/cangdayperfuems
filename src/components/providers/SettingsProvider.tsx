@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, ReactNode } from 'react';
 import { DEFAULT_OFFERS, type OffersConfig } from '@/lib/offers';
+import { DEFAULT_WHATSAPP, type WhatsAppSettings } from '@/lib/whatsapp';
 
 export interface PopupSettings {
   popup_enabled: boolean;
@@ -35,11 +36,13 @@ interface SettingsContextType {
   shippingBanner: { enabled: boolean; domesticPrice: number | null };
   /** Automatic bag offers (Admin → Offers). */
   offers: OffersConfig;
+  /** Floating WhatsApp button (Settings → WhatsApp). */
+  whatsapp: WhatsAppSettings;
 }
 
 const DEFAULT_SHIPPING_BANNER = { enabled: true, domesticPrice: null };
 
-const SettingsContext = createContext<SettingsContextType>({ hidePrices: false, popupSettings: null, newBadgeDays: 30, gift: { enabled: true, threshold: 750 }, shippingBanner: DEFAULT_SHIPPING_BANNER, offers: DEFAULT_OFFERS });
+const SettingsContext = createContext<SettingsContextType>({ hidePrices: false, popupSettings: null, newBadgeDays: 30, gift: { enabled: true, threshold: 750 }, shippingBanner: DEFAULT_SHIPPING_BANNER, offers: DEFAULT_OFFERS, whatsapp: DEFAULT_WHATSAPP });
 
 export const useSettings = () => useContext(SettingsContext);
 
@@ -51,6 +54,7 @@ export const SettingsProvider = ({
   gift = { enabled: true, threshold: 750 },
   shippingBanner = DEFAULT_SHIPPING_BANNER,
   offers = DEFAULT_OFFERS,
+  whatsapp = DEFAULT_WHATSAPP,
 }: {
   children: ReactNode;
   hidePrices: boolean;
@@ -59,9 +63,10 @@ export const SettingsProvider = ({
   gift?: { enabled: boolean; threshold: number };
   shippingBanner?: { enabled: boolean; domesticPrice: number | null };
   offers?: OffersConfig;
+  whatsapp?: WhatsAppSettings;
 }) => {
   return (
-    <SettingsContext.Provider value={{ hidePrices, popupSettings, newBadgeDays, gift, shippingBanner, offers }}>
+    <SettingsContext.Provider value={{ hidePrices, popupSettings, newBadgeDays, gift, shippingBanner, offers, whatsapp }}>
       {children}
     </SettingsContext.Provider>
   );

@@ -410,7 +410,18 @@
     "nicheMinPriceLabel": "Niş koleksiyon — minimum fiyat",
     "nicheMinPriceDesc": "Bu fiyat ve üzerindeki parfümler (herhangi bir boyutu dahil) /shop?niche=true adresindeki Niş koleksiyonda ve ana sayfadaki Niş kutucuğunda görünür.",
     "shippingBannerLabel": "Kargo mesajını göster",
-    "shippingBannerDesc": "Duyuru şeridinde ve ana sayfa rozetlerinde kargo bilgisi. Türkiye kargo ücretini otomatik izler: ₺0 ise \"ücretsiz kargo\", değilse ücreti yazar."
+    "shippingBannerDesc": "Duyuru şeridinde ve ana sayfa rozetlerinde kargo bilgisi. Türkiye kargo ücretini otomatik izler: ₺0 ise \"ücretsiz kargo\", değilse ücreti yazar.",
+    "waTitle": "WhatsApp butonu",
+    "waDescription": "Her sayfanın köşesinde duran yeşil WhatsApp butonu. Müşteriler dokunarak size mesaj atar.",
+    "waShow": "Butonu göster",
+    "waNumber": "WhatsApp numarası",
+    "waNumberHint": "Ülke koduyla, ör. +90 532 123 45 67. 0 veya 5 ile başlayan Türkiye numarası da olur.",
+    "waInvalid": "Ülke koduyla geçerli bir numara girin.",
+    "waTest": "Linki dene",
+    "waSave": "Kaydet",
+    "waSaved": "WhatsApp ayarları kaydedildi",
+    "waFailed": "Kaydedilemedi. Henüz çalıştırmadıysanız Supabase’de 20261104000000_whatsapp_button.sql dosyasını çalıştırın.",
+    "waNeedNumber": "Butonu açmadan önce bir numara girin."
   },
   "login": {
     "title": "Yönetici Girişi",

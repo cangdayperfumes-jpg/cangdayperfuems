@@ -70,7 +70,9 @@
     "decline": "Reddet",
     "acceptAll": "Tümünü Kabul Et",
     "cookieTitle": "Gizliliğinize değer veriyoruz",
-    "cookieMessage": "Sitenin nasıl kullanıldığını anlamak ve geliştirmek için — yalnızca onay verirseniz — Google Analytics çerezleri kullanıyoruz. Zorunlu depolama (sepetiniz ve favorileriniz) her durumda çalışır. Reklam çerezi kullanmıyoruz."
+    "cookieMessage": "Sitenin nasıl kullanıldığını anlamak ve geliştirmek için — yalnızca onay verirseniz — Google Analytics çerezleri kullanıyoruz. Zorunlu depolama (sepetiniz ve favorileriniz) her durumda çalışır. Reklam çerezi kullanmıyoruz.",
+    "whatsappLabel": "WhatsApp’tan bize yazın",
+    "whatsappMessage": "Merhaba Cangday, bir sorum var."
   },
   "cart": {
     "title": "Sepetiniz",

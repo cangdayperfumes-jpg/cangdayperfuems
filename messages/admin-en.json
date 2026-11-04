@@ -410,7 +410,18 @@
     "nicheMinPriceLabel": "Niche collection — minimum price",
     "nicheMinPriceDesc": "Perfumes priced at or above this (including any size) appear in the Niche collection at /shop?niche=true and on the homepage Niche tile.",
     "shippingBannerLabel": "Show shipping message",
-    "shippingBannerDesc": "The shipping line in the announcement bar and homepage badges. It follows the Turkey shipping rate automatically: \"free shipping\" at ₺0, otherwise the rate."
+    "shippingBannerDesc": "The shipping line in the announcement bar and homepage badges. It follows the Turkey shipping rate automatically: \"free shipping\" at ₺0, otherwise the rate.",
+    "waTitle": "WhatsApp button",
+    "waDescription": "A green WhatsApp button that stays in the corner of every page. Customers tap it to message you.",
+    "waShow": "Show the button",
+    "waNumber": "WhatsApp number",
+    "waNumberHint": "With country code, e.g. +90 532 123 45 67. A Turkish number starting with 0 or 5 works too.",
+    "waInvalid": "Enter a valid number with country code.",
+    "waTest": "Test the link",
+    "waSave": "Save",
+    "waSaved": "WhatsApp settings saved",
+    "waFailed": "Could not save. Run the 20261104000000_whatsapp_button.sql migration in Supabase if you have not yet.",
+    "waNeedNumber": "Add a number before turning the button on."
   },
   "login": {
     "title": "Admin Access",

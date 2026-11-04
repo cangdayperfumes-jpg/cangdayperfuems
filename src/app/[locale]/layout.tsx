@@ -17,6 +17,8 @@ import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 import BottomNav from "@/components/shared/BottomNav";
 import ScrollToTop from "@/components/shared/ScrollToTop";
+import WhatsAppButton from "@/components/shared/WhatsAppButton";
+import { normalizeWhatsAppNumber } from "@/lib/whatsapp";
 import SitePopup from "@/components/shared/SitePopup";
 import OfferBar from "@/components/shared/OfferBar";
 import CookieBanner from "@/components/shared/CookieBanner";
@@ -151,7 +153,7 @@ export default async function LocaleLayout({
   );
 
   // Run all three in parallel + cache results for 60s
-  const [rawCategories, settings, theme, analytics, domesticShipping] = await Promise.all([
+  const [rawCategories, settings, whatsappData, theme, analytics, domesticShipping] = await Promise.all([
     unstable_cache(
       async () => {
         if (!supabaseConfigured) return null;
@@ -177,6 +179,21 @@ export default async function LocaleLayout({
       },
       ['layout-settings'],
       // Tagged so saving Settings refreshes it at once (admin/settings/actions.ts).
+      { revalidate: 60, tags: ['site-settings'] }
+    )(),
+    // Separate query so the main settings above still load before the
+    // WhatsApp columns' migration has been run.
+    unstable_cache(
+      async () => {
+        if (!supabaseConfigured) return null;
+        const { data, error } = await supabase
+          .from('system_settings')
+          .select('whatsapp_enabled, whatsapp_number')
+          .eq('id', 'global')
+          .single();
+        return error ? null : data;
+      },
+      ['layout-whatsapp'],
       { revalidate: 60, tags: ['site-settings'] }
     )(),
     getSiteTheme(),
@@ -227,6 +244,10 @@ export default async function LocaleLayout({
     threshold: Number(settingsData?.gift_threshold ?? 750),
   };
   const offers = parseOffers(settingsData?.offers);
+  const whatsapp = {
+    enabled: whatsappData?.whatsapp_enabled === true,
+    number: normalizeWhatsAppNumber(whatsappData?.whatsapp_number),
+  };
   const shippingBanner = {
     enabled: settingsData?.shipping_banner_enabled ?? true,
     domesticPrice: domesticShipping ?? null,
@@ -278,7 +299,7 @@ export default async function LocaleLayout({
         />
         <AuthRecoveryRedirect />
         <NextIntlClientProvider>
-          <SettingsProvider hidePrices={hidePrices} popupSettings={popupSettings} newBadgeDays={newBadgeDays} gift={gift} shippingBanner={shippingBanner} offers={offers}>
+          <SettingsProvider hidePrices={hidePrices} popupSettings={popupSettings} newBadgeDays={newBadgeDays} gift={gift} shippingBanner={shippingBanner} offers={offers} whatsapp={whatsapp}>
           <MotionProvider>
             <Suspense fallback={null}>
               <StorefrontLayoutWrapper>
@@ -294,6 +315,7 @@ export default async function LocaleLayout({
             </main>
             <StorefrontLayoutWrapper>
               <BottomNav />
+              <WhatsAppButton />
               <ScrollToTop />
             </StorefrontLayoutWrapper>
             <StorefrontLayoutWrapper hideOnCheckout>

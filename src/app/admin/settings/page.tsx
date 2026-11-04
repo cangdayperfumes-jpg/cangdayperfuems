@@ -1,6 +1,8 @@
 import { createClient } from '@/utils/supabase/server';
 import SettingsForm from '@/components/admin/SettingsForm';
 import TelegramSettings from '@/components/admin/TelegramSettings';
+import WhatsAppSettings from '@/components/admin/WhatsAppSettings';
+import { normalizeWhatsAppNumber } from '@/lib/whatsapp';
 import { getTelegramStatus } from './telegram-actions';
 import { getAdminLocale, getAdminT } from '@/i18n/admin-locale';
 
@@ -13,6 +15,9 @@ export default async function SettingsPage() {
     .select('hide_prices, popup_enabled, popup_title, popup_message, popup_button_text, popup_button_link, popup_image_url, popup_show_on, popup_ends_at, popup_show_bar, popup_title_tr, popup_message_tr, popup_button_text_tr, new_badge_days, niche_min_price, shipping_banner_enabled, ga_measurement_id, gsc_verification, seasonal_collections_multi_active, seasonal_section_position')
     .eq('id', 'global')
     .single();
+
+  // Own query: still works (as "off") before the WhatsApp migration is run.
+  const { data: wa } = await supabase.from('system_settings').select('whatsapp_enabled, whatsapp_number').eq('id', 'global').single();
 
   const telegramStatus = await getTelegramStatus().catch(() => ({ configured: false, botUsername: null, recipients: [] }));
 
@@ -28,6 +33,7 @@ export default async function SettingsPage() {
       </div>
 
       <div className="xl:columns-2 xl:gap-6">
+        <WhatsAppSettings initial={{ enabled: wa?.whatsapp_enabled === true, number: normalizeWhatsAppNumber(wa?.whatsapp_number) }} />
         <TelegramSettings status={telegramStatus} />
         <SettingsForm initialData={data} />
       </div>
