@@ -1,7 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { SITE_URL } from '@/lib/seo';
 import { Suspense } from "react";
-import { Fraunces, Manrope } from "next/font/google";
+// Fonts ship with the app (Fontsource) instead of being fetched from Google
+// at build time — a Google Fonts hiccup can no longer fail a deploy.
+import "@fontsource-variable/fraunces/wght.css";
+import "@fontsource-variable/fraunces/wght-italic.css";
+import "@fontsource-variable/manrope/wght.css";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
@@ -32,21 +36,6 @@ import { getSiteTheme, hexToRgbTriplet } from "@/lib/theme-data";
 import { isSupabaseConfigured } from "@/lib/is-supabase-configured";
 import { PLACEHOLDER_SUPABASE_URL } from "@/utils/supabase/placeholder";
 
-// Fraunces: an expressive, high-contrast "soft serif" with genuine optical-size
-// character — carries the jewelry-editorial feel without reaching for the
-// Playfair Display every other perfume site already uses.
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  variable: "--font-heading",
-  weight: ["400", "500", "600", "700", "900"],
-  style: ["normal", "italic"],
-});
-// Manrope: a warm geometric sans that stays quiet next to Fraunces' curves.
-const manrope = Manrope({
-  subsets: ["latin"],
-  variable: "--font-body",
-  weight: ["400", "500", "600", "700", "800"],
-});
 
 const siteUrl = SITE_URL;
 
@@ -249,8 +238,7 @@ export default async function LocaleLayout({
         // Sideways overflow is clipped in globals.css (.storefront-body) with a
         // fallback for older iPhones that don't support overflow: clip.
         "storefront-body min-h-screen bg-background font-sans antialiased flex flex-col",
-        manrope.variable,
-        fraunces.variable
+        "font-vars"
       )}>
         {/* Admin-managed brand colors (see /admin/settings → Theme) — overrides
             the --brand-* defaults from globals.css at runtime, so a color

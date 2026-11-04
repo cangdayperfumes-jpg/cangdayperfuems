@@ -182,3 +182,10 @@
     overflow-x: clip;
   }
 }
+
+/* Font families for the Tailwind font-heading / font-body utilities
+   (files bundled via @fontsource-variable, imported in the root layouts). */
+.font-vars {
+  --font-heading: 'Fraunces Variable', 'Fraunces', Georgia, serif;
+  --font-body: 'Manrope Variable', 'Manrope', system-ui, sans-serif;
+}

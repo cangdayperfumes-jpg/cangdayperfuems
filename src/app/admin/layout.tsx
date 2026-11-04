@@ -1,4 +1,8 @@
-import { Fraunces, Manrope } from "next/font/google";
+// Fonts ship with the app (Fontsource) instead of being fetched from Google
+// at build time — a Google Fonts hiccup can no longer fail a deploy.
+import "@fontsource-variable/fraunces/wght.css";
+import "@fontsource-variable/fraunces/wght-italic.css";
+import "@fontsource-variable/manrope/wght.css";
 import { NextIntlClientProvider } from "next-intl";
 import "../globals.css";
 import { cn } from "@/lib/utils";
@@ -6,21 +10,6 @@ import { Toaster } from "@/components/ui/sonner";
 import AdminShell from "@/components/admin/AdminShell";
 import { getAdminLocale, getAdminMessages } from "@/i18n/admin-locale";
 
-// Admin is its own root layout (see src/app/[locale]/layout.tsx for the
-// storefront one) — it stays unprefixed (no /tr or /en URL), but is bilingual
-// via a cookie-based locale (ADMIN_LOCALE) instead of routing, since admin
-// URLs/bookmarks shouldn't change with language.
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  variable: "--font-heading",
-  weight: ["400", "500", "600", "700", "900"],
-  style: ["normal", "italic"],
-});
-const manrope = Manrope({
-  subsets: ["latin"],
-  variable: "--font-body",
-  weight: ["400", "500", "600", "700", "800"],
-});
 
 export default async function AdminLayout({
   children,
@@ -34,8 +23,7 @@ export default async function AdminLayout({
     <html lang={locale}>
       <body className={cn(
         "min-h-screen bg-background font-sans antialiased",
-        manrope.variable,
-        fraunces.variable
+        "font-vars"
       )}>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <AdminShell>{children}</AdminShell>
