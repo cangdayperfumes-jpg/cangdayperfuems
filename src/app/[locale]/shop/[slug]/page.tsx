@@ -115,6 +115,25 @@ const getCachedSettings = unstable_cache(
 );
 
 /**
+ * Turkey's per-bottle cargo price (Admin → Shipping), for the Offer's
+ * shippingDetails. null when Turkey is switched off.
+ */
+const getCachedDomesticShipping = unstable_cache(
+  async () => {
+    if (!isSupabaseConfigured()) return null;
+    const { data } = await getSupabase()
+      .from('shipping_zones')
+      .select('price, is_enabled')
+      .eq('country_code', 'TR')
+      .is('city', null)
+      .maybeSingle();
+    return data?.is_enabled ? Number(data.price) : null;
+  },
+  ['product-domestic-shipping'],
+  { revalidate: 300, tags: ['shipping-zones'] }
+);
+
+/**
  * Related products for internal linking — same category first, falling back
  * to same brand if the category doesn't have enough. Deep catalog pages were
  * otherwise only reachable via /shop pagination, not from other product
@@ -229,7 +248,7 @@ export default async function ProductPage({ params }: PageProps) {
     permanentRedirect(`/${locale}/shop/${(product as any)._redirect}`);
   }
 
-  const settings = await getCachedSettings();
+  const [settings, domesticShipping] = await Promise.all([getCachedSettings(), getCachedDomesticShipping()]);
   const hidePrices = settings?.hide_prices || false;
   const relatedProducts = await getCachedRelatedProducts(
     product.id,
@@ -255,10 +274,11 @@ export default async function ProductPage({ params }: PageProps) {
   // actually shows a number — with hide_prices on, the page reads "Contact for
   // price", so claiming a numeric price+InStock here would contradict the
   // visible page (a real Google structured-data policy violation, not a
-  // cosmetic one). Shipping cost is quoted per order, so it is never a fixed
-  // $0/free rate and OfferShippingDetails is omitted rather than inventing a
-  // number. No return policy is declared: the store no longer offers
-  // returns (see /terms-of-service → Delivery).
+  // cosmetic one). Shipping within Turkey is a flat per-bottle rate (Admin →
+  // Shipping), declared as OfferShippingDetails for Google's merchant
+  // listings: dispatched the same day, delivered by cargo in 1–3 days. No
+  // return policy is declared: the store no longer offers returns (see
+  // /terms-of-service → Delivery).
   const offers: Record<string, any> = {
     '@type': 'Offer',
     url: `${siteUrl}${localePath}/shop/${canonicalSlug}`,
@@ -275,6 +295,18 @@ export default async function ProductPage({ params }: PageProps) {
     offers.availability = product.stock
       ? 'https://schema.org/InStock'
       : 'https://schema.org/OutOfStock';
+    if (domesticShipping !== null && Number.isFinite(domesticShipping)) {
+      offers.shippingDetails = {
+        '@type': 'OfferShippingDetails',
+        shippingRate: { '@type': 'MonetaryAmount', value: domesticShipping, currency: 'TRY' },
+        shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'TR' },
+        deliveryTime: {
+          '@type': 'ShippingDeliveryTime',
+          handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
+          transitTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 3, unitCode: 'DAY' },
+        },
+      };
+    }
   }
 
   const jsonLd = {

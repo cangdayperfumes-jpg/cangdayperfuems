@@ -1,30 +1,29 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { ChevronUp } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useStickyBarStore } from '@/store/useStickyBarStore';
+import { useScrolledPast } from '@/hooks/use-scrolled-past';
 import { cn } from '@/lib/utils';
 
+/**
+ * Back-to-top button, bottom-right. Fades and rises in once the page is
+ * scrolled past SCROLL_TOP_THRESHOLD — the WhatsApp button (same corner)
+ * slides up above it at the same moment, using the same easing.
+ */
 export default function ScrollToTop() {
   const t = useTranslations('common');
-  const [isVisible, setIsVisible] = useState(false);
+  const isVisible = useScrolledPast();
   const stickyBarVisible = useStickyBarStore((s) => s.visible);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsVisible(window.scrollY > 400);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  if (!isVisible) return null;
+  const motion = cn(
+    'transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]',
+    isVisible ? 'opacity-100 translate-y-0' : 'pointer-events-none opacity-0 translate-y-4'
+  );
 
   return (
     <>
@@ -32,7 +31,12 @@ export default function ScrollToTop() {
       <button
         onClick={scrollToTop}
         aria-label={t('scrollToTop')}
-        className="hidden md:flex fixed bottom-8 right-8 z-50 w-11 h-11 items-center justify-center bg-black text-white shadow-lg hover:bg-gray-800 transition-all duration-300 hover:scale-105 active:scale-95"
+        aria-hidden={!isVisible}
+        tabIndex={isVisible ? 0 : -1}
+        className={cn(
+          'hidden md:flex fixed bottom-8 right-8 z-50 w-11 h-11 items-center justify-center bg-black text-white shadow-lg hover:bg-gray-800 hover:scale-105 active:scale-95',
+          motion
+        )}
       >
         <ChevronUp className="h-5 w-5" />
       </button>
@@ -43,9 +47,12 @@ export default function ScrollToTop() {
       <button
         onClick={scrollToTop}
         aria-label={t('scrollToTop')}
+        aria-hidden={!isVisible}
+        tabIndex={isVisible ? 0 : -1}
         className={cn(
-          "md:hidden fixed right-4 z-50 w-10 h-10 flex items-center justify-center bg-black text-white shadow-lg active:scale-95 transition-all",
-          stickyBarVisible ? "bottom-36" : "bottom-20"
+          'md:hidden fixed right-4 z-50 w-10 h-10 flex items-center justify-center bg-black text-white shadow-lg active:scale-95',
+          stickyBarVisible ? 'bottom-36' : 'bottom-20',
+          motion
         )}
       >
         <ChevronUp className="h-5 w-5" />

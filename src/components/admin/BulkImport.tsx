@@ -1,5 +1,6 @@
 'use client';
 
+import { brandSlug } from '@/lib/brand-slug';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import * as XLSX from 'xlsx';
@@ -144,19 +145,30 @@ export default function BulkImport() {
             // 2. Resolve Brand
             let brandId = null;
             if (row.brand) {
-                const slug = row.brand.toLowerCase().trim().replace(/\s+/g, '-');
-                const { data: existingBrand } = await supabase
+                const brandName = String(row.brand).trim();
+                const slug = brandSlug(brandName);
+                // Match on the clean slug, then on the name (case-insensitive)
+                // so an existing brand is reused instead of duplicated.
+                let { data: existingBrand } = await supabase
                     .from('brands')
                     .select('id')
                     .eq('slug', slug)
                     .maybeSingle();
+                if (!existingBrand) {
+                    ({ data: existingBrand } = await supabase
+                        .from('brands')
+                        .select('id')
+                        .ilike('name', brandName.replace(/[%_\\]/g, '\\$&'))
+                        .limit(1)
+                        .maybeSingle());
+                }
 
                 if (existingBrand) {
                     brandId = existingBrand.id;
                 } else {
                     const { data: newBrand } = await supabase
                         .from('brands')
-                        .insert([{ name: row.brand.trim(), slug }])
+                        .insert([{ name: brandName, slug }])
                         .select('id')
                         .single();
                     if (newBrand) brandId = newBrand.id;

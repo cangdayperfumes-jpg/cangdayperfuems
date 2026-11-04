@@ -1,5 +1,6 @@
 'use server';
 
+import { brandSlug } from '@/lib/brand-slug';
 import { createClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { Brand } from '@/types';
@@ -51,7 +52,7 @@ export async function createBrand(formData: FormData) {
   const supabase = await createClient();
   
   const name = formData.get('name') as string;
-  const slug = formData.get('slug') as string;
+  const slug = brandSlug((formData.get('slug') as string) || (formData.get('name') as string) || '');
   const image_url = formData.get('image_url') as string;
   const is_featured = formData.get('is_featured') === 'on';
 
@@ -82,7 +83,7 @@ export async function updateBrand(id: string, formData: FormData) {
   const supabase = await createClient();
   
   const name = formData.get('name') as string;
-  const slug = formData.get('slug') as string;
+  const slug = brandSlug((formData.get('slug') as string) || (formData.get('name') as string) || '');
   const image_url = formData.get('image_url') as string;
   const is_featured = formData.get('is_featured') === 'on';
 

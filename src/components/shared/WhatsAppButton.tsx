@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { useSettings } from '@/components/providers/SettingsProvider';
 import { useStickyBarStore } from '@/store/useStickyBarStore';
+import { useScrolledPast } from '@/hooks/use-scrolled-past';
 import { isValidWhatsAppNumber, whatsAppLink } from '@/lib/whatsapp';
 import { cn } from '@/lib/utils';
 
@@ -20,32 +21,47 @@ export function WhatsAppIcon({ className }: { className?: string }) {
 
 /**
  * Floating WhatsApp chat button on every storefront page — Admin → Settings →
- * WhatsApp turns it on and sets the number. Sits above the scroll-to-top
- * button (and above the product page's sticky Add to Cart bar on phones).
+ * WhatsApp turns it on and sets the number.
+ *
+ * It sits low in the bottom-right corner (just above the phone bottom nav),
+ * in the scroll-to-top button's spot. Once the page is scrolled and that
+ * button fades in, WhatsApp glides up to make room above it, with the same
+ * easing, and settles back down at the top of the page. The two are centred
+ * on the same vertical line. On product pages (phones) both start above the
+ * sticky Add to Cart bar.
  */
 export default function WhatsAppButton() {
   const t = useTranslations('common');
   const { whatsapp } = useSettings();
   const stickyBarVisible = useStickyBarStore((s) => s.visible);
+  const scrolled = useScrolledPast();
   if (!whatsapp.enabled || !isValidWhatsAppNumber(whatsapp.number)) return null;
 
   return (
-    <a
-      href={whatsAppLink(whatsapp.number, t('whatsappMessage'))}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={t('whatsappLabel')}
-      title={t('whatsappLabel')}
+    <div
       className={cn(
-        'group fixed right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-[#25D366] text-white',
-        'shadow-[0_8px_24px_-6px_rgba(37,211,102,0.65)] transition-transform duration-300 hover:scale-105 active:scale-95',
-        'md:right-8 md:bottom-24 md:h-14 md:w-14',
-        stickyBarVisible ? 'bottom-[12.5rem]' : 'bottom-32'
+        'fixed z-50 right-3 md:right-[26px] md:bottom-8',
+        'transition-[transform,bottom] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none',
+        stickyBarVisible ? 'bottom-36' : 'bottom-20',
+        // Room for the scroll-to-top button below: 40px + 12px gap on phones, 44px + 12px from md.
+        scrolled ? '-translate-y-[52px] md:-translate-y-14' : 'translate-y-0'
       )}
     >
-      {/* Soft pulse ring to draw the eye, without moving the button. */}
-      <span aria-hidden="true" className="absolute inset-0 rounded-full bg-[#25D366] opacity-40 animate-ping [animation-duration:2.5s] motion-reduce:hidden" />
-      <WhatsAppIcon className="relative h-7 w-7 md:h-8 md:w-8" />
-    </a>
+      <a
+        href={whatsAppLink(whatsapp.number, t('whatsappMessage'))}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={t('whatsappLabel')}
+        title={t('whatsappLabel')}
+        className={cn(
+          'relative flex h-12 w-12 items-center justify-center rounded-full bg-[#25D366] text-white md:h-14 md:w-14',
+          'shadow-[0_8px_24px_-6px_rgba(37,211,102,0.65)] transition-transform duration-300 hover:scale-105 active:scale-95'
+        )}
+      >
+        {/* Soft pulse ring to draw the eye, without moving the button. */}
+        <span aria-hidden="true" className="absolute inset-0 rounded-full bg-[#25D366] opacity-40 animate-ping [animation-duration:2.5s] motion-reduce:hidden" />
+        <WhatsAppIcon className="relative h-7 w-7 md:h-8 md:w-8" />
+      </a>
+    </div>
   );
 }
